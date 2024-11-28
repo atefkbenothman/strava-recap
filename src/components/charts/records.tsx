@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
+import { unitConversion } from "../../utils/utils"
 
 export default function Records() {
   const { activities } = useContext(RecapContext)
@@ -18,25 +19,25 @@ export default function Records() {
             <div className="bg-[#e0e0e0] rounded-lg p-1 flex flex-col h-full w-full">
               <p className="m-1">Top Speed</p>
               <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-3xl">{topSpeed.max_speed?.toFixed(2)}<span className="text-sm font-semibold"> mph</span></p>
+                <p className="font-bold text-4xl">{unitConversion.convertMetersPerSecondToMph(topSpeed.max_speed!).toFixed(1)}<span className="text-sm font-semibold"> mph</span></p>
               </div>
             </div>
             <div className="bg-[#e0e0e0] rounded-lg p-1 flex flex-col h-full w-full">
               <p className="m-1">Top Speed</p>
               <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-3xl">{topSpeed.max_speed?.toFixed(2)}<span className="text-sm font-semibold"> mph</span></p>
+                <p className="font-bold text-4xl">{topSpeed.max_speed?.toFixed(2)}<span className="text-sm font-semibold"> mph</span></p>
               </div>
             </div>
             <div className="bg-[#e0e0e0] rounded-lg p-1 flex flex-col h-full w-full">
               <p className="m-1">Top Speed</p>
               <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-3xl">{topSpeed.max_speed?.toFixed(2)}<span className="text-sm font-semibold"> mph</span></p>
+                <p className="font-bold text-4xl">{topSpeed.max_speed?.toFixed(2)}<span className="text-sm font-semibold"> mph</span></p>
               </div>
             </div>
             <div className="bg-[#e0e0e0] rounded-lg p-1 flex flex-col h-full w-full">
               <p className="m-1">Most Elevation Gain</p>
               <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-3xl">{highestElevation.total_elevation_gain?.toFixed(0)}<span className="text-sm font-semibold"> ft</span></p>
+                <p className="font-bold text-4xl">{unitConversion.convertFromMetersToFeet(highestElevation.total_elevation_gain!).toFixed(0)}<span className="text-sm font-semibold"> ft</span></p>
               </div>
             </div>
           </div>

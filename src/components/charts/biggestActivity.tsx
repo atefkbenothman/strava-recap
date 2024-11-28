@@ -10,7 +10,7 @@ export default function BiggestActivity() {
     }, activities[0])
     return (
       <div className="flex flex-col w-full h-full">
-        <p className="text-lg font-semibold m-1">Biggest Records</p>
+        <p className="text-lg font-semibold m-1">Biggest Activity</p>
         <div className="flex flex-col w-full h-full items-center justify-center px-4">
           <p>{biggestActivity.name}</p>
           <p>{biggestActivity.distance}</p>

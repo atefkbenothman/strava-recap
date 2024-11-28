@@ -19,6 +19,7 @@ export const useStravaAuth = (): StravaAuthHook => {
     localStorage.removeItem("strava_access_token")
     setAccessToken(null)
     setIsAuthenticated(false)
+    window.location.reload()
   }, [])
   useEffect(() => {
     const handleAuthRedirect = async () => {

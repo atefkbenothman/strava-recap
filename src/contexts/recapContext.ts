@@ -1,10 +1,11 @@
 import { createContext } from "react"
-import { StravaActivity } from "../types/strava"
+import { StravaActivity, StravaAthlete } from "../types/strava"
 
 
 interface RecapContextType {
+  athlete: StravaAthlete | null
   activities: StravaActivity[]
-  isLoading: boolean
+  currentYear: number | null
 }
 
-export const RecapContext = createContext<RecapContextType>({ activities: [], isLoading: false })
+export const RecapContext = createContext<RecapContextType>({ athlete: null, activities: [], currentYear: null })

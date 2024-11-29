@@ -14,13 +14,14 @@ import "./App.css"
 
 
 function App() {
-  const { isAuthenticated, accessToken, login, logout } = useStravaAuth()
+  const { isAuthenticated, accessToken, athlete, login, logout } = useStravaAuth()
 
   const [activities, setActivities] = useState<StravaActivity[]>([])
+  const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
 
   const { data, isLoading } = useQuery({
-    queryKey: ["activities"],
-    queryFn: () => stravaApi.getActivities(accessToken!),
+    queryKey: [currentYear],
+    queryFn: () => stravaApi.getAllActivities(accessToken!, currentYear),
     enabled: isAuthenticated
   })
 
@@ -30,28 +31,62 @@ function App() {
     }
   }, [data])
 
+  useEffect(() => {
+    if (window.location.pathname === "/") {
+      const year = new Date().getFullYear()
+      updateYear(year)
+    }
+  }, [])
+
+  function updateYear(year: number) {
+    setCurrentYear(year)
+    window.history.pushState({}, "", `/${year}`)
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="w-screen h-screen flex flex-col items-center justify-center">
+        <div className="flex flex-col gap-2">
+          <p className="text-2xl font-semibold">Strava {currentYear} Recap</p>
+          <img
+            className="hover:cursor-pointer"
+            width={160}
+            src={connectWithStravaLogo}
+            alt="login with strava"
+            onClick={() => login(currentYear)}
+          />
+        </div>
+      </div>
+    )
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-screen h-screen flex flex-col items-center justify-center">
+        <div className="flex flex-col gap-2 text-lg">
+          <p>Retrieving <span className="font-bold text-xl">{currentYear}</span> activities...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (activities.length === 0) {
+    const thisYear = new Date().getFullYear()
+    return (
+      <div className="w-screen h-screen flex flex-col items-center justify-center">
+        <div className="flex flex-col gap-4 text-lg">
+          <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
+          <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(new Date().getFullYear())}>Go to {thisYear}</a>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-screen h-screen">
-      {isAuthenticated ? (
-        <RecapContext.Provider value={{ activities, isLoading }}>
-          <Dashboard />
-        </RecapContext.Provider>
-      ) : (
-        <div className="flex flex-col w-full h-full">
-          <div className="flex flex-col w-full h-full items-center justify-center">
-            <div className="flex flex-col gap-2">
-              <p className="text-2xl font-semibold">Strava Recap</p>
-              <img
-                className="hover:cursor-pointer"
-                width={160}
-                src={connectWithStravaLogo}
-                alt="login with strava"
-                onClick={login}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      <RecapContext.Provider value={{ athlete, activities, currentYear }}>
+        <Dashboard />
+      </RecapContext.Provider>
     </div>
   )
 }

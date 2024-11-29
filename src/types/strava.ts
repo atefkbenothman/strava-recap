@@ -1,6 +1,24 @@
 export type StravaAthlete = {
   id: number
   resource_state: number
+  badge_type_id?: number
+  bio?: string
+  city?: string
+  country?: string
+  created_at?: string
+  firstname?: string
+  follower?: boolean | null
+  friend?: boolean | null
+  lastname?: string
+  premium?: boolean
+  profile?: string
+  profile_medium?: string
+  sex?: string
+  state?: string
+  summit?: boolean
+  updated_at?: string
+  username?: string | null
+  weight?: number
 }
 
 export type StravaActivity = {
@@ -59,4 +77,10 @@ export type StravaActivity = {
   pr_count?: number
   total_photo_count?: number
   has_kudoed?: boolean
+  average_cadence?: number
+  weighted_average_watts?: number
+  average_heartrate?: number
+  max_heartrate?: number
+  max_watts?: number
+  suffer_score?: number
 }

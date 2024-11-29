@@ -44,8 +44,8 @@ export default function TotalDistanceElevation() {
         <p className="text-3xl bg-gray-300 p-1 rounded w-fit">{totalDistance.toFixed(0)}<span className="text-sm"> mi</span></p>
         <p className="text-3xl bg-gray-300 p-1 rounded w-fit">{totalElevation.toFixed(0)}<span className="text-sm"> ft</span></p>
       </div>
-      <div className="flex w-full h-full items-center justify-center px-4">
-        <ResponsiveContainer width="90%" height="80%">
+      <div className="flex w-full h-full items-center justify-center p-2">
+        <ResponsiveContainer height="99%">
           <BarChart data={data}>
             <Bar dataKey="distance" fill="#8884d8" />
             <Bar dataKey="elevation" fill="#8884d8" />

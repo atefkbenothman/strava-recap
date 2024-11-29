@@ -24,8 +24,8 @@ export default function SportTypes() {
   return (
     <div className="flex flex-col w-full h-full">
       <p className="text-lg font-semibold m-1">Sport Types</p>
-      <div className="flex w-full h-full items-center justify-center px-4">
-        <ResponsiveContainer width="90%" height="80%">
+      <div className="flex w-full h-full items-center justify-center p-2">
+        <ResponsiveContainer height="99%">
           <PieChart>
             <Pie label data={data} dataKey="count" nameKey="type" innerRadius={60} outerRadius={80}>
               {data.map((_, idx) => (

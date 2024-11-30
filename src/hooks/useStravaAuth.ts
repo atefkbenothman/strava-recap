@@ -12,10 +12,10 @@ interface StravaAuthHook {
 
 export const useStravaAuth = (): StravaAuthHook => {
   const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("strava_access_token"))
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!accessToken)
   const [athlete, setAthlete] = useState<StravaAthlete | null>(
     localStorage.getItem("athlete") ? JSON.parse(localStorage.getItem("athlete") || "") : null
   )
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!accessToken)
 
   const login = useCallback((year: number) => {
     stravaApi.updateRedirectUri(year)
@@ -25,9 +25,10 @@ export const useStravaAuth = (): StravaAuthHook => {
 
   const logout = useCallback(() => {
     localStorage.removeItem("strava_access_token")
+    localStorage.removeItem("athlete")
     setAccessToken(null)
+    setAthlete(null)
     setIsAuthenticated(false)
-    window.location.reload()
   }, [])
 
   useEffect(() => {

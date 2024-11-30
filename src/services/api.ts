@@ -29,7 +29,9 @@ export const stravaApi = {
       const res = await fetch(exchangeUrl, {
         method: "POST"
       })
-      if (!res.ok) { throw new Error("Failed to exchange token") }
+      if (!res.ok) {
+        throw new Error("Failed to exchange token")
+      }
       const data = await res.json()
       return { accessToken: data.access_token, athlete: data.athlete }
     } catch (err) {
@@ -42,15 +44,15 @@ export const stravaApi = {
     if (year < 2010 || year > new Date().getFullYear() + 1) {
       return []
     }
-    const baseUrl = "https://strava.com/api/v3/athlete/activities"
     const beforeDate = Math.floor(new Date(`${year + 1}-01-01`).getTime() / 1000).toString()
     const afterDate = Math.floor(new Date(`${year}-01-01`).getTime() / 1000).toString()
+    const baseUrl = "https://strava.com/api/v3/athlete/activities"
     const params = new URLSearchParams({
       after: afterDate,
       before: beforeDate,
       page: page.toString(),
       per_page: perPage.toString()
-    })
+    }).toString()
     const activitiesUrl = `${baseUrl}?${params}`
     try {
       const res = await fetch(activitiesUrl, {
@@ -59,11 +61,16 @@ export const stravaApi = {
           Authorization: `Bearer ${token}`
         }
       })
-      if (!res.ok) { throw new Error("Failed to fetch activities") }
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.message)
+      }
       const data = await res.json()
       return data.reverse()
     } catch (err) {
-      console.error("Activities fetch error: ", err)
+      if (err instanceof Error) {
+        throw new Error(err.message)
+      }
       return []
     }
   },
@@ -71,12 +78,23 @@ export const stravaApi = {
     const allActivities: StravaActivity[] = []
     let page = 1
     const perPage = 200
-    while (true) {
-      const activities = await stravaApi.getActivities(token, { page, perPage, year })
-      if (activities.length === 0) { break }
-      allActivities.push(...activities)
-      page++
-      break
+    const totalPages = 3
+    const allParams = []
+    for (let i = page; i <= totalPages; i++) {
+      const options = {
+        page: i,
+        perPage: perPage,
+        year: year
+      }
+      allParams.push(options)
+    }
+    try {
+      const pageData = await Promise.all(allParams.map(options => stravaApi.getActivities(token, options)))
+      allActivities.push(...pageData.flat())
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(`Failed to fetch all activities (${err.message})`)
+      }
     }
     return allActivities
   },

@@ -19,10 +19,11 @@ function App() {
   const [activities, setActivities] = useState<StravaActivity[]>([])
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: [currentYear],
     queryFn: () => stravaApi.getAllActivities(accessToken!, currentYear),
-    enabled: isAuthenticated
+    enabled: isAuthenticated,
+    retry: false
   })
 
   useEffect(() => {
@@ -43,6 +44,9 @@ function App() {
     window.history.pushState({}, "", `/${year}`)
   }
 
+  /*
+  Find out why when logging out, the isAuthenticated state doesn't change and doesn't cause this to re-render
+  */
   if (!isAuthenticated) {
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
@@ -70,6 +74,20 @@ function App() {
     )
   }
 
+  if (error) {
+    return (
+      <div className="w-screen h-screen flex flex-col items-center justify-center">
+        <div className="flex flex-col gap-2 text-lg mx-[30%]">
+          <div className="flex gap-2">
+            <p className="text-red-500 font-bold">Error: </p>
+            <p>{error.message}</p>
+          </div>
+          <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Sign Out</p>
+        </div>
+      </div>
+    )
+  }
+
   if (activities.length === 0) {
     const thisYear = new Date().getFullYear()
     return (
@@ -84,7 +102,7 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      <RecapContext.Provider value={{ athlete, activities, currentYear }}>
+      <RecapContext.Provider value={{ isAuthenticated, athlete, activities, currentYear, logout }}>
         <Dashboard />
       </RecapContext.Provider>
     </div>

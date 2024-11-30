@@ -1,6 +1,5 @@
 import { useContext } from "react"
 import { RecapContext } from "../contexts/recapContext"
-import { useStravaAuth } from "../hooks/useStravaAuth"
 
 import DailyActivities from "./charts/dailyActivities"
 import SportTypes from "./charts/sportTypes"
@@ -12,8 +11,7 @@ import Records from "./charts/records"
 import poweredByStravaLogo from "/powered-by-strava.svg"
 
 export default function Dashboard() {
-  const { athlete, currentYear } = useContext(RecapContext)
-  const { logout } = useStravaAuth()
+  const { athlete, currentYear, logout } = useContext(RecapContext)
 
   return (
     <div className="w-full h-full">

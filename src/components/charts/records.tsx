@@ -2,6 +2,21 @@ import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
 
+
+const RecordDisplay = ({ label, value, unit }: { label: string, value: string, unit: string }) => {
+  return (
+    <div className="w-full h-full p-2 flex flex-col h-full w-full bg-gray-300 rounded">
+      <p className="text-sm">{label}</p>
+      <div className="flex flex-col w-full h-full items-center justify-center">
+        <p className="font-semibold text-4xl">
+          {value}
+        </p>
+        <p className="text-sm"> {unit}</p>
+      </div>
+    </div>
+  )
+}
+
 export default function Records() {
   const { activities } = useContext(RecapContext)
   if (activities.length > 0) {
@@ -23,35 +38,31 @@ export default function Records() {
       }, activities[0])
     return (
       <div className="flex flex-col w-full h-full">
-        <p className="text-lg font-semibold m-1">Records</p>
-        <div className="flex w-full h-full items-center justify-center p-2">
-          <div className="flex w-full h-full grid grid-cols-2 gap-2">
-            <div className="bg-gray-300 rounded-lg p-1 flex flex-col h-full w-full">
-              <p className="m-1">Top Speed</p>
-              <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-4xl">{unitConversion.convertMetersPerSecondToMph(topSpeed.max_speed!).toFixed(1)}<span className="text-sm font-semibold"> mph</span></p>
-              </div>
-            </div>
-            <div className="bg-gray-300 rounded-lg p-1 flex flex-col h-full w-full">
-              <p className="m-1">Max Watts</p>
-              <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-4xl">{maxWatts.max_watts}<span className="text-sm font-semibold"> W</span></p>
-              </div>
-            </div>
-            <div className="bg-gray-300 rounded-lg p-1 flex flex-col h-full w-full">
-              <p className="m-1">Highest Heartrate</p>
-              <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-4xl">{maxHearrate.max_heartrate}<span className="text-sm font-semibold"> bpm</span></p>
-              </div>
-            </div>
-            <div className="bg-gray-300 rounded-lg p-1 flex flex-col h-full w-full">
-              <p className="m-1">Most Elevation Gain</p>
-              <div className="flex w-full h-full items-center justify-center">
-                <p className="font-bold text-4xl">{unitConversion.convertFromMetersToFeet(highestElevation.total_elevation_gain!).toFixed(0)}<span className="text-sm font-semibold"> ft</span></p>
-              </div>
-            </div>
+        <p className="text-lg font-semibold m-1 underline">Records</p>
+        {/* <div className="flex w-full h-full items-center justify-center">
+          <div className="flex w-full h-full grid grid-cols-2 gap-12 p-12">
+            <RecordDisplay
+              label="Top Speed"
+              value={unitConversion.convertMetersPerSecondToMph(topSpeed.max_speed!).toFixed(1)}
+              unit="mph"
+            />
+            <RecordDisplay
+              label="Max Watts"
+              value={maxWatts.max_watts !== undefined ? String(maxWatts.max_watts) : "-"}
+              unit="W"
+            />
+            <RecordDisplay
+              label="Highest Heartrate"
+              value={maxHearrate.max_heartrate !== undefined ? String(maxHearrate.max_heartrate) : "-"}
+              unit="bpm"
+            />
+            <RecordDisplay
+              label="Most Elevation Gain"
+              value={unitConversion.convertFromMetersToFeet(highestElevation.total_elevation_gain!).toFixed(0)}
+              unit="ft"
+            />
           </div>
-        </div>
+        </div> */}
       </div>
     )
   }

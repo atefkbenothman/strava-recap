@@ -16,9 +16,9 @@ export default function DailyActivities() {
     dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
   }
   return (
-    <div className="flex flex-col w-full h-full">
-      <p className="text-lg font-semibold m-1">Daily Activities</p>
-      <div className="flex w-full h-full items-center justify-center p-2">
+    <div className="flex flex-col h-full">
+      <p className="font-semibold m-1">Daily Activities</p>
+      <div className="flex h-full items-center justify-center p-2">
         {data.length > 0 ? (
           <ActivityCalendar data={data} theme={colors} />
         ) : null}

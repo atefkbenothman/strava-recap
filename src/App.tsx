@@ -44,9 +44,12 @@ function App() {
     window.history.pushState({}, "", `/${year}`)
   }
 
-  /*
-  Find out why when logging out, the isAuthenticated state doesn't change and doesn't cause this to re-render
-  */
+  const COLORS = {
+    "purple_dark": "#40407a",
+    "purple_light": "#40407a",
+    "tan": "#f7f1e3",
+  }
+
   if (!isAuthenticated) {
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
@@ -82,7 +85,7 @@ function App() {
             <p className="text-red-500 font-bold">Error: </p>
             <p>{error.message}</p>
           </div>
-          <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Sign Out</p>
+          <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthorize</p>
         </div>
       </div>
     )

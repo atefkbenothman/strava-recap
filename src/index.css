@@ -9,3 +9,11 @@ html {
   font-variation-settings: normal;
   font-size: 1em;
 }
+
+.recharts-wrapper svg {
+  overflow: inherit !important;
+}
+
+.recharts-legend-item {
+  font-size: 12px;
+}

@@ -8,25 +8,52 @@ import TotalDistanceElevation from "./charts/totalDistanceElevation"
 import BiggestActivity from "./charts/biggestActivity"
 import Records from "./charts/records"
 import Streaks from "./charts/streaks"
+import Distances from "./charts/distances"
 import MonthlyActivities from "./charts/monthlyActivities"
+import Socials from "./charts/socials"
 
 import poweredByStravaLogo from "/powered-by-strava.svg"
 
 export default function Dashboard() {
   const { athlete, currentYear, logout } = useContext(RecapContext)
-  const [shuffledComponents, setShuffledComponents] = useState<ReactElement[]>([]);
+  const [shuffledComponents, setShuffledComponents] = useState<Array<{ colSpan: number; component: ReactElement }>>([]);
 
   useEffect(() => {
     const graphs = [
-      <TotalHours />,
-      <TotalDistanceElevation />,
-      <BiggestActivity />,
-      <Records />,
-      <MonthlyActivities />,
-      // <Streaks />,
-      <SportTypes />,
+      {
+        colSpan: 1,
+        component: <TotalHours />
+      },
+      {
+        colSpan: 1,
+        component: <SportTypes />
+      },
+      {
+        colSpan: 1,
+        component: <TotalDistanceElevation />
+      },
+      // {
+      //   colSpan: 2,
+      //   component: <BiggestActivity />
+      // },
+      {
+        colSpan: 1,
+        component: <Records />
+      },
+      {
+        colSpan: 1,
+        component: <Distances />
+      },
+      {
+        colSpan: 1,
+        component: <MonthlyActivities />
+      },
+      {
+        colSpan: 1,
+        component: <Socials />
+      }
     ]
-    const shuffleArray = (array: ReactElement[]) => {
+    const shuffleArray = (array: Array<{ colSpan: number; component: ReactElement }>) => {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -42,11 +69,12 @@ export default function Dashboard() {
         <div className="flex flex-col p-2 gap-2 h-fit w-full">
 
           <div className="grid grid-cols-2 gap-2">
-            <div className="font-semibold text-lg">
+            <div className="font-semibold text-xl flex items-center gap-2">
+              <img src={athlete?.profile} width={25} className="rounded" />
               <p>{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
             </div>
             <div className="flex ml-auto gap-2 gap-6">
-              <button className="text-xs" onClick={logout}>Sign Out</button>
+              <button className="text-xs rounded-sm" onClick={logout}>Sign Out</button>
               <img className="" src={poweredByStravaLogo} alt="powered by strava logo" width={60} height={80} />
             </div>
           </div>
@@ -58,8 +86,8 @@ export default function Dashboard() {
                 <DailyActivities />
               </div>
 
-              {shuffledComponents.map((component, index) => (
-                <div key={index} className="bg-[#efefef] col-span-1 rounded">
+              {shuffledComponents.map(({ component, colSpan }, index) => (
+                <div key={index} className={`bg-[#efefef] col-span-${colSpan} rounded`}>
                   {component}
                 </div>
               ))}

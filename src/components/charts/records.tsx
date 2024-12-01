@@ -1,21 +1,11 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
+import { StravaActivity } from "../../types/strava"
 
+import Card from "../card"
+import Stat from "../stat"
 
-const RecordDisplay = ({ label, value, unit }: { label: string, value: string, unit: string }) => {
-  return (
-    <div className="w-full h-full p-2 flex flex-col h-full w-full bg-gray-200 rounded gap-4">
-      <p className="text-xs">{label}</p>
-      <div className="flex flex-col w-full h-full items-center justify-center">
-        <p className="font-semibold text-xl">
-          {value}
-        </p>
-        <p className="text-xs"> {unit}</p>
-      </div>
-    </div>
-  )
-}
 
 export default function Records() {
   const { activities } = useContext(RecapContext)
@@ -36,34 +26,47 @@ export default function Records() {
       .reduce((maxActivity, activity) => {
         return activity.max_heartrate! > (maxActivity.max_heartrate ?? 0) ? activity : maxActivity
       }, activities[0])
+    const prCount = activities.reduce((count: number, activity: StravaActivity) => {
+      return count += activity.pr_count ?? 0
+    }, 0)
+    const athleteCount = activities.reduce((count: number, activity: StravaActivity) => {
+      return count += activity.athlete_count !== undefined ? activity.athlete_count - 1 : 0
+    }, 0)
     return (
-      <div className="flex flex-col w-full h-[400px]">
-        <p className="font-semibold m-1">Records</p>
-        <div className="items-center justify-center">
-          <div className="flex w-full h-full grid grid-cols-2 gap-12 p-12">
-            <RecordDisplay
-              label="Top Speed"
-              value={unitConversion.convertMetersPerSecondToMph(topSpeed.max_speed!).toFixed(1)}
-              unit="mph"
-            />
-            <RecordDisplay
-              label="Max Watts"
-              value={maxWatts.max_watts !== undefined ? String(maxWatts.max_watts) : "-"}
-              unit="W"
-            />
-            <RecordDisplay
-              label="Highest Heartrate"
-              value={maxHearrate.max_heartrate !== undefined ? String(maxHearrate.max_heartrate) : "-"}
-              unit="bpm"
-            />
-            <RecordDisplay
-              label="Most Elevation Gain"
-              value={unitConversion.convertFromMetersToFeet(highestElevation.total_elevation_gain!).toFixed(0)}
-              unit="ft"
-            />
-          </div>
+      <Card title="Records">
+        <div className="w-full grid grid-cols-2 p-2 gap-2">
+          <Stat
+            label="Top Speed"
+            value={unitConversion.convertMetersPerSecondToMph(topSpeed.max_speed!).toFixed(1)}
+            unit="mph"
+          />
+          <Stat
+            label="Max Watts"
+            value={maxWatts.max_watts !== undefined ? String(maxWatts.max_watts) : "-"}
+            unit="W"
+          />
+          <Stat
+            label="Highest Heartrate"
+            value={maxHearrate.max_heartrate !== undefined ? String(maxHearrate.max_heartrate) : "-"}
+            unit="bpm"
+          />
+          <Stat
+            label="Most Elevation Gain"
+            value={unitConversion.convertFromMetersToFeet(highestElevation.total_elevation_gain!).toFixed(0)}
+            unit="ft"
+          />
+          <Stat
+            label="PRs"
+            value={String(prCount)}
+            unit="prs"
+          />
+          <Stat
+            label="Athletes"
+            value={String(athleteCount)}
+            unit="people"
+          />
         </div>
-      </div>
+      </Card >
     )
   }
 }

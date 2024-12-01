@@ -85,7 +85,7 @@ function App() {
             <p className="text-red-500 font-bold">Error: </p>
             <p>{error.message}</p>
           </div>
-          <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthorize</p>
+          <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
         </div>
       </div>
     )

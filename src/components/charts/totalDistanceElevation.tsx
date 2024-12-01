@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend
 } from "recharts"
 
 type SportType = {

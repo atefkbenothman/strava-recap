@@ -9,7 +9,7 @@ export default function Socials() {
   const { activities } = useContext(RecapContext)
   let kudosCount = 0
   let commentCount = 0
-  const data = activities.map(activity => {
+  activities.map(activity => {
     kudosCount += activity.kudos_count ?? 0
     commentCount += activity.comment_count ?? 0
     return activity

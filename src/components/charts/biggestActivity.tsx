@@ -3,8 +3,6 @@ import { RecapContext } from "../../contexts/recapContext"
 import { StravaActivity } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import polyline from "@mapbox/polyline"
-import "leaflet/dist/leaflet.css"
-
 
 
 const MetricDisplay = ({ label, value, unit }: { label: string, value: string, unit: string }) => {
@@ -21,7 +19,7 @@ const MetricDisplay = ({ label, value, unit }: { label: string, value: string, u
   )
 }
 
-const token = "pk.eyJ1IjoiYXRlZmthaWJlbm90aG1hbiIsImEiOiJjbGU1Mms1aGQwMzk2M3BwMzhyOWx2dDV2In0.Iqr4f_ZJMostXFJ3NJB1RA"
+const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
 
 export default function BiggestActivity() {
   const { activities } = useContext(RecapContext)

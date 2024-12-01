@@ -23,9 +23,9 @@ export default function SportTypes() {
   const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
     <div className="flex flex-col w-full h-full">
-      <p className="text-md font-normal mx-1 underline">Sport Types</p>
+      <p className="font-semibold m-1">Sport Types</p>
       <div className="flex w-full h-full items-center justify-center p-2">
-        <ResponsiveContainer height="99%">
+        <ResponsiveContainer height={350} width="99%">
           <PieChart>
             <Pie label data={data} dataKey="count" nameKey="type" innerRadius={60} outerRadius={80} isAnimationActive={false}>
               {data.map((_, idx) => (

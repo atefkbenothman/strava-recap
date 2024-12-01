@@ -18,7 +18,7 @@ export default function DailyActivities() {
   return (
     <div className="flex flex-col h-full">
       <p className="font-semibold m-1">Daily Activities</p>
-      <div className="flex h-full items-center justify-center p-2">
+      <div className="flex h-full items-center justify-center p-4">
         {data.length > 0 ? (
           <ActivityCalendar data={data} theme={colors} />
         ) : null}

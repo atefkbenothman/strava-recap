@@ -38,12 +38,12 @@ export default function TotalHours() {
   const COLORS = ["#E4572E", "#E7741F", "#EA9010"]
   return (
     <div className="flex flex-col w-full h-full">
-      <p className="text-lg font-semibold m-1 underline">Total Hours</p>
+      <p className="font-semibold m-1">Total Hours</p>
       {/* <div className="flex justify-center font-semibold">
         <p className="text-3xl bg-gray-300 p-1 rounded">{totalHours.toFixed(0)}<span className="text-sm"> hours</span></p>
       </div> */}
       <div className="flex w-full h-full items-center justify-center p-2">
-        <ResponsiveContainer height="99%">
+        <ResponsiveContainer height={350} width="99%">
           <BarChart data={data} layout="vertical">
             <Bar dataKey="hours" isAnimationActive={false} label={{ position: "right" }}>
               {data.map((_, idx) => {

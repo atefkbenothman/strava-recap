@@ -41,9 +41,9 @@ export default function MonthlyActivities() {
   const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
     <div className="flex flex-col w-full h-full">
-      <p className="text-lg font-semibold m-1 underline">Monthly Activities</p>
+      <p className="font-semibold m-1">Monthly Activities</p>
       <div className="flex w-full h-full items-center justify-center p-2">
-        <ResponsiveContainer height="99%">
+        <ResponsiveContainer height={350} width="99%">
           <BarChart data={data}>
             <XAxis type="category" dataKey="month" />
             {/* <YAxis type="number" /> */}

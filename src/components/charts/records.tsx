@@ -5,13 +5,13 @@ import { unitConversion } from "../../utils/utils"
 
 const RecordDisplay = ({ label, value, unit }: { label: string, value: string, unit: string }) => {
   return (
-    <div className="w-full h-full p-2 flex flex-col h-full w-full bg-gray-300 rounded">
-      <p className="text-sm">{label}</p>
+    <div className="w-full h-full p-2 flex flex-col h-full w-full bg-gray-200 rounded gap-4">
+      <p className="text-xs">{label}</p>
       <div className="flex flex-col w-full h-full items-center justify-center">
-        <p className="font-semibold text-4xl">
+        <p className="font-semibold text-xl">
           {value}
         </p>
-        <p className="text-sm"> {unit}</p>
+        <p className="text-xs"> {unit}</p>
       </div>
     </div>
   )
@@ -37,9 +37,9 @@ export default function Records() {
         return activity.max_heartrate! > (maxActivity.max_heartrate ?? 0) ? activity : maxActivity
       }, activities[0])
     return (
-      <div className="flex flex-col w-full h-full">
-        <p className="text-lg font-semibold m-1 underline">Records</p>
-        {/* <div className="flex w-full h-full items-center justify-center">
+      <div className="flex flex-col w-full h-[400px]">
+        <p className="font-semibold m-1">Records</p>
+        <div className="items-center justify-center">
           <div className="flex w-full h-full grid grid-cols-2 gap-12 p-12">
             <RecordDisplay
               label="Top Speed"
@@ -62,7 +62,7 @@ export default function Records() {
               unit="ft"
             />
           </div>
-        </div> */}
+        </div>
       </div>
     )
   }

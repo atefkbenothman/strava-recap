@@ -27,7 +27,6 @@ export default function GearUsage() {
     }
   })
   data.sort((a, b) => b.time - a.time)
-  const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
     <Card title="Gear" description="total time usage for each gear">
       <ResponsiveContainer height={350} width="90%">

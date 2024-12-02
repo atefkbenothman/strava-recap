@@ -1,8 +1,7 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
-import { StravaActivity } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
-import { getWeek, getMonth } from 'date-fns'
+import { getMonth } from 'date-fns'
 import {
   ResponsiveContainer,
   AreaChart,
@@ -27,7 +26,7 @@ export default function MonthlyElevation() {
     month!.elevation += elevation
     totalElevation += elevation
   })
-  const colors = ["#06D6A0", "#118AB2", "#073B4C"]
+  // const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
     <Card title="Monthly Elevation" description="total elevation per month" total={Math.round(totalElevation)} totalUnits="ft">
       <ResponsiveContainer height={350} width="90%">

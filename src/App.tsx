@@ -44,11 +44,11 @@ function App() {
     window.history.pushState({}, "", `/${year}`)
   }
 
-  const COLORS = {
-    "purple_dark": "#40407a",
-    "purple_light": "#40407a",
-    "tan": "#f7f1e3",
-  }
+  // const COLORS = {
+  //   "purple_dark": "#40407a",
+  //   "purple_light": "#40407a",
+  //   "tan": "#f7f1e3",
+  // }
 
   if (!isAuthenticated) {
     return (

@@ -1,13 +1,8 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer } from 'recharts'
 
 import Card from "../card"
-
-type ChartData = {
-  name: string
-  count: number
-}
 
 export default function TimeTracker() {
   const { activities } = useContext(RecapContext)

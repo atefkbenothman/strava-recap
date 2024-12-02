@@ -3,8 +3,14 @@ import { StravaActivity, StravaAthlete, StravaGear } from "../types/strava"
 export const stravaApi = {
   clientId: import.meta.env.VITE_STRAVA_CLIENT_ID,
   clientSecret: import.meta.env.VITE_STRAVA_CLIENT_SECRET,
-  defaultRedirectUri: import.meta.env.VITE_STRAVA_REDIRECT_URI,
-  redirectUri: import.meta.env.VITE_STRAVA_REDIRECT_URI,
+  defaultRedirectUri:
+    process.env.NODE_ENV === "development"
+      ? import.meta.env.VITE_STRAVA_REDIRECT_URI
+      : import.meta.env.VITE_STRAVA_REDIRECT_URI_PROD,
+  redirectUri:
+    process.env.NODE_ENV === "development"
+      ? import.meta.env.VITE_STRAVA_REDIRECT_URI
+      : import.meta.env.VITE_STRAVA_REDIRECT_URI_PROD,
   generateAuthUrl: (): string => {
     const baseUrl = "https://www.strava.com/oauth/authorize"
     const params = new URLSearchParams({
@@ -121,7 +127,6 @@ export const stravaApi = {
     }
   },
   updateRedirectUri: (year: number): void => {
-    stravaApi.redirectUri = stravaApi.defaultRedirectUri
     stravaApi.redirectUri = `${stravaApi.defaultRedirectUri}/${year}`
   }
 }

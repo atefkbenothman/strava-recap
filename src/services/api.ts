@@ -1,4 +1,4 @@
-import { StravaActivity, StravaAthlete } from "../types/strava"
+import { StravaActivity, StravaAthlete, StravaGear } from "../types/strava"
 
 export const stravaApi = {
   clientId: import.meta.env.VITE_STRAVA_CLIENT_ID,
@@ -97,6 +97,28 @@ export const stravaApi = {
       }
     }
     return allActivities
+  },
+  getGear: async (token: string, gearId: string): Promise<StravaGear[]> => {
+    const baseUrl = `https://www.strava.com/api/v3/gear/${gearId}`
+    try {
+      const res = await fetch(baseUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.message)
+      }
+      const data = await res.json()
+      return data
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(err.message)
+      }
+      return []
+    }
   },
   updateRedirectUri: (year: number): void => {
     stravaApi.redirectUri = stravaApi.defaultRedirectUri

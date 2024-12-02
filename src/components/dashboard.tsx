@@ -13,6 +13,7 @@ import Socials from "./charts/socials"
 import TimeTracker from "./charts/timeTracker"
 import LongestStreaks from "./charts/longestStreaks"
 import MonthlyElevation from "./charts/monthlyElevation"
+import GearUsage from "./charts/gearUsage"
 
 import poweredByStravaLogo from "/powered-by-strava.svg"
 
@@ -22,6 +23,10 @@ export default function Dashboard() {
 
   useEffect(() => {
     const graphs = [
+      {
+        colSpan: 1,
+        component: <GearUsage />
+      },
       {
         colSpan: 1,
         component: <MonthlyElevation />

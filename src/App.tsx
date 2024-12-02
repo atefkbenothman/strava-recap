@@ -14,6 +14,8 @@ import "./App.css"
 
 
 function App() {
+  console.log(process.env.NODE_ENV)
+
   const { isAuthenticated, accessToken, athlete, login, logout } = useStravaAuth()
 
   const [activities, setActivities] = useState<StravaActivity[]>([])

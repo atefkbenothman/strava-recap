@@ -1,15 +1,10 @@
 import { useContext } from "react"
-import { StravaActivity } from "../../types/strava"
 import { RecapContext } from "../../contexts/recapContext"
 import { ResponsiveContainer, RadialBarChart, Legend, Tooltip, RadialBar } from "recharts"
 import { unitConversion } from "../../utils/utils"
 
+import Card from "../card"
 
-type SportType = {
-  type: string
-  distance: number
-  elevation: number
-}
 
 const distanceRanges = [
   { name: "-", min: 0, max: 0 },
@@ -35,27 +30,21 @@ export default function Distances() {
     }
   })
   return (
-    <div className="flex flex-col w-full h-full">
-      <p className="font-semibold mx-2 mt-2">Distances</p>
-      <p className="mx-2 text-xs font-normal text-gray-800">number of activities per distance</p>
-      <div className="flex w-full h-full items-center justify-center p-2">
-        <ResponsiveContainer height={350} width="90%">
-          <RadialBarChart
-            height={350}
-            // width={730}
-            // height={250}
-            innerRadius="10%"
-            outerRadius="80%"
-            data={data}
-            startAngle={180}
-            endAngle={0}
-          >
-            <RadialBar label={{ fontSize: 12, position: "bottom", fill: "#000000" }} background={{ fill: "#e5e7eb" }} dataKey="count" />
-            <Legend verticalAlign="bottom" align="center" />
-            <Tooltip />
-          </RadialBarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    <Card title="Distances" description="number of activities per distance">
+      <ResponsiveContainer height={350} width="90%">
+        <RadialBarChart
+          height={350}
+          innerRadius="10%"
+          outerRadius="80%"
+          data={data}
+          startAngle={180}
+          endAngle={0}
+        >
+          <RadialBar label={{ fontSize: 12, position: "bottom", fill: "#000000" }} background={{ fill: "#e5e7eb" }} dataKey="count" />
+          <Legend verticalAlign="bottom" align="center" />
+          <Tooltip />
+        </RadialBarChart>
+      </ResponsiveContainer>
+    </Card>
   )
 }

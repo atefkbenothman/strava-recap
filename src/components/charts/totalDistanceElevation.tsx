@@ -7,65 +7,54 @@ import {
   BarChart,
   Bar,
   XAxis,
-  YAxis,
   Tooltip,
 } from "recharts"
+import Card from "../card"
 
-type SportType = {
-  type: string
-  distance: number
-  elevation: number
-}
+
+const monthData = [
+  { "month": "January" },
+  { "month": "February" },
+  { "month": "March" },
+  { "month": "April" },
+  { "month": "May" },
+  { "month": "June" },
+  { "month": "July" },
+  { "month": "August" },
+  { "month": "September" },
+  { "month": "October" },
+  { "month": "November" },
+  { "month": "December" }
+]
 
 export default function TotalDistanceElevation() {
   const { activities } = useContext(RecapContext)
   let totalDistance = 0
-  let totalElevation = 0
-  let data = activities.reduce((acc: SportType[], activity: StravaActivity) => {
-    const type = activity.sport_type!
-    const distance = unitConversion.convertFromMetersToMi(activity.distance!)
-    const elevation = unitConversion.convertFromMetersToFeet(activity.total_elevation_gain!)
-    const existingType = acc.find((t) => t.type === type)
+  const data = activities.reduce((acc: any[], activity: StravaActivity) => {
+    const date = new Date(activity.start_date!);
+    const distance = Number(unitConversion.convertFromMetersToMi(activity.distance!).toFixed(0))
+    const sportType = activity.sport_type!
+    const month = date.toLocaleString('default', { month: 'long' });
+    let entry = acc.find(item => item.month === month);
     totalDistance += distance
-    totalElevation += elevation
-    if (existingType) {
-      existingType.distance += distance
-      existingType.elevation += elevation
-    } else {
-      acc.push({ type, distance: distance, elevation: elevation })
+    if (!entry[sportType]) {
+      entry[sportType] = 0
     }
+    entry[sportType] += distance
     return acc
-  }, [])
-  data = data.map((sportType: SportType) => {
-    return { type: sportType.type, distance: Math.round(sportType.distance), elevation: Math.round(sportType.elevation) }
-  })
-  data = data.sort((a: SportType, b: SportType) => {
-    return b.elevation - a.elevation
-  })
-  const COLORS = ["#06D6A0", "#118AB2", "#073B4C"]
+  }, monthData)
+  const colors = ["#073B4C", "#118AB2", "#06D6A0"]
   return (
-    <div className="flex flex-col w-full h-full relative">
-      <p className="font-semibold mt-2 mx-2">Distance/Elevation</p>
-      <p className="mx-2 mb-2 text-xs font-normal text-gray-800 w-1/2">total distance + elevation per sport</p>
-      <div className="absolute top-2 right-2 rounded text-right">
-        <p className="text-3xl">{Math.round(totalDistance)}</p>
-        <p style={{ fontSize: "10px" }}>mi</p>
-        <p className="text-lg">{Math.round(totalElevation)}</p>
-        <p style={{ fontSize: "10px" }}>ft</p>
-      </div>
-      <div className="flex w-full h-full items-center justify-center p-2">
-        <ResponsiveContainer height={350} width="90%">
-          <BarChart data={data} >
-            <YAxis yAxisId="left" type="number" hide={true} />
-            <YAxis yAxisId="right" type="number" orientation="right" hide={true} />
-            <Bar dataKey="distance" yAxisId="left" fill={COLORS[0]} isAnimationActive={false} label={{ position: "top", fontSize: 12 }} />
-            <Bar dataKey="elevation" yAxisId="right" fill={COLORS[1]} isAnimationActive={false} label={{ position: "top", fontSize: 12 }} />
-            <XAxis type="category" dataKey="type" tick={{ fontSize: 12 }} />
-            <Tooltip />
-            {/* <Legend verticalAlign="bottom" align="center" /> */}
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    <Card title="Monthly Distance" description="total distance per month" total={Math.round(totalDistance)} totalUnits="mi">
+      <ResponsiveContainer height={350} width="90%">
+        <BarChart data={data}>
+          <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
+          <Tooltip />
+          {[...Array.from(new Set(data.flatMap(month => Object.keys(month).filter(key => key !== 'month')))).entries()].map(([idx, sportType]: [number, string]) => (
+            <Bar key={sportType} stackId="stack" dataKey={sportType} isAnimationActive={false} fill={colors[idx % colors.length]} label={{ position: "top", fontSize: 12 }} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    </Card>
   )
 }

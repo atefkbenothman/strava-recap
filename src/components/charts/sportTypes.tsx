@@ -4,6 +4,8 @@ import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
 import { ResponsiveContainer, PieChart, Pie, Legend, Tooltip, Cell } from "recharts"
 
+import Card from "../card"
+
 type SportType = {
   type: string
   count: number
@@ -31,26 +33,18 @@ export default function SportTypes() {
   })
   const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
-    <div className="flex flex-col w-full h-full relative">
-      <p className="font-semibold mx-2 mt-2">Sport Types</p>
-      <p className="mx-2 text-xs font-normal text-gray-800 w-1/2">number of activities per sport</p>
-      <div className="absolute top-2 right-2 rounded text-right">
-        <p className="text-3xl">{totalActivities}</p>
-        <p style={{ fontSize: "10px" }}>activities</p>
-      </div>
-      <div className="flex w-full h-full items-center justify-center p-2">
-        <ResponsiveContainer height={350} width="90%">
-          <PieChart>
-            <Pie label={{ fontSize: 14 }} data={data} dataKey="count" nameKey="type" innerRadius={50} outerRadius={80} isAnimationActive={false}>
-              {data.map((_, idx) => (
-                <Cell key={idx} fill={colors[idx % colors.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend verticalAlign="bottom" align="center" />
-          </PieChart>
-        </ResponsiveContainer>
-      </div>
-    </div>
+    <Card title="Total Activities" description="number of activities per sport" total={totalActivities} totalUnits="activities">
+      <ResponsiveContainer height={350} width="90%">
+        <PieChart>
+          <Pie label={{ fontSize: 14 }} data={data} dataKey="count" nameKey="type" innerRadius={50} outerRadius={80} isAnimationActive={false}>
+            {data.map((_, idx) => (
+              <Cell key={idx} fill={colors[idx % colors.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend verticalAlign="bottom" align="center" />
+        </PieChart>
+      </ResponsiveContainer>
+    </Card>
   )
 }

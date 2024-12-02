@@ -10,6 +10,9 @@ import Records from "./charts/records"
 import Distances from "./charts/distances"
 import MonthlyActivities from "./charts/monthlyActivities"
 import Socials from "./charts/socials"
+import TimeTracker from "./charts/timeTracker"
+import LongestStreaks from "./charts/longestStreaks"
+import MonthlyElevation from "./charts/monthlyElevation"
 
 import poweredByStravaLogo from "/powered-by-strava.svg"
 
@@ -21,7 +24,15 @@ export default function Dashboard() {
     const graphs = [
       {
         colSpan: 1,
+        component: <MonthlyElevation />
+      },
+      {
+        colSpan: 1,
         component: <TotalHours />
+      },
+      {
+        colSpan: 1,
+        component: <LongestStreaks />
       },
       {
         colSpan: 1,
@@ -50,6 +61,10 @@ export default function Dashboard() {
       {
         colSpan: 1,
         component: <Socials />
+      },
+      {
+        colSpan: 1,
+        component: <TimeTracker />
       }
     ]
     const shuffleArray = (array: Array<{ colSpan: number; component: ReactElement }>) => {

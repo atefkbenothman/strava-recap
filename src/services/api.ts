@@ -5,11 +5,11 @@ export const stravaApi = {
   clientSecret: import.meta.env.VITE_STRAVA_CLIENT_SECRET,
   defaultRedirectUri:
     process.env.NODE_ENV === "development"
-      ? import.meta.env.VITE_STRAVA_REDIRECT_URI
+      ? import.meta.env.VITE_STRAVA_REDIRECT_URI_DEV
       : import.meta.env.VITE_STRAVA_REDIRECT_URI_PROD,
   redirectUri:
     process.env.NODE_ENV === "development"
-      ? import.meta.env.VITE_STRAVA_REDIRECT_URI
+      ? import.meta.env.VITE_STRAVA_REDIRECT_URI_DEV
       : import.meta.env.VITE_STRAVA_REDIRECT_URI_PROD,
   generateAuthUrl: (): string => {
     const baseUrl = "https://www.strava.com/oauth/authorize"

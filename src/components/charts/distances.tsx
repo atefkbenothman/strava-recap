@@ -17,8 +17,7 @@ const distanceRanges = [
 ]
 
 export default function Distances() {
-  const { activities } = useContext(RecapContext)
-  const colors = ["#06D6A0", "#118AB2", "#073B4C"]
+  const { activities, theme } = useContext(RecapContext)
   const data = distanceRanges.map((range, index) => {
     const activitiesInRange = activities.filter(activity => {
       const distance = unitConversion.convertFromMetersToMi(activity.distance!)
@@ -27,7 +26,7 @@ export default function Distances() {
     return {
       name: range.name,
       count: activitiesInRange.length,
-      fill: colors[index % colors.length]
+      fill: theme.colors[index]
     }
   })
   return (
@@ -39,10 +38,10 @@ export default function Distances() {
           outerRadius="80%"
           data={data}
           startAngle={180}
-          endAngle={0}
+          endAngle={-180}
         >
           <RadialBar label={{ fontSize: 12, position: "bottom", fill: "#000000" }} background={{ fill: "#e5e7eb" }} dataKey="count" />
-          <Legend verticalAlign="bottom" align="center" />
+          <Legend verticalAlign="bottom" layout="horizontal" align="center" />
           <Tooltip />
         </RadialBarChart>
       </ResponsiveContainer>

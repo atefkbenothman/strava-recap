@@ -8,6 +8,7 @@ import {
   Bar,
   XAxis,
   Tooltip,
+  Legend,
 } from "recharts"
 import { Rocket } from 'lucide-react'
 
@@ -15,7 +16,7 @@ import Card from "../card"
 
 
 export default function TotalDistanceElevation() {
-  const { activities } = useContext(RecapContext)
+  const { activities, colorPalette } = useContext(RecapContext)
   const monthData = [
     { "month": "January" },
     { "month": "February" },
@@ -44,16 +45,26 @@ export default function TotalDistanceElevation() {
     entry[sportType] += distance
     return acc
   }, monthData)
-  const colors = ["#06D6A0", "#118AB2", "#073B4C"]
+  const uniqueSportTypes = [...new Set(data.flatMap(month =>
+    Object.keys(month).filter(key => key !== 'month')
+  ))]
   return (
     <Card title="Monthly Distance" description="total distance per month" total={Math.round(totalDistance)} totalUnits="mi" icon={<Rocket size={16} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
           <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
           <Tooltip />
-          {[...Array.from(new Set(data.flatMap(month => Object.keys(month).filter(key => key !== 'month')))).entries()].map(([idx, sportType]: [number, string]) => (
-            <Bar key={sportType} stackId="stack" dataKey={sportType} isAnimationActive={false} fill={colors[idx % colors.length]} label={{ position: "top", fontSize: 9 }} />
+          {uniqueSportTypes.map((sportType) => (
+            <Bar
+              key={sportType}
+              stackId="stack"
+              dataKey={sportType}
+              isAnimationActive={false}
+              fill={colorPalette[sportType]}
+              label={{ position: "top", fontSize: 9 }}
+            />
           ))}
+          <Legend />
         </BarChart>
       </ResponsiveContainer>
     </Card>

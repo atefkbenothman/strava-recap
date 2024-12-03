@@ -1,7 +1,7 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
-import { unitConversion } from "../../utils/utils"
-import { ResponsiveContainer, BarChart, Bar, YAxis, XAxis, Tooltip } from "recharts"
+import { getRandomColor, unitConversion } from "../../utils/utils"
+import { ResponsiveContainer, BarChart, Bar, YAxis, XAxis, Tooltip, Legend, Cell } from "recharts"
 import { Wrench } from 'lucide-react'
 
 import Card from "../card"
@@ -13,7 +13,7 @@ type ChartData = {
 }
 
 export default function GearUsage() {
-  const { activities } = useContext(RecapContext)
+  const { activities, theme } = useContext(RecapContext)
   const data: ChartData[] = []
   activities.forEach(activity => {
     if (activity.gear_id !== null) {
@@ -32,12 +32,19 @@ export default function GearUsage() {
     <Card title="Gear" description="total time usage for each gear" icon={<Wrench size={16} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data} layout="vertical">
-          <Bar dataKey="time" isAnimationActive={false} label={{ position: "right", fontSize: 12 }} fill="#06D6A0" />
+          <Bar dataKey="time" isAnimationActive={false} label={{ position: "right", fontSize: 12 }}>
+            {
+              data.map((entry, idx) => (
+                <Cell key={idx} fill={getRandomColor(theme.colors as readonly string[])} />
+              ))
+            }
+          </Bar>
           <YAxis type="category" dataKey="gearId" tick={{ fontSize: 12 }} />
           <XAxis type="number" hide={true} />
+          <Legend />
           <Tooltip />
         </BarChart>
       </ResponsiveContainer>
-    </Card>
+    </Card >
   )
 }

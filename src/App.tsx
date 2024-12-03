@@ -5,6 +5,7 @@ import { useStravaAuth } from "./hooks/useStravaAuth"
 import { stravaApi } from "./services/api"
 import { StravaActivity } from "./types/strava"
 import { RecapContext } from "./contexts/recapContext"
+import { THEME, ThemeKey } from "./themes/themeConfig"
 
 import Dashboard from "./components/dashboard"
 
@@ -12,12 +13,13 @@ import connectWithStravaLogo from "/connect-with-strava.svg"
 
 import "./App.css"
 
-
 function App() {
   const { isAuthenticated, accessToken, athlete, login, logout } = useStravaAuth()
 
   const [activities, setActivities] = useState<StravaActivity[]>([])
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
+  const [themeKey, setThemeKey] = useState<ThemeKey>("emerald")
+  const [colorPalette, setColorPalette] = useState<Record<string, string>>({})
 
   const { data, isLoading, error } = useQuery({
     queryKey: [currentYear],
@@ -31,6 +33,7 @@ function App() {
   useEffect(() => {
     if (data) {
       setActivities(data)
+      generateColorPalette(data, themeKey)
     }
   }, [data])
 
@@ -44,6 +47,20 @@ function App() {
   function updateYear(year: number) {
     setCurrentYear(year)
     window.history.pushState({}, "", `/${year}`)
+  }
+
+
+  function generateColorPalette(activities: StravaActivity[], themeKey: ThemeKey) {
+    const uniqueActivityTypes = [...new Set(
+      activities.map(activity => activity.sport_type!)
+    )]
+    const colors = THEME[themeKey].colors;
+    const colorPallete = uniqueActivityTypes.reduce((palette: Record<string, string>, sportType, index) => {
+      const chosenColor = colors[index % colors.length]
+      palette[sportType] = chosenColor
+      return palette
+    }, {})
+    setColorPalette(colorPallete)
   }
 
   if (!isAuthenticated) {
@@ -106,10 +123,10 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      <RecapContext.Provider value={{ isAuthenticated, athlete, activities, currentYear, updateYear, logout }}>
+      <RecapContext.Provider value={{ isAuthenticated, athlete, activities, currentYear, colorPalette, theme: THEME[themeKey], updateYear, logout }}>
         <Dashboard />
       </RecapContext.Provider>
-    </div>
+    </div >
   )
 }
 

@@ -17,10 +17,11 @@ import Card from "../card"
 type SportType = {
   type: string
   hours: number
+  color?: string
 }
 
 export default function TotalHours() {
-  const { activities } = useContext(RecapContext)
+  const { activities, colorPalette } = useContext(RecapContext)
   let totalHours = 0
   let data = activities.reduce((acc: SportType[], activity: StravaActivity) => {
     const type = activity.sport_type!
@@ -35,16 +36,15 @@ export default function TotalHours() {
     return acc
   }, [])
   data = data.map((sportType: SportType) => {
-    return { type: sportType.type, hours: Math.round(sportType.hours) }
+    return { type: sportType.type, hours: Math.round(sportType.hours), color: colorPalette[sportType.type] }
   })
-  const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
     <Card title="Total Hours" description="number of hours per sport" total={Math.round(totalHours)} totalUnits="hours" icon={<Watch size={17} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <PieChart>
           <Pie label={{ fontSize: 14 }} data={data} dataKey="hours" nameKey="type" innerRadius={50} outerRadius={80} isAnimationActive={false}>
-            {data.map((_, idx) => (
-              <Cell key={idx} fill={colors[idx % colors.length]} />
+            {data.map((d, idx) => (
+              <Cell key={idx} fill={d.color} />
             ))}
           </Pie>
           <Legend verticalAlign="bottom" align="center" />

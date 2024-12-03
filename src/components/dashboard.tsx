@@ -100,7 +100,7 @@ export default function Dashboard() {
                   <DropdownMenuContent>
                     <DropdownMenuLabel>My Account</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={logout} className="hover:cursor-pointer">Sign Out</DropdownMenuItem>
+                    <DropdownMenuItem onClick={logout} className="hover:cursor-pointer focus:bg-red-500 focus:text-white">Sign Out</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>

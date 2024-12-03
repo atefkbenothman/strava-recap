@@ -41,7 +41,7 @@ export default function BiggestActivity() {
   }, activities[0])
   const route = polyline.decode(biggestActivity.map?.summary_polyline!)
   return (
-    <Card title="Biggest Activity" icon={<Trophy size={16} strokeWidth={2} />}>
+    <Card title="Biggest Activity" description="your biggest activity" icon={<Trophy size={16} strokeWidth={2} />}>
       <div className="grid grid-rows-[repeat(3,min-content)_1fr] h-full gap-2">
         <div className="flex justify-center">
           <p>{biggestActivity.name}</p>
@@ -54,12 +54,12 @@ export default function BiggestActivity() {
                 polyline.encode(route)
               )})/auto/500x500?access_token=${token}&zoom=14`}
             alt="map"
-            height="90%"
-            width="90%"
+            height="80%"
+            width="80%"
             className="rounded shadow-md"
           />
         </div>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="flex gap-8 mx-2 items-center justify-center">
           <Metric
             label="Distance"
             value={unitConversion.convertFromMetersToMi(biggestActivity.distance!).toFixed(1)}

@@ -14,8 +14,6 @@ import "./App.css"
 
 
 function App() {
-  console.log(process.env.NODE_ENV)
-
   const { isAuthenticated, accessToken, athlete, login, logout } = useStravaAuth()
 
   const [activities, setActivities] = useState<StravaActivity[]>([])
@@ -45,12 +43,6 @@ function App() {
     setCurrentYear(year)
     window.history.pushState({}, "", `/${year}`)
   }
-
-  // const COLORS = {
-  //   "purple_dark": "#40407a",
-  //   "purple_light": "#40407a",
-  //   "tan": "#f7f1e3",
-  // }
 
   if (!isAuthenticated) {
     return (

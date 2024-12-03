@@ -2,6 +2,7 @@ import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
 import { StravaActivity } from "../../types/strava"
+import { Medal } from 'lucide-react'
 
 import Card from "../card"
 import Stat from "../stat"
@@ -33,7 +34,7 @@ export default function Records() {
       return count += activity.athlete_count !== undefined ? activity.athlete_count - 1 : 0
     }, 0)
     return (
-      <Card title="Records">
+      <Card title="Records" description="your top stats" icon={<Medal size={16} strokeWidth={2} />}>
         <div className="w-full grid grid-cols-2 p-2 gap-2">
           <Stat
             label="Top Speed"

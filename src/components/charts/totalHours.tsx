@@ -10,7 +10,9 @@ import {
   Cell,
   Legend
 } from "recharts"
+import { Watch } from 'lucide-react'
 import Card from "../card"
+
 
 type SportType = {
   type: string
@@ -37,7 +39,7 @@ export default function TotalHours() {
   })
   const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
-    <Card title="Total Hours" description="number of hours per sport" total={Math.round(totalHours)} totalUnits="hours">
+    <Card title="Total Hours" description="number of hours per sport" total={Math.round(totalHours)} totalUnits="hours" icon={<Watch size={17} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <PieChart>
           <Pie label={{ fontSize: 14 }} data={data} dataKey="hours" nameKey="type" innerRadius={50} outerRadius={80} isAnimationActive={false}>

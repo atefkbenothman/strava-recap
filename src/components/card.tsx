@@ -4,15 +4,21 @@ type CardProps = {
   children?: React.ReactNode
   total?: number
   totalUnits?: string
+  icon?: React.ReactNode
 }
 
-export default function Card({ title, description, children, total, totalUnits }: CardProps) {
+export default function Card({ title, description, children, total, totalUnits, icon }: CardProps) {
   return (
     <div className="flex flex-col w-full h-full relative p-2">
       <div className="flex gap-4 pb-2">
         <div className="flex flex-col w-full">
-          <p className="font-semibold text-sm">{title}</p>
-          <p className="text-[10px] font-normal text-gray-700">{description}</p>
+          <div className="flex gap-2 items-center">
+            {icon ? (
+              icon
+            ) : null}
+            <p className="font-semibold text-sm">{title}</p>
+          </div>
+          <p className="text-[10px] font-normal text-gray-700 pl-6">{description}</p>
         </div>
         {total ? (
           <div className="text-right">

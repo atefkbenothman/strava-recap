@@ -2,6 +2,7 @@ import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
 import { ResponsiveContainer, BarChart, Bar, YAxis, XAxis, Tooltip } from "recharts"
+import { Wrench } from 'lucide-react'
 
 import Card from "../card"
 
@@ -28,7 +29,7 @@ export default function GearUsage() {
   })
   data.sort((a, b) => b.time - a.time)
   return (
-    <Card title="Gear" description="total time usage for each gear">
+    <Card title="Gear" description="total time usage for each gear" icon={<Wrench size={16} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data} layout="vertical">
           <Bar dataKey="time" isAnimationActive={false} label={{ position: "right", fontSize: 12 }} fill="#06D6A0" />

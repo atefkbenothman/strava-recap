@@ -2,6 +2,8 @@ import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { StravaActivity } from "../../types/strava"
 import { getWeek, getMonth } from 'date-fns'
+import { Flame } from 'lucide-react'
+
 
 import Card from "../card"
 import Stat from "../stat"
@@ -58,7 +60,7 @@ export default function LongestStreaks() {
   }
 
   return (
-    <Card title="Longest Streaks" description="longest consecutive streaks">
+    <Card title="Longest Streaks" description="longest consecutive streaks" icon={<Flame size={16} strokeWidth={2} />}>
       <div className="w-full grid grid-cols-2 p-2 gap-2">
         <Stat
           label="Consecutive Months"

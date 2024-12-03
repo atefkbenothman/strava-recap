@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import ActivityCalendar, { ThemeInput } from "react-activity-calendar"
+import { CalendarDays } from 'lucide-react'
 
 export default function DailyActivities() {
   const { activities } = useContext(RecapContext)
@@ -17,7 +18,10 @@ export default function DailyActivities() {
   }
   return (
     <div className="flex flex-col h-full">
-      <p className="font-semibold m-2 text-sm">Daily Activities</p>
+      <div className="flex items-center m-2 gap-2">
+        <CalendarDays size={16} strokeWidth={2} />
+        <p className="font-semibold text-sm">Daily Activities</p>
+      </div>
       <div className="flex h-full items-center justify-center p-4">
         {data.length > 0 ? (
           <ActivityCalendar data={data} theme={colors} />

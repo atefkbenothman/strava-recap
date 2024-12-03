@@ -3,6 +3,7 @@ import { StravaActivity } from "../../types/strava"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
 import { ResponsiveContainer, PieChart, Pie, Legend, Tooltip, Cell } from "recharts"
+import { Zap } from 'lucide-react'
 
 import Card from "../card"
 
@@ -33,7 +34,7 @@ export default function SportTypes() {
   })
   const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
-    <Card title="Total Activities" description="number of activities per sport" total={totalActivities} totalUnits="activities">
+    <Card title="Total Activities" description="number of activities per sport" total={totalActivities} totalUnits="activities" icon={<Zap size={16} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <PieChart>
           <Pie label={{ fontSize: 14 }} data={data} dataKey="count" nameKey="type" innerRadius={50} outerRadius={80} isAnimationActive={false}>

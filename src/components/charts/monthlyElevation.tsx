@@ -9,6 +9,7 @@ import {
   XAxis,
   Tooltip,
 } from "recharts"
+import { Mountain } from 'lucide-react';
 
 import Card from "../card"
 
@@ -28,10 +29,10 @@ export default function MonthlyElevation() {
   })
   // const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
-    <Card title="Monthly Elevation" description="total elevation per month" total={Math.round(totalElevation)} totalUnits="ft">
+    <Card title="Monthly Elevation" description="total elevation per month" total={Math.round(totalElevation)} totalUnits="ft" icon={<Mountain size={16} strokeWidth={2.5} />}>
       <ResponsiveContainer height={350} width="90%">
         <AreaChart data={data}>
-          <Area type="monotone" dataKey="elevation" stroke="#118AB2" fill="#118AB2" isAnimationActive={false} />
+          <Area type="monotone" dataKey="elevation" stroke="#1e40af" fill="#1d4ed8" strokeWidth={2} isAnimationActive={false} label={{ position: "top", fontSize: 9 }} />
           <XAxis dataKey="month" tick={{ fontSize: 12 }} />
           <Tooltip />
         </AreaChart>

@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
+import { ThumbsUp } from 'lucide-react'
 
 import Card from "../card"
 import Stat from "../stat"
@@ -15,7 +16,7 @@ export default function Socials() {
     return activity
   })
   return (
-    <Card title="Socials" description="number of kudos and comments">
+    <Card title="Socials" description="number of kudos and comments" icon={<ThumbsUp size={15} strokeWidth={2} />}>
       <div className="flex w-full grid grid-cols-2 p-2 gap-2">
         <Stat
           label="Kudos Count"

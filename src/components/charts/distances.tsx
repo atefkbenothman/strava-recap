@@ -2,6 +2,7 @@ import { useContext } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { ResponsiveContainer, RadialBarChart, Legend, Tooltip, RadialBar } from "recharts"
 import { unitConversion } from "../../utils/utils"
+import { Ruler } from 'lucide-react'
 
 import Card from "../card"
 
@@ -30,7 +31,7 @@ export default function Distances() {
     }
   })
   return (
-    <Card title="Distances" description="number of activities per distance">
+    <Card title="Distances" description="number of activities per distance" icon={<Ruler size={16} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <RadialBarChart
           height={350}

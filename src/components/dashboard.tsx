@@ -15,7 +15,32 @@ import LongestStreaks from "./charts/longestStreaks"
 import MonthlyElevation from "./charts/monthlyElevation"
 import GearUsage from "./charts/gearUsage"
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu"
+
 import poweredByStravaLogo from "/powered-by-strava.svg"
+
+function Menu() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Billing</DropdownMenuItem>
+        <DropdownMenuItem>Team</DropdownMenuItem>
+        <DropdownMenuItem>Subscription</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 export default function Dashboard() {
   const { athlete, currentYear, logout } = useContext(RecapContext)
@@ -89,12 +114,20 @@ export default function Dashboard() {
 
           <div className="grid grid-cols-2 gap-2">
             <div className="font-semibold text-xl flex items-center gap-2">
-              <img src={athlete?.profile} width={25} className="rounded" />
               <p>{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
             </div>
-            <div className="flex ml-auto gap-2 gap-6">
-              <button className="text-xs rounded-sm" onClick={logout}>Sign Out</button>
-              <img className="" src={poweredByStravaLogo} alt="powered by strava logo" width={60} height={80} />
+            <div className="flex ml-auto gap-4 h-full items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <img src={athlete?.profile} width={28} height={28} className="rounded-full border-2 border-black hover:cursor-pointer" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="hover:cursor-pointer">Sign Out</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <img className="h-full" src={poweredByStravaLogo} alt="powered by strava logo" width={60} height={80} />
             </div>
           </div>
 

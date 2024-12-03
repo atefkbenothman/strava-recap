@@ -74,6 +74,7 @@ function App() {
   }
 
   if (error) {
+    const thisYear = new Date().getFullYear()
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
         <div className="flex flex-col gap-2 text-lg mx-[30%]">
@@ -83,6 +84,8 @@ function App() {
           </div>
           <div className="flex gap-6">
             <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
+            <p>or</p>
+            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>Go to {thisYear}</a>
           </div>
         </div>
       </div>

@@ -13,6 +13,7 @@ import TimeTracker from "./charts/timeTracker"
 import LongestStreaks from "./charts/longestStreaks"
 import MonthlyElevation from "./charts/monthlyElevation"
 import GearUsage from "./charts/gearUsage"
+import BiggestActivity from "./charts/biggestActivity"
 
 import {
   DropdownMenu,
@@ -50,7 +51,8 @@ export default function Dashboard() {
       <Distances />,
       <MonthlyActivities />,
       <Socials />,
-      <TimeTracker />
+      <TimeTracker />,
+      <BiggestActivity />
     ]
     const shuffleArray = (array: Array<ReactElement>) => {
       for (let i = array.length - 1; i > 0; i--) {

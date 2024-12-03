@@ -5,7 +5,6 @@ import DailyActivities from "./charts/dailyActivities"
 import SportTypes from "./charts/sportTypes"
 import TotalHours from "./charts/totalHours"
 import TotalDistanceElevation from "./charts/totalDistanceElevation"
-// import BiggestActivity from "./charts/biggestActivity"
 import Records from "./charts/records"
 import Distances from "./charts/distances"
 import MonthlyActivities from "./charts/monthlyActivities"
@@ -23,65 +22,37 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "./ui/pagination"
 
 import poweredByStravaLogo from "/powered-by-strava.svg"
 
 export default function Dashboard() {
-  const { athlete, currentYear, logout } = useContext(RecapContext)
-  const [shuffledComponents, setShuffledComponents] = useState<Array<{ colSpan: number; component: ReactElement }>>([]);
+  const { athlete, currentYear, updateYear, logout } = useContext(RecapContext)
+
+  const [shuffledComponents, setShuffledComponents] = useState<Array<ReactElement>>([]);
 
   useEffect(() => {
     const graphs = [
-      {
-        colSpan: 1,
-        component: <GearUsage />
-      },
-      {
-        colSpan: 1,
-        component: <MonthlyElevation />
-      },
-      {
-        colSpan: 1,
-        component: <TotalHours />
-      },
-      {
-        colSpan: 1,
-        component: <LongestStreaks />
-      },
-      {
-        colSpan: 1,
-        component: <SportTypes />
-      },
-      {
-        colSpan: 1,
-        component: <TotalDistanceElevation />
-      },
-      // {
-      //   colSpan: 2,
-      //   component: <BiggestActivity />
-      // },
-      {
-        colSpan: 1,
-        component: <Records />
-      },
-      {
-        colSpan: 1,
-        component: <Distances />
-      },
-      {
-        colSpan: 1,
-        component: <MonthlyActivities />
-      },
-      {
-        colSpan: 1,
-        component: <Socials />
-      },
-      {
-        colSpan: 1,
-        component: <TimeTracker />
-      }
+      <GearUsage />,
+      <MonthlyElevation />,
+      <TotalHours />,
+      <LongestStreaks />,
+      <SportTypes />,
+      <TotalDistanceElevation />,
+      <Records />,
+      <Distances />,
+      <MonthlyActivities />,
+      <Socials />,
+      <TimeTracker />
     ]
-    const shuffleArray = (array: Array<{ colSpan: number; component: ReactElement }>) => {
+    const shuffleArray = (array: Array<ReactElement>) => {
       for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -94,40 +65,60 @@ export default function Dashboard() {
   return (
     <div className="w-full h-full">
       <div className="flex flex-col w-full h-full">
-        <div className="flex flex-col p-2 gap-2 h-fit w-full">
+        <div className="flex flex-col p-2 gap-1 h-fit w-full">
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="font-semibold text-xl flex items-center gap-2">
+          {/* Top Bar */}
+          <div className="grid grid-cols-2">
+            {/* Left Side */}
+            <div className="font-semibold text-xl flex items-center">
               <p>{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
             </div>
-            <div className="flex ml-auto gap-4 h-full items-center">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <img src={athlete?.profile} width={28} height={28} className="rounded-full border-2 border-black hover:cursor-pointer" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={logout} className="hover:cursor-pointer">Sign Out</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <img className="h-full" src={poweredByStravaLogo} alt="powered by strava logo" width={60} height={80} />
+            {/* Right Side */}
+            <div className="flex flex-wrap w-full gap-6 items-center h-full justify-end">
+              <div className="flex items-center hidden sm:block">
+                <Pagination className="h-fit">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline" title={String((currentYear ?? 0) - 1)} onClick={(() => updateYear((currentYear ?? 0) - 1))} />
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationLink className="font-semibold hover:bg-transparent mx-4">{currentYear}</PaginationLink>
+                    </PaginationItem>
+                    <PaginationItem>
+                      <PaginationNext className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline" title={String((currentYear ?? 0) + 1)} onClick={() => updateYear((currentYear ?? 0) + 1)} />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              </div>
+              <div className="">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <img src={athlete?.profile} width={28} height={28} className="rounded-full border-2 border-gray-600 hover:cursor-pointer max-w-full" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={logout} className="hover:cursor-pointer">Sign Out</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="">
+                <img className="max-w-full" src={poweredByStravaLogo} alt="powered by strava logo" width={60} height={80} />
+              </div>
             </div>
           </div>
 
+          {/* Main Content */}
           <div className="flex flex-col h-fit w-full">
             <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-2 w-full">
-
               <div className="bg-[#efefef] col-span-1 sm:col-span-2 rounded">
                 <DailyActivities />
               </div>
-
-              {shuffledComponents.map(({ component, colSpan }, index) => (
-                <div key={index} className={`bg-[#efefef] col-span-${colSpan} rounded`}>
+              {shuffledComponents.map((component, index) => (
+                <div key={index} className="bg-[#efefef] col-span-1 rounded">
                   {component}
                 </div>
               ))}
-
             </div>
           </div>
 

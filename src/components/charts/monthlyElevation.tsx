@@ -14,10 +14,10 @@ import { Mountain } from 'lucide-react';
 import Card from "../card"
 
 
-const monthData = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 export default function MonthlyElevation() {
   const { activities } = useContext(RecapContext)
+  const monthData = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
   const data = Array(12).fill(0).map((_, index) => ({ month: monthData[index], elevation: 0 }))
   let totalElevation = 0
   activities.forEach(activity => {
@@ -27,7 +27,6 @@ export default function MonthlyElevation() {
     month!.elevation += elevation
     totalElevation += elevation
   })
-  // const colors = ["#06D6A0", "#118AB2", "#073B4C"]
   return (
     <Card title="Monthly Elevation" description="total elevation per month" total={Math.round(totalElevation)} totalUnits="ft" icon={<Mountain size={16} strokeWidth={2.5} />}>
       <ResponsiveContainer height={350} width="90%">

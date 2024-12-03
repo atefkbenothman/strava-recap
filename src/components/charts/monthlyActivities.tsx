@@ -14,23 +14,23 @@ import { Timer } from 'lucide-react'
 import Card from "../card"
 
 
-const monthData = [
-  { "month": "January" },
-  { "month": "February" },
-  { "month": "March" },
-  { "month": "April" },
-  { "month": "May" },
-  { "month": "June" },
-  { "month": "July" },
-  { "month": "August" },
-  { "month": "September" },
-  { "month": "October" },
-  { "month": "November" },
-  { "month": "December" }
-]
 
 export default function MonthlyActivities() {
   const { activities } = useContext(RecapContext)
+  const monthData = [
+    { "month": "January" },
+    { "month": "February" },
+    { "month": "March" },
+    { "month": "April" },
+    { "month": "May" },
+    { "month": "June" },
+    { "month": "July" },
+    { "month": "August" },
+    { "month": "September" },
+    { "month": "October" },
+    { "month": "November" },
+    { "month": "December" }
+  ]
   let totalActivities = 0
   const data = activities.reduce((acc: any[], activity: StravaActivity) => {
     const date = new Date(activity.start_date!);

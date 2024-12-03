@@ -60,7 +60,7 @@ export default function LongestStreaks() {
   }
 
   return (
-    <Card title="Longest Streaks" description="longest consecutive streaks" icon={<Flame size={16} strokeWidth={2} />}>
+    <Card title="Longest Streaks" description="longest consecutive streaks" icon={<Flame size={16} strokeWidth={2.5} />}>
       <div className="w-full grid grid-cols-2 p-2 gap-2">
         <Stat
           label="Consecutive Months"

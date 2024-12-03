@@ -5,6 +5,9 @@ import { CalendarDays } from 'lucide-react'
 
 export default function DailyActivities() {
   const { activities } = useContext(RecapContext)
+  const colors: ThemeInput = {
+    dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
+  }
   const data = activities
     .sort((a, b) => new Date(a.start_date_local!).getTime() - new Date(b.start_date_local!).getTime())
     .map((activity) => {
@@ -13,9 +16,6 @@ export default function DailyActivities() {
       const level = Math.min(Math.floor((activity.moving_time!) / 1000), 4)
       return { date, count, level }
     })
-  const colors: ThemeInput = {
-    dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
-  }
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center m-2 gap-2">

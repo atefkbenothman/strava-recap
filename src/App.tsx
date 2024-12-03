@@ -23,6 +23,8 @@ function App() {
     queryKey: [currentYear],
     queryFn: () => stravaApi.getAllActivities(accessToken!, currentYear),
     enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24,
     retry: false
   })
 
@@ -79,7 +81,9 @@ function App() {
             <p className="text-red-500 font-bold">Error: </p>
             <p>{error.message}</p>
           </div>
-          <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
+          <div className="flex gap-6">
+            <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
+          </div>
         </div>
       </div>
     )
@@ -91,7 +95,7 @@ function App() {
       <div className="w-screen h-screen flex flex-col items-center justify-center">
         <div className="flex flex-col gap-4 text-lg">
           <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
-          <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(new Date().getFullYear())}>Go to {thisYear}</a>
+          <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>Go to {thisYear}</a>
         </div>
       </div>
     )
@@ -99,7 +103,7 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      <RecapContext.Provider value={{ isAuthenticated, athlete, activities, currentYear, logout }}>
+      <RecapContext.Provider value={{ isAuthenticated, athlete, activities, currentYear, updateYear, logout }}>
         <Dashboard />
       </RecapContext.Provider>
     </div>

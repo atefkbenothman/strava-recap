@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, ReactElement } from "react"
 import { useQuery } from "@tanstack/react-query"
 
 import { useStravaAuth } from "./hooks/useStravaAuth"
@@ -7,6 +7,19 @@ import { StravaActivity, SportType } from "./types/strava"
 import { ActivitiesByType, ActivityData, MonthlyActivities, Months } from "./types/activity"
 import { RecapContext } from "./contexts/recapContext"
 import { THEME, ThemeKey } from "./themes/themeConfig"
+
+import SportTypes from "./components/charts/sportTypes"
+import TotalHours from "./components/charts/totalHours"
+import Distance from "./components/charts/distance"
+import Records from "./components/charts/records"
+import DistanceRanges from "./components/charts/distanceRanges"
+import ActivityCount from "./components/charts/activityCount"
+import Socials from "./components/charts/socials"
+import StartTimes from "./components/charts/startTimes"
+import Streaks from "./components/charts/streaks"
+import Elevation from "./components/charts/elevation"
+import Gear from "./components/charts/gear"
+import BiggestActivity from "./components/charts/biggestActivity"
 
 import Dashboard from "./components/dashboard"
 
@@ -20,8 +33,9 @@ function App() {
 
   const [activityData, setActivityData] = useState<ActivityData>({})
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
-  const [themeKey, setThemeKey] = useState<ThemeKey>("emerald")
+  const [themeKey, setThemeKey] = useState<ThemeKey>("divergent")
   const [colorPalette, setColorPalette] = useState<Record<string, string>>({})
+  const [shuffledComponents, setShuffledComponents] = useState<Array<ReactElement>>([]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: [currentYear],
@@ -31,6 +45,31 @@ function App() {
     gcTime: 1000 * 60 * 60 * 24,
     retry: false
   })
+
+  useEffect(() => {
+    const graphs = [
+      <SportTypes />,
+      <TotalHours />,
+      <Distance />,
+      <Records />,
+      <DistanceRanges />,
+      <ActivityCount />,
+      <Socials />,
+      <StartTimes />,
+      <Streaks />,
+      <Elevation />,
+      <Gear />,
+      <BiggestActivity />
+    ]
+    const shuffleArray = (array: Array<ReactElement>) => {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    };
+    setShuffledComponents(shuffleArray(graphs));
+  }, [])
 
   useEffect(() => {
     if (data) {
@@ -68,16 +107,23 @@ function App() {
 
 
   function generateColorPalette(activities: StravaActivity[], themeKey: ThemeKey) {
-    const uniqueActivityTypes = [...new Set(
+    const uniqueNewActivityTypes = [...new Set(
       activities.map(activity => activity.sport_type!)
     )]
-    const colors = THEME[themeKey].colors;
-    const colorPallete = uniqueActivityTypes.reduce((palette: Record<string, string>, sportType, index) => {
-      const chosenColor = colors[index % colors.length]
-      palette[sportType] = chosenColor
-      return palette
-    }, {})
-    setColorPalette(colorPallete)
+
+    const updatedColorPalette = { ...colorPalette }
+    const colors = THEME[themeKey].colors
+
+    uniqueNewActivityTypes.forEach(sport => {
+      if (!updatedColorPalette[sport]) {
+        const usedColors = new Set(Object.values(updatedColorPalette))
+        const availableColor = colors.find(color => !usedColors.has(color))
+        if (availableColor) {
+          updatedColorPalette[sport] = availableColor
+        }
+      }
+    })
+    setColorPalette(updatedColorPalette)
   }
 
   if (!isAuthenticated) {
@@ -126,7 +172,7 @@ function App() {
     )
   }
 
-  if (Object.keys(activityData).length === 0) {
+  if (Object.keys(activityData).length === 0 || Object.keys(activityData.all!).length === 0) {
     const thisYear = new Date().getFullYear()
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
@@ -141,7 +187,7 @@ function App() {
   return (
     <div className="w-screen h-screen">
       <RecapContext.Provider value={{ isAuthenticated, currentYear, athlete, activityData, colorPalette, theme: THEME[themeKey], updateYear, logout }}>
-        <Dashboard />
+        <Dashboard graphs={shuffledComponents} />
       </RecapContext.Provider>
     </div >
   )

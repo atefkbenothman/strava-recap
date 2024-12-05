@@ -2,18 +2,6 @@ import { useEffect, useState, useContext, ReactElement } from "react"
 import { RecapContext } from "../contexts/recapContext"
 
 import DailyActivities from "./charts/dailyActivities"
-import SportTypes from "./charts/sportTypes"
-import TotalHours from "./charts/totalHours"
-import Distance from "./charts/distance"
-import Records from "./charts/records"
-import DistanceRanges from "./charts/distanceRanges"
-import ActivityCount from "./charts/activityCount"
-import Socials from "./charts/socials"
-import StartTimes from "./charts/startTimes"
-import Streaks from "./charts/streaks"
-import Elevation from "./charts/elevation"
-import Gear from "./charts/gear"
-import BiggestActivity from "./charts/biggestActivity"
 
 import {
   DropdownMenu,
@@ -34,35 +22,12 @@ import {
 
 import poweredByStravaLogo from "/powered-by-strava.svg"
 
-export default function Dashboard() {
+type Props = {
+  graphs: ReactElement[]
+}
+
+export default function Dashboard({ graphs }: Props) {
   const { athlete, currentYear, updateYear, logout } = useContext(RecapContext)
-
-  const [shuffledComponents, setShuffledComponents] = useState<Array<ReactElement>>([]);
-
-  useEffect(() => {
-    const graphs = [
-      <SportTypes />,
-      <TotalHours />,
-      <Distance />,
-      <Records />,
-      <DistanceRanges />,
-      <ActivityCount />,
-      <Socials />,
-      <StartTimes />,
-      <Streaks />,
-      <Elevation />,
-      <Gear />,
-      <BiggestActivity />
-    ]
-    const shuffleArray = (array: Array<ReactElement>) => {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    };
-    setShuffledComponents(shuffleArray(graphs));
-  }, [])
 
   return (
     <div className="w-full h-full">
@@ -116,9 +81,9 @@ export default function Dashboard() {
               <div className="bg-[#efefef] col-span-1 sm:col-span-2 rounded">
                 <DailyActivities />
               </div>
-              {shuffledComponents.map((component, index) => (
+              {graphs.map((graph, index) => (
                 <div key={index} className="bg-[#efefef] col-span-1 rounded">
-                  {component}
+                  {graph}
                 </div>
               ))}
             </div>

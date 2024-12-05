@@ -4,15 +4,15 @@ import { RecapContext } from "../contexts/recapContext"
 import DailyActivities from "./charts/dailyActivities"
 import SportTypes from "./charts/sportTypes"
 import TotalHours from "./charts/totalHours"
-import TotalDistanceElevation from "./charts/totalDistanceElevation"
+import Distance from "./charts/distance"
 import Records from "./charts/records"
-import Distances from "./charts/distances"
-import MonthlyActivities from "./charts/monthlyActivities"
+import DistanceRanges from "./charts/distanceRanges"
+import ActivityCount from "./charts/activityCount"
 import Socials from "./charts/socials"
-import TimeTracker from "./charts/timeTracker"
-import LongestStreaks from "./charts/longestStreaks"
-import MonthlyElevation from "./charts/monthlyElevation"
-import GearUsage from "./charts/gearUsage"
+import StartTimes from "./charts/startTimes"
+import Streaks from "./charts/streaks"
+import Elevation from "./charts/elevation"
+import Gear from "./charts/gear"
 import BiggestActivity from "./charts/biggestActivity"
 
 import {
@@ -41,17 +41,17 @@ export default function Dashboard() {
 
   useEffect(() => {
     const graphs = [
-      <GearUsage />,
-      <MonthlyElevation />,
-      <TotalHours />,
-      <LongestStreaks />,
       <SportTypes />,
-      <TotalDistanceElevation />,
+      <TotalHours />,
+      <Distance />,
       <Records />,
-      <Distances />,
-      <MonthlyActivities />,
+      <DistanceRanges />,
+      <ActivityCount />,
       <Socials />,
-      <TimeTracker />,
+      <StartTimes />,
+      <Streaks />,
+      <Elevation />,
+      <Gear />,
       <BiggestActivity />
     ]
     const shuffleArray = (array: Array<ReactElement>) => {

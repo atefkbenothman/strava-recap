@@ -7,7 +7,7 @@ type StatProps = {
 export default function Stat({ label, value, unit }: StatProps) {
   return (
     <div className="flex flex-col bg-gray-200 rounded p-2 gap-4">
-      <p className="text-xs">{label}</p>
+      <p className="text-[10px]">{label}</p>
       <div className="flex flex-col w-full h-full items-center justify-center">
         <p className="font-semibold text-xl">
           {value}

@@ -96,8 +96,7 @@ export type StravaGear = {
   description: string
 }
 
-
-export const SportTypes: string[] = [
+export const SportTypes = [
   "Run",
   "Trail Run",
   "Walk",
@@ -145,4 +144,5 @@ export const SportTypes: string[] = [
   "Table Tennis",
   "Squash",
   "Racquetball"
-]
+] as const
+export type SportType = typeof SportTypes[number]

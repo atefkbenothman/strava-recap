@@ -3,10 +3,9 @@ import { RecapContext } from "../../contexts/recapContext"
 import { StravaActivity } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import { Trophy } from 'lucide-react'
+import Card from "../card"
 
 import polyline from "@mapbox/polyline"
-
-import Card from "../card"
 
 
 const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
@@ -32,17 +31,17 @@ function Metric({ label, value, unit }: MetricProps) {
 }
 
 export default function BiggestActivity() {
-  const { activities } = useContext(RecapContext)
-  if (activities.length < 1) {
+  const { activityData } = useContext(RecapContext)
+  if (activityData.all!.length < 1) {
     return
   }
-  const biggestActivity = activities.reduce((biggestActivity: StravaActivity, activity: StravaActivity) => {
+  const biggestActivity = activityData.all!.reduce((biggestActivity: StravaActivity, activity: StravaActivity) => {
     return activity.distance! > biggestActivity.distance! ? activity : biggestActivity
-  }, activities[0])
+  }, activityData.all![0])
   const route = polyline.decode(biggestActivity.map?.summary_polyline!)
   return (
-    <Card title="Biggest Activity" description="your biggest activity" icon={<Trophy size={16} strokeWidth={2} />}>
-      <div className="grid grid-rows-[repeat(3,min-content)_1fr] h-full gap-2">
+    <Card title="Biggest Activity" description="" icon={<Trophy size={16} strokeWidth={2} />}>
+      <div className="grid grid-rows-[repeat(3,min-content)_1fr] h-full gap-2 rounded p-1">
         <div className="flex justify-center">
           <p>{biggestActivity.name}</p>
         </div>

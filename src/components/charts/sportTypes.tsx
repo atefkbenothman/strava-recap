@@ -1,46 +1,34 @@
 import { useContext } from "react"
-import { StravaActivity } from "../../types/strava"
+import { SportType } from "../../types/strava"
 import { RecapContext } from "../../contexts/recapContext"
-import { unitConversion } from "../../utils/utils"
 import { ResponsiveContainer, PieChart, Pie, Legend, Tooltip, Cell } from "recharts"
 import { Zap } from 'lucide-react'
-
 import Card from "../card"
 
-type SportType = {
-  type: string
-  count: number
-  hours: number
-  color?: string
+type PieChartData = {
+  sport: SportType
+  activities: number
+  color: string
 }
 
+/*
+ * All sport types
+*/
 export default function SportTypes() {
-  const { activities, colorPalette } = useContext(RecapContext)
-  let totalActivities = 0
-  let data = activities.reduce((acc: SportType[], activity: StravaActivity) => {
-    const type = activity.sport_type!
-    const hours = unitConversion.convertSecondsToHours(activity.moving_time!)
-    const existingType = acc.find((t) => t.type === type)
-    totalActivities += 1
-    if (existingType) {
-      existingType.count++
-      existingType.hours += hours
-    } else {
-      acc.push({ type, count: 1, hours: hours })
-    }
+  const { activityData, colorPalette } = useContext(RecapContext)
+  const numSportTypes = Object.keys(activityData.bySportType!).length
+  const data = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
+    const numActs = activityData.bySportType![sport as SportType]!.length
+    acc.push({ sport: sport as SportType, activities: numActs, color: colorPalette[sport] })
     return acc
-  }, [])
-  data = data.map((sportType: SportType) => {
-    return { type: sportType.type, count: sportType.count, hours: Math.round(sportType.hours), color: colorPalette[sportType.type] }
-  })
-  console.log(data)
+  }, [] as PieChartData[])
   return (
-    <Card title="Total Activities" description="number of activities per sport" total={totalActivities} totalUnits="activities" icon={<Zap size={16} strokeWidth={2} />}>
+    <Card title="Sport Types" description="number of activities per sport type" total={numSportTypes} totalUnits="sports" icon={<Zap size={16} strokeWidth={2} />}>
       <ResponsiveContainer height={350} width="90%">
         <PieChart>
-          <Pie label={{ fontSize: 14 }} data={data} dataKey="count" nameKey="type" innerRadius={50} outerRadius={80} isAnimationActive={false}>
-            {data.map((d, idx) => (
-              <Cell key={idx} fill={d.color} />
+          <Pie label={{ fontSize: 14 }} data={data} dataKey="activities" nameKey="sport" innerRadius={50} outerRadius={80} isAnimationActive={false}>
+            {data.map((e, idx) => (
+              <Cell key={idx} fill={e.color} />
             ))}
           </Pie>
           <Tooltip />

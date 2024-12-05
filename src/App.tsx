@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query"
 
 import { useStravaAuth } from "./hooks/useStravaAuth"
 import { stravaApi } from "./services/api"
-import { StravaActivity } from "./types/strava"
+import { StravaActivity, SportType } from "./types/strava"
+import { ActivitiesByType, ActivityData, MonthlyActivities, Months } from "./types/activity"
 import { RecapContext } from "./contexts/recapContext"
 import { THEME, ThemeKey } from "./themes/themeConfig"
 
@@ -13,10 +14,11 @@ import connectWithStravaLogo from "/connect-with-strava.svg"
 
 import "./App.css"
 
+
 function App() {
   const { isAuthenticated, accessToken, athlete, login, logout } = useStravaAuth()
 
-  const [activities, setActivities] = useState<StravaActivity[]>([])
+  const [activityData, setActivityData] = useState<ActivityData>({})
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
   const [themeKey, setThemeKey] = useState<ThemeKey>("emerald")
   const [colorPalette, setColorPalette] = useState<Record<string, string>>({})
@@ -32,7 +34,22 @@ function App() {
 
   useEffect(() => {
     if (data) {
-      setActivities(data)
+      const activitiesByMonth: MonthlyActivities = {}
+      Months.reduce((acc: MonthlyActivities, month: string) => {
+        acc[month] = []
+        return acc
+      }, activitiesByMonth)
+      const activitiesByType: ActivitiesByType = {}
+      data.forEach(activity => {
+        const sportType = activity.sport_type! as SportType
+        const activityMonth = new Date(activity.start_date!).toLocaleString("default", { month: "long" })
+        if (!activitiesByType[sportType]) {
+          activitiesByType[sportType] = []
+        }
+        activitiesByMonth[activityMonth]?.push(activity)
+        activitiesByType[sportType].push(activity)
+      })
+      setActivityData({ all: data, monthly: activitiesByMonth, bySportType: activitiesByType })
       generateColorPalette(data, themeKey)
     }
   }, [data])
@@ -109,7 +126,7 @@ function App() {
     )
   }
 
-  if (activities.length === 0) {
+  if (Object.keys(activityData).length === 0) {
     const thisYear = new Date().getFullYear()
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
@@ -123,7 +140,7 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      <RecapContext.Provider value={{ isAuthenticated, athlete, activities, currentYear, colorPalette, theme: THEME[themeKey], updateYear, logout }}>
+      <RecapContext.Provider value={{ isAuthenticated, currentYear, athlete, activityData, colorPalette, theme: THEME[themeKey], updateYear, logout }}>
         <Dashboard />
       </RecapContext.Provider>
     </div >

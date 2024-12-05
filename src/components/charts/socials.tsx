@@ -6,17 +6,19 @@ import Card from "../card"
 import Stat from "../stat"
 
 
+/*
+ * Social stats
+*/
 export default function Socials() {
-  const { activities } = useContext(RecapContext)
+  const { activityData } = useContext(RecapContext)
   let kudosCount = 0
   let commentCount = 0
-  activities.map(activity => {
+  activityData.all!.forEach(activity => {
     kudosCount += activity.kudos_count ?? 0
     commentCount += activity.comment_count ?? 0
-    return activity
   })
   return (
-    <Card title="Socials" description="number of kudos and comments" icon={<ThumbsUp size={15} strokeWidth={2} />}>
+    <Card title="Socials" description="total kudos and comments" icon={<ThumbsUp size={15} strokeWidth={2} />}>
       <div className="flex w-full grid grid-rows-2 p-2 gap-2">
         <Stat
           label="Kudos Count"

@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { StravaActivity } from "../../types/strava"
 import { getWeek, getMonth } from 'date-fns'
@@ -10,17 +10,28 @@ import Stat from "../stat"
 export default function Streaks() {
   const { activityData } = useContext(RecapContext)
 
-  const months = [...new Set(
-    activityData.all!.map((activity) => {
-      return getMonth(new Date(activity.start_date!))
-    })
-  )]
+  const [months, setMonths] = useState<number[]>([])
+  const [weeks, setWeeks] = useState<number[]>([])
 
-  const weeks = [...new Set(
-    activityData.all!.map((activity) => {
-      return getWeek(new Date(activity.start_date!))
-    })
-  )]
+  useEffect(() => {
+    if (!activityData) return
+    function getWeeksMonths() {
+      const months = [...new Set(
+        activityData.all!.map((activity) => {
+          return getMonth(new Date(activity.start_date!))
+        })
+      )]
+      setMonths(months)
+      const weeks = [...new Set(
+        activityData.all!.map((activity) => {
+          return getWeek(new Date(activity.start_date!))
+        })
+      )]
+      setWeeks(weeks)
+
+    }
+    getWeeksMonths()
+  }, [activityData])
 
   function findMaxConsecutive(nums: number[]) {
     const sorted = [...new Set(nums)].sort((a, b) => a - b)
@@ -58,7 +69,11 @@ export default function Streaks() {
   }
 
   return (
-    <Card title="Streaks" description="longest streaks" icon={<Flame size={16} strokeWidth={2.5} />}>
+    <Card
+      title="Streaks"
+      description="longest streaks"
+      icon={<Flame size={16} strokeWidth={2.5} />}
+    >
       <div className="w-full grid grid-rows-3 p-2 gap-2">
         <Stat
           label="Months"

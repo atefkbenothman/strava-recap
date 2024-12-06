@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
@@ -10,7 +10,7 @@ import {
   Tooltip,
   Legend
 } from "recharts"
-import { Mountain } from 'lucide-react';
+import { Mountain } from "lucide-react"
 import Card from "../card"
 
 
@@ -24,28 +24,52 @@ type BarChartData = {
 */
 export default function Elevation() {
   const { activityData, colorPalette } = useContext(RecapContext)
-  let totalElevation = 0
-  const sportTypes = Object.keys(activityData.bySportType!)
-  const data: BarChartData[] = []
-  Object.keys(activityData.monthly!).forEach(month => {
-    const acts = activityData.monthly![month]!
-    const elevationBySport: { [key: string]: number } = {}
-    acts.forEach((a) => {
-      const sportType = a.sport_type! as SportType
-      const elevation = Math.round(unitConversion.convertFromMetersToFeet(a.total_elevation_gain!))
-      if (!elevationBySport[sportType]) {
-        elevationBySport[sportType] = 0
-      }
-      totalElevation += elevation
-      elevationBySport[sportType] += elevation
-    })
-    data.push({ month: month, ...elevationBySport })
-  })
+
+  const [data, setData] = useState<BarChartData[]>([])
+  const [totalElevation, setTotalElevation] = useState<number>(0)
+  const [sportTypes, setSportTypes] = useState<string[]>([])
+
+  useEffect(() => {
+    if (!activityData) return
+    setSportTypes(Object.keys(activityData.bySportType!))
+    function calculateElevation() {
+      let totalElev = 0
+      const res: BarChartData[] = []
+      Object.keys(activityData.monthly!).forEach(month => {
+        const acts = activityData.monthly![month]!
+        const elevationBySport: Record<string, number> = {}
+        acts.forEach((a) => {
+          const sportType = a.sport_type! as SportType
+          const elevation = Math.round(unitConversion.convertFromMetersToFeet(a.total_elevation_gain!))
+          if (!elevationBySport[sportType]) {
+            elevationBySport[sportType] = 0
+          }
+          elevationBySport[sportType] += elevation
+          totalElev += elevation
+        })
+        res.push({ month: month, ...elevationBySport })
+      })
+      setData(res)
+      setTotalElevation(totalElev)
+    }
+    calculateElevation()
+  }, [activityData])
+
   return (
-    <Card title="Elevation" description="total elevation per month" total={Math.round(totalElevation)} totalUnits="ft" icon={<Mountain size={16} strokeWidth={2} />}>
+    <Card
+      title="Elevation"
+      description="total elevation per month"
+      total={Math.round(totalElevation)}
+      totalUnits="ft"
+      icon={<Mountain size={16} strokeWidth={2} />}
+    >
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
-          <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
+          <XAxis
+            type="category"
+            dataKey="month"
+            tick={{ fontSize: 12 }}
+          />
           <Tooltip />
           {sportTypes.map(sport => (
             <Bar

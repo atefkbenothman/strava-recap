@@ -1,6 +1,12 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { RecapContext } from "../../contexts/recapContext"
-import { ResponsiveContainer, RadialBarChart, Legend, Tooltip, RadialBar } from "recharts"
+import {
+  ResponsiveContainer,
+  RadialBarChart,
+  Legend,
+  Tooltip,
+  RadialBar
+} from "recharts"
 import { unitConversion } from "../../utils/utils"
 import { Ruler } from 'lucide-react'
 import Card from "../card"
@@ -25,15 +31,30 @@ const distanceRanges = [
 */
 export default function DistanceRanges() {
   const { activityData, theme } = useContext(RecapContext)
-  const data = distanceRanges.map((range, index) => {
-    const activitiesInRange = activityData.all!.filter(activity => {
-      const distance = unitConversion.convertFromMetersToMi(activity.distance!)
-      return distance >= range.min && distance < range.max
-    })
-    return { name: range.name, activities: activitiesInRange.length, fill: theme.colors[index] } as RadialBarChartData
-  })
+
+  const [data, setData] = useState<RadialBarChartData[]>([])
+
+  useEffect(() => {
+    if (!activityData) return
+    function formatData() {
+      const res = distanceRanges.map((range, index) => {
+        const activitiesInRange = activityData.all!.filter(activity => {
+          const distance = unitConversion.convertFromMetersToMi(activity.distance!)
+          return distance >= range.min && distance < range.max
+        })
+        return { name: range.name, activities: activitiesInRange.length, fill: theme.colors[index] } as RadialBarChartData
+      })
+      setData(res)
+    }
+    formatData()
+  }, [activityData])
+
   return (
-    <Card title="Distance Ranges" description="number of activities within a distance range" icon={<Ruler size={16} strokeWidth={2} />}>
+    <Card
+      title="Distance Ranges"
+      description="number of activities within a distance range"
+      icon={<Ruler size={16} strokeWidth={2} />}
+    >
       <ResponsiveContainer height={350} width="90%">
         <RadialBarChart
           height={350}
@@ -43,8 +64,16 @@ export default function DistanceRanges() {
           startAngle={180}
           endAngle={-180}
         >
-          <RadialBar label={{ fontSize: 12, position: "bottom", fill: "#000000" }} background={{ fill: "#e5e7eb" }} dataKey="activities" />
-          <Legend verticalAlign="bottom" layout="horizontal" align="center" />
+          <RadialBar
+            label={{ fontSize: 12, position: "bottom", fill: "#000000" }}
+            background={{ fill: "#e5e7eb" }}
+            dataKey="activities"
+          />
+          <Legend
+            verticalAlign="bottom"
+            layout="horizontal"
+            align="center"
+          />
           <Tooltip />
         </RadialBarChart>
       </ResponsiveContainer>

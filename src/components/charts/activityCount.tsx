@@ -1,4 +1,4 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { SportType } from "../../types/strava"
 import {
@@ -23,29 +23,51 @@ type BarChartData = {
 */
 export default function ActivityCount() {
   const { activityData, colorPalette } = useContext(RecapContext)
-  let totalActivities = 0
-  const sportTypes = Object.keys(activityData.bySportType!)
-  const data: BarChartData[] = []
-  Object.keys(activityData.monthly!).forEach(month => {
-    const acts = activityData.monthly![month]!
-    totalActivities += acts.length
-    const numActivitiesBySport: { [key: string]: number } = {}
-    acts.forEach((a) => {
-      const sportType = a.sport_type! as SportType
-      if (!numActivitiesBySport[sportType]) {
-        numActivitiesBySport[sportType] = 0
-      }
-      numActivitiesBySport[sportType] += 1
-    })
-    data.push({ month: month, ...numActivitiesBySport })
-  })
+
+  const [data, setData] = useState<BarChartData[]>([])
+  const [totalActivities, setTotalActivities] = useState<number>(0)
+
+  useEffect(() => {
+    if (!activityData) return
+    function calculateActivityCount() {
+      let totalActs = 0
+      const res: BarChartData[] = []
+      Object.keys(activityData.monthly!).forEach(month => {
+        const acts = activityData.monthly![month]!
+        const numActivitiesBySport: Record<string, number> = {}
+        acts.forEach((a) => {
+          const sportType = a.sport_type! as SportType
+          if (!numActivitiesBySport[sportType]) {
+            numActivitiesBySport[sportType] = 0
+          }
+          numActivitiesBySport[sportType] += 1
+        })
+        res.push({ month: month, ...numActivitiesBySport })
+        totalActs += acts.length
+      })
+      setData(res)
+      setTotalActivities(totalActs)
+    }
+    calculateActivityCount()
+  }, [activityData])
+
   return (
-    <Card title="Activity Count" description="number of activities per month" total={totalActivities} totalUnits="activities" icon={<BicepsFlexed size={16} strokeWidth={2} />}>
+    <Card
+      title="Activity Count"
+      description="number of activities per month"
+      total={totalActivities}
+      totalUnits="activities"
+      icon={<BicepsFlexed size={16} strokeWidth={2}
+      />}>
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
-          <XAxis type="category" dataKey="month" tick={{ fontSize: 12 }} />
+          <XAxis
+            type="category"
+            dataKey="month"
+            tick={{ fontSize: 12 }}
+          />
           <Tooltip />
-          {sportTypes.map(sport => (
+          {Object.keys(activityData.bySportType!).map(sport => (
             <Bar
               key={sport}
               stackId="stack"

@@ -20,6 +20,7 @@ import Streaks from "./components/charts/streaks"
 import Elevation from "./components/charts/elevation"
 import Gear from "./components/charts/gear"
 import BiggestActivity from "./components/charts/biggestActivity"
+import DistanceVsElevation from "./components/charts/distanceVsElevation"
 
 import Dashboard from "./components/dashboard"
 
@@ -59,7 +60,8 @@ function App() {
       <Streaks />,
       <Elevation />,
       <Gear />,
-      <BiggestActivity />
+      <BiggestActivity />,
+      <DistanceVsElevation />
     ]
     const shuffleArray = (array: Array<ReactElement>) => {
       for (let i = array.length - 1; i > 0; i--) {

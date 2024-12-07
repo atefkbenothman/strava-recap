@@ -1,7 +1,7 @@
 import { createContext } from "react"
 import { StravaAthlete } from "../types/strava"
 import { ActivityData } from "../types/activity"
-import { Theme, ThemeName } from "../themes/themeConfig"
+import { Theme, ThemeName } from "../themes/theme"
 
 
 interface RecapContextType {

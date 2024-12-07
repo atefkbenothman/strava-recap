@@ -1,8 +1,7 @@
 import { useContext, useState, useEffect } from "react"
 import { RecapContext } from "../../contexts/recapContext"
 import { unitConversion } from "../../utils/utils"
-import { StravaGear } from "../../types/strava"
-import { getRandomColor } from "../../themes/themeConfig"
+import { getRandomColor } from "../../themes/theme"
 import {
   ResponsiveContainer,
   BarChart,

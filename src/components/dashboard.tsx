@@ -1,4 +1,4 @@
-import { useState, useContext, ReactElement } from "react"
+import { useContext, ReactElement } from "react"
 import { RecapContext } from "../contexts/recapContext"
 
 import DailyActivities from "./charts/dailyActivities"

@@ -6,7 +6,7 @@ import { stravaApi } from "./services/api"
 import { SportType } from "./types/strava"
 import { ActivitiesByType, ActivityData, MonthlyActivities, Months } from "./types/activity"
 import { RecapContext } from "./contexts/recapContext"
-import { Theme, ThemeName, generateColorPalette, SportColors } from "./themes/themeConfig"
+import { Theme, ThemeName, generateColorPalette, SportColors } from "./themes/theme"
 
 import SportTypes from "./components/charts/sportTypes"
 import TotalHours from "./components/charts/totalHours"
@@ -120,18 +120,21 @@ function App() {
     }
   }, [activities])
 
+  // update athlete data with bike and shoes data
   useEffect(() => {
     if (athleteData) {
       updateStravaAthlete(athleteData)
     }
   }, [athleteData])
 
+  // update theme set by user
   useEffect(() => {
     if (!activities) return
     const sportTypes = activities.map(a => a.sport_type! as SportType)
     setColorPalette(generateColorPalette(sportTypes, themeName, colorPalette, true))
   }, [themeName])
 
+  // auto redirect to current year if no year was specified
   useEffect(() => {
     if (window.location.pathname === "/") {
       const year = new Date().getFullYear()

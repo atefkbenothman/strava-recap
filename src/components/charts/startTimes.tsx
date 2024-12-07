@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 import { RecapContext } from "../../contexts/recapContext"
-import { getRandomColor } from "../../themes/themeConfig"
+import { getRandomColor } from "../../themes/theme"
 import {
   AreaChart,
   Area,

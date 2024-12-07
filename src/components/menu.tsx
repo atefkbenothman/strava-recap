@@ -1,6 +1,6 @@
 import { useContext } from "react"
 import { RecapContext } from "../contexts/recapContext"
-import { Theme, ThemeName } from "../themes/themeConfig"
+import { Theme, ThemeName } from "../themes/theme"
 import {
   DropdownMenu,
   DropdownMenuContent,

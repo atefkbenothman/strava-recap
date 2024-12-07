@@ -42,7 +42,7 @@ export default function DistanceRanges() {
           const distance = unitConversion.convertFromMetersToMi(activity.distance!)
           return distance >= range.min && distance < range.max
         })
-        return { name: range.name, activities: activitiesInRange.length, fill: theme.colors[index] } as RadialBarChartData
+        return { name: range.name, activities: activitiesInRange.length, fill: theme[index] } as RadialBarChartData
       })
       setData(res)
     }

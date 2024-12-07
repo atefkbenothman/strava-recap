@@ -51,15 +51,14 @@ export default function ActivityCount() {
     calculateActivityCount()
   }, [activityData])
 
-
   return (
     <Card
       title="Activity Count"
       description="number of activities per month"
       total={totalActivities}
       totalUnits="activities"
-      icon={<BicepsFlexed size={16} strokeWidth={2}
-      />}>
+      icon={<BicepsFlexed size={16} strokeWidth={2} />}
+    >
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
           <XAxis

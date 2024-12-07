@@ -1,12 +1,12 @@
-import { useState, useEffect, ReactElement } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 
 import { useStravaAuth } from "./hooks/useStravaAuth"
 import { stravaApi } from "./services/api"
-import { StravaActivity, SportType, StravaAthlete } from "./types/strava"
+import { SportType } from "./types/strava"
 import { ActivitiesByType, ActivityData, MonthlyActivities, Months } from "./types/activity"
 import { RecapContext } from "./contexts/recapContext"
-import { THEME, ThemeKey } from "./themes/themeConfig"
+import { Theme, ThemeName, generateColorPalette, SportColors } from "./themes/themeConfig"
 
 import SportTypes from "./components/charts/sportTypes"
 import TotalHours from "./components/charts/totalHours"
@@ -30,16 +30,42 @@ import connectWithStravaLogo from "/connect-with-strava.svg"
 import "./App.css"
 
 
+const GRAPH_COMPONENTS = [
+  <SportTypes />,
+  <TotalHours />,
+  <Distance />,
+  <Records />,
+  <DistanceRanges />,
+  <ActivityCount />,
+  <Socials />,
+  <StartTimes />,
+  <Streaks />,
+  <Elevation />,
+  <Gear />,
+  <BiggestActivity />,
+  <DistanceVsElevation />,
+  <HeartrateVsSpeed />
+]
+
 function App() {
-  const { isAuthenticated, accessToken, athlete, login, logout, updateStravaAthlete } = useStravaAuth()
+  const {
+    isAuthenticated,
+    accessToken,
+    athlete,
+    login,
+    logout,
+    updateStravaAthlete
+  } = useStravaAuth()
 
-  const [activityData, setActivityData] = useState<ActivityData>({})
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
-  const [themeKey, setThemeKey] = useState<ThemeKey>("divergent")
-  const [colorPalette, setColorPalette] = useState<Record<string, string>>({})
-  const [shuffledComponents, setShuffledComponents] = useState<Array<ReactElement>>([]);
+  const [colorPalette, setColorPalette] = useState<SportColors>({})
+  const [themeName, setThemeName] = useState<ThemeName>("divergent")
 
-  const { data, isLoading, error } = useQuery({
+  const {
+    data: activities,
+    isLoading,
+    error
+  } = useQuery({
     queryKey: [currentYear],
     queryFn: () => stravaApi.getAllActivities(accessToken!, currentYear),
     enabled: isAuthenticated,
@@ -48,7 +74,9 @@ function App() {
     retry: false
   })
 
-  const { data: athleteData } = useQuery({
+  const {
+    data: athleteData
+  } = useQuery({
     queryKey: ["stravaAthlete"],
     queryFn: () => stravaApi.getAthlete(accessToken!),
     enabled: isAuthenticated,
@@ -57,64 +85,52 @@ function App() {
     retry: false
   })
 
+  // shuffle graphs
+  const shuffledGraphComponents = useMemo(() => {
+    return GRAPH_COMPONENTS
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value);
+  }, [])
+
+  // process activities
+  const activityData = useMemo(() => {
+    if (!activities) return {} as ActivityData
+    const sportTypes: SportType[] = []
+    const activitiesByMonth: MonthlyActivities = {}
+    const activitiesByType: ActivitiesByType = {}
+    Months.forEach(month => {
+      activitiesByMonth[month] = []
+    })
+    activities.forEach(activity => {
+      const sportType = activity.sport_type! as SportType
+      const activityMonth = new Date(activity.start_date!).toLocaleString("default", { month: "long" })
+      if (!activitiesByType[sportType]) {
+        activitiesByType[sportType] = []
+      }
+      activitiesByMonth[activityMonth]?.push(activity)
+      activitiesByType[sportType].push(activity)
+      sportTypes.push(activity.sport_type! as SportType)
+    })
+    setColorPalette(generateColorPalette(sportTypes, themeName, colorPalette))
+    return {
+      all: activities,
+      monthly: activitiesByMonth,
+      bySportType: activitiesByType
+    }
+  }, [activities])
+
   useEffect(() => {
-    if (!athleteData) return
-    updateStravaAthlete(athleteData)
+    if (athleteData) {
+      updateStravaAthlete(athleteData)
+    }
   }, [athleteData])
 
   useEffect(() => {
-    const graphs = [
-      <SportTypes />,
-      <TotalHours />,
-      <Distance />,
-      <Records />,
-      <DistanceRanges />,
-      <ActivityCount />,
-      <Socials />,
-      <StartTimes />,
-      <Streaks />,
-      <Elevation />,
-      <Gear />,
-      <BiggestActivity />,
-      <DistanceVsElevation />,
-      <HeartrateVsSpeed />
-    ]
-    const shuffleArray = (array: Array<ReactElement>) => {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    };
-    setShuffledComponents(shuffleArray(graphs));
-  }, [])
-
-  useEffect(() => {
-    if (data) {
-      const activitiesByMonth: MonthlyActivities = {}
-      Months.reduce((acc: MonthlyActivities, month: string) => {
-        acc[month] = []
-        return acc
-      }, activitiesByMonth)
-      const activitiesByType: ActivitiesByType = {}
-      data.forEach(activity => {
-        const sportType = activity.sport_type! as SportType
-        const activityMonth = new Date(activity.start_date!).toLocaleString("default", { month: "long" })
-        if (!activitiesByType[sportType]) {
-          activitiesByType[sportType] = []
-        }
-        activitiesByMonth[activityMonth]?.push(activity)
-        activitiesByType[sportType].push(activity)
-      })
-      setActivityData({ all: data, monthly: activitiesByMonth, bySportType: activitiesByType })
-      generateColorPalette(data, themeKey)
-    }
-  }, [data])
-
-  useEffect(() => {
-    if (!activityData || !activityData.all) return
-    generateColorPalette(activityData.all!, themeKey, true)
-  }, [themeKey])
+    if (!activities) return
+    const sportTypes = activities.map(a => a.sport_type! as SportType)
+    setColorPalette(generateColorPalette(sportTypes, themeName, colorPalette, true))
+  }, [themeName])
 
   useEffect(() => {
     if (window.location.pathname === "/") {
@@ -126,30 +142,6 @@ function App() {
   function updateYear(year: number) {
     setCurrentYear(year)
     window.history.pushState({}, "", `/${year}`)
-  }
-
-
-  function generateColorPalette(activities: StravaActivity[], themeKey: ThemeKey, reset: boolean = false) {
-    const uniqueNewActivityTypes = [...new Set(
-      activities.map(activity => activity.sport_type!)
-    )]
-
-    let updatedColorPalette = { ...colorPalette }
-    if (reset) {
-      updatedColorPalette = {}
-    }
-    const colors = THEME[themeKey].colors
-
-    uniqueNewActivityTypes.forEach(sport => {
-      if (!updatedColorPalette[sport]) {
-        const usedColors = new Set(Object.values(updatedColorPalette))
-        const availableColor = colors.find(color => !usedColors.has(color))
-        if (availableColor) {
-          updatedColorPalette[sport] = availableColor
-        }
-      }
-    })
-    setColorPalette(updatedColorPalette)
   }
 
   if (!isAuthenticated) {
@@ -219,12 +211,12 @@ function App() {
           athlete,
           activityData,
           colorPalette,
-          theme: THEME[themeKey],
+          theme: Theme[themeName],
           updateYear,
           logout,
-          setThemeKey
+          setThemeName
         }}>
-        <Dashboard graphs={shuffledComponents} />
+        <Dashboard graphs={shuffledGraphComponents} />
       </RecapContext.Provider>
     </div >
   )

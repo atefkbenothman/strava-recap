@@ -1,6 +1,6 @@
 import { useContext } from "react"
 import { RecapContext } from "../contexts/recapContext"
-import { THEME, ThemeKey } from "../themes/themeConfig"
+import { Theme, ThemeName } from "../themes/themeConfig"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
 } from "./ui/dropdown-menu"
 
 export default function Menu() {
-  const { athlete, setThemeKey, logout } = useContext(RecapContext)
+  const { athlete, setThemeName, logout } = useContext(RecapContext)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -28,11 +28,11 @@ export default function Menu() {
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
-            {Object.keys(THEME).map((theme, idx) => (
+            {Object.keys(Theme).map((theme, idx) => (
               <DropdownMenuItem
                 key={idx}
                 className="hover:cursor-pointer"
-                onClick={() => setThemeKey(theme as ThemeKey)}
+                onClick={() => setThemeName(theme as ThemeName)}
               >
                 {theme}
               </DropdownMenuItem>

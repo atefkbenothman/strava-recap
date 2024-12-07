@@ -1,7 +1,8 @@
 import { useContext, useState, useEffect } from "react"
 import { RecapContext } from "../../contexts/recapContext"
-import { getRandomColor, unitConversion } from "../../utils/utils"
+import { unitConversion } from "../../utils/utils"
 import { StravaGear } from "../../types/strava"
+import { getRandomColor } from "../../themes/themeConfig"
 import {
   ResponsiveContainer,
   BarChart,
@@ -56,7 +57,7 @@ export default function Gear() {
           if (existingGear) {
             existingGear.hours += movingTime
           } else {
-            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: getRandomColor(theme.colors as readonly string[]) })
+            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: getRandomColor(theme as readonly string[]) })
           }
         }
       })

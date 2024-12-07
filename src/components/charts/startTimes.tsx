@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react"
 import { RecapContext } from "../../contexts/recapContext"
+import { getRandomColor } from "../../themes/themeConfig"
 import {
   AreaChart,
   Area,
@@ -9,7 +10,6 @@ import {
   Legend
 } from 'recharts'
 import { Clock } from 'lucide-react'
-import { getRandomColor } from "../../utils/utils"
 import Card from "../card"
 
 type AreaChartData = {
@@ -27,7 +27,7 @@ export default function StartTimes() {
   const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
-    setChartColor(getRandomColor(theme.colors as readonly string[]))
+    setChartColor(getRandomColor(theme as readonly string[]))
     if (!activityData) return
     function calculateStartTimes() {
       const res = Array(24).fill(0).map((_, index) => {

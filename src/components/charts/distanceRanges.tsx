@@ -47,7 +47,7 @@ export default function DistanceRanges() {
       setData(res)
     }
     formatData()
-  }, [activityData])
+  }, [activityData, theme])
 
   return (
     <Card

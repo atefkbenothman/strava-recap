@@ -45,6 +45,28 @@ export const stravaApi = {
       return null
     }
   },
+  getAthlete: async (token: string): Promise<StravaAthlete> => {
+    try {
+      const baseUrl = "https://www.strava.com/api/v3/athlete"
+      const res = await fetch(baseUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.message)
+      }
+      const data = await res.json()
+      return data
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(err.message)
+      }
+      throw new Error("could not get athlete")
+    }
+  },
   getActivities: async (token: string, options?: { page?: number, perPage?: number, year?: number }): Promise<StravaActivity[]> => {
     const { page = 1, perPage = 200, year = new Date().getFullYear() } = options || {}
     if (year < 2010 || year > new Date().getFullYear() + 1) {

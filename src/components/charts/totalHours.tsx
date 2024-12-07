@@ -48,7 +48,7 @@ export default function TotalHours() {
       setTotalHours(totalHrs)
     }
     calculateTotalHours()
-  }, [activityData])
+  }, [activityData, colorPalette])
 
   return (
     <Card

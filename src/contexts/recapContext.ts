@@ -11,6 +11,7 @@ interface RecapContextType {
   activityData: ActivityData
   colorPalette: Record<string, string>
   theme: typeof THEME[ThemeKey]
+  setThemeKey: (theme: ThemeKey) => void
   updateYear: (year: number) => void
   logout: () => void
 }
@@ -23,6 +24,7 @@ export const RecapContext = createContext<RecapContextType>(
     activityData: {},
     colorPalette: {},
     theme: THEME["emerald"],
+    setThemeKey: () => { },
     updateYear: () => { },
     logout: () => { }
   }

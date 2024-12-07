@@ -21,12 +21,13 @@ type AreaChartData = {
  * Activity start times
 */
 export default function StartTimes() {
-  const { activityData, theme } = useContext(RecapContext)
+  const { activityData, theme, colorPalette } = useContext(RecapContext)
 
   const [data, setData] = useState<AreaChartData[]>([])
-  const [chartColor, setChartColor] = useState<string>(getRandomColor(theme.colors as readonly string[]))
+  const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
+    setChartColor(getRandomColor(theme.colors as readonly string[]))
     if (!activityData) return
     function calculateStartTimes() {
       const res = Array(24).fill(0).map((_, index) => {
@@ -43,7 +44,7 @@ export default function StartTimes() {
       setData(res)
     }
     calculateStartTimes()
-  }, [activityData])
+  }, [activityData, colorPalette])
 
   return (
     <Card

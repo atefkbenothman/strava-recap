@@ -1,3 +1,25 @@
+export type StravaGear = {
+  id: string
+  resource_state: number
+  primary: boolean
+  distance: number
+  brand_name: string
+  model_name: string
+  frame_type: number
+  description: string
+}
+
+export type StravaBikeShoe = {
+  converted_distance: number
+  distance: number
+  id: string
+  name: string
+  nickname: string
+  primary: boolean
+  resource_state: number
+  retired: boolean
+}
+
 export type StravaAthlete = {
   id: number
   resource_state: number
@@ -19,6 +41,8 @@ export type StravaAthlete = {
   updated_at?: string
   username?: string | null
   weight?: number
+  bikes?: StravaBikeShoe[]
+  shoes?: StravaBikeShoe[]
 }
 
 export type StravaActivity = {
@@ -83,17 +107,6 @@ export type StravaActivity = {
   max_heartrate?: number
   max_watts?: number
   suffer_score?: number
-}
-
-export type StravaGear = {
-  id: string
-  resource_state: number
-  primary: boolean
-  distance: number
-  brand_name: string
-  model_name: string
-  frame_type: number
-  description: string
 }
 
 export const SportTypes = [

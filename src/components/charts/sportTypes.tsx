@@ -39,7 +39,7 @@ export default function SportTypes() {
       setData(res)
     }
     formatData()
-  }, [activityData])
+  }, [activityData, colorPalette])
 
   return (
     <Card

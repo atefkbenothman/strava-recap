@@ -8,6 +8,7 @@ interface StravaAuthHook {
   athlete: StravaAthlete | null
   login: (year: number) => void
   logout: () => void
+  updateStravaAthlete: (newAthlete: StravaAthlete) => void
 }
 
 export const useStravaAuth = (): StravaAuthHook => {
@@ -51,5 +52,10 @@ export const useStravaAuth = (): StravaAuthHook => {
     handleAuthRedirect()
   }, [])
 
-  return { isAuthenticated, accessToken, athlete, login, logout }
+  const updateStravaAthlete = useCallback((newAthlete: StravaAthlete) => {
+    setAthlete(newAthlete)
+    localStorage.setItem("athlete", JSON.stringify(newAthlete))
+  }, [])
+
+  return { isAuthenticated, accessToken, athlete, login, logout, updateStravaAthlete }
 }

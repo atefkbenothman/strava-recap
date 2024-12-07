@@ -49,7 +49,7 @@ export default function DistanceVsElevation() {
       setAvgElevationPerDistance(avg)
     }
     formatData()
-  }, [activityData])
+  }, [activityData, colorPalette])
 
   return (
     <Card
@@ -59,7 +59,7 @@ export default function DistanceVsElevation() {
     >
       <ResponsiveContainer height={350} width="90%">
         <ScatterChart>
-          <Scatter data={data} />
+          <Scatter data={data} isAnimationActive={false} />
           <XAxis
             type="number"
             dataKey="distance"
@@ -72,7 +72,8 @@ export default function DistanceVsElevation() {
             dataKey="elevation"
             name="elevation"
             unit="ft"
-            tick={{ fontSize: 10 }} width={38}
+            tick={{ fontSize: 10 }}
+            width={38}
           />
           <ZAxis range={[30, 40]} />
           <Tooltip />

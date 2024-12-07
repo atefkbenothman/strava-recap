@@ -22,7 +22,7 @@ function Metric({ label, value, unit }: MetricProps) {
     <div className="flex flex-col rounded p-1 gap-1">
       <p className="text-xs flex justify-center">{label}</p>
       <div className="flex flex-col w-full h-full items-center justify-center">
-        <p className="font-semibold text-xl">
+        <p className="font-semibold text-lg">
           {value}
         </p>
         <p className="text-xs"> {unit}</p>

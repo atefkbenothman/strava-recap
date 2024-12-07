@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query"
 
 import { useStravaAuth } from "./hooks/useStravaAuth"
 import { stravaApi } from "./services/api"
-import { StravaActivity, SportType } from "./types/strava"
+import { StravaActivity, SportType, StravaAthlete } from "./types/strava"
 import { ActivitiesByType, ActivityData, MonthlyActivities, Months } from "./types/activity"
 import { RecapContext } from "./contexts/recapContext"
 import { THEME, ThemeKey } from "./themes/themeConfig"
@@ -21,6 +21,7 @@ import Elevation from "./components/charts/elevation"
 import Gear from "./components/charts/gear"
 import BiggestActivity from "./components/charts/biggestActivity"
 import DistanceVsElevation from "./components/charts/distanceVsElevation"
+import HeartrateVsSpeed from "./components/charts/heartrateVsSpeed"
 
 import Dashboard from "./components/dashboard"
 
@@ -30,7 +31,7 @@ import "./App.css"
 
 
 function App() {
-  const { isAuthenticated, accessToken, athlete, login, logout } = useStravaAuth()
+  const { isAuthenticated, accessToken, athlete, login, logout, updateStravaAthlete } = useStravaAuth()
 
   const [activityData, setActivityData] = useState<ActivityData>({})
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
@@ -47,6 +48,20 @@ function App() {
     retry: false
   })
 
+  const { data: athleteData } = useQuery({
+    queryKey: ["stravaAthlete"],
+    queryFn: () => stravaApi.getAthlete(accessToken!),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24,
+    retry: false
+  })
+
+  useEffect(() => {
+    if (!athleteData) return
+    updateStravaAthlete(athleteData)
+  }, [athleteData])
+
   useEffect(() => {
     const graphs = [
       <SportTypes />,
@@ -61,7 +76,8 @@ function App() {
       <Elevation />,
       <Gear />,
       <BiggestActivity />,
-      <DistanceVsElevation />
+      <DistanceVsElevation />,
+      <HeartrateVsSpeed />
     ]
     const shuffleArray = (array: Array<ReactElement>) => {
       for (let i = array.length - 1; i > 0; i--) {
@@ -96,6 +112,11 @@ function App() {
   }, [data])
 
   useEffect(() => {
+    if (!activityData || !activityData.all) return
+    generateColorPalette(activityData.all!, themeKey, true)
+  }, [themeKey])
+
+  useEffect(() => {
     if (window.location.pathname === "/") {
       const year = new Date().getFullYear()
       updateYear(year)
@@ -108,12 +129,15 @@ function App() {
   }
 
 
-  function generateColorPalette(activities: StravaActivity[], themeKey: ThemeKey) {
+  function generateColorPalette(activities: StravaActivity[], themeKey: ThemeKey, reset: boolean = false) {
     const uniqueNewActivityTypes = [...new Set(
       activities.map(activity => activity.sport_type!)
     )]
 
-    const updatedColorPalette = { ...colorPalette }
+    let updatedColorPalette = { ...colorPalette }
+    if (reset) {
+      updatedColorPalette = {}
+    }
     const colors = THEME[themeKey].colors
 
     uniqueNewActivityTypes.forEach(sport => {
@@ -188,7 +212,18 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      <RecapContext.Provider value={{ isAuthenticated, currentYear, athlete, activityData, colorPalette, theme: THEME[themeKey], updateYear, logout }}>
+      <RecapContext.Provider
+        value={{
+          isAuthenticated,
+          currentYear,
+          athlete,
+          activityData,
+          colorPalette,
+          theme: THEME[themeKey],
+          updateYear,
+          logout,
+          setThemeKey
+        }}>
         <Dashboard graphs={shuffledComponents} />
       </RecapContext.Provider>
     </div >

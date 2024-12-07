@@ -51,6 +51,7 @@ export default function ActivityCount() {
     calculateActivityCount()
   }, [activityData])
 
+
   return (
     <Card
       title="Activity Count"

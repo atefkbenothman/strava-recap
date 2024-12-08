@@ -1,3 +1,4 @@
 # Strava Recap
 
-<img width="1552" alt="Screen Shot 2024-12-02 at 9 14 32 PM" src="https://github.com/user-attachments/assets/2048796f-5261-499c-8ec1-4475539e8ff2">
+![Screen Shot 2024-12-07 at 6 15 11 PM](https://github.com/user-attachments/assets/62bcbf2e-1216-4d65-883a-f138463a224a)
+

@@ -59,7 +59,7 @@ function App() {
 
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
   const [colorPalette, setColorPalette] = useState<SportColors>({})
-  const [themeName, setThemeName] = useState<ThemeName>("divergent")
+  const [themeName, setThemeName] = useState<ThemeName>("emerald")
 
   const {
     data: activities,

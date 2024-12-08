@@ -29,7 +29,7 @@ export default function Dashboard({ graphs }: Props) {
 
             {/* Right Side */}
             <div className="flex flex-wrap w-full gap-6 items-center h-full justify-end">
-              <div className="flex items-center hidden sm:block">
+              <div className="items-center hidden sm:block">
                 <YearPicker />
               </div>
               <div>

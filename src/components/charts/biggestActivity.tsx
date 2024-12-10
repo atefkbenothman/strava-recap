@@ -60,6 +60,7 @@ export default function BiggestActivity() {
       title="Biggest Activity"
       description=""
       icon={<Trophy size={16} strokeWidth={2} />}
+      stravaLink={`https://www.strava.com/activities/${biggestActivity?.id}`}
     >
       <div className="flex justify-center">
         {!biggestActivity || activityData.all!.length === 0 ? (

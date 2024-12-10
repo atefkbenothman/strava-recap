@@ -1,3 +1,5 @@
+import { SquareArrowOutUpRight } from "lucide-react"
+
 type CardProps = {
   title?: string
   description?: string
@@ -5,9 +7,10 @@ type CardProps = {
   total?: number
   totalUnits?: string
   icon?: React.ReactNode
+  stravaLink?: string
 }
 
-export default function Card({ title, description, children, total, totalUnits, icon }: CardProps) {
+export default function Card({ title, description, children, total, totalUnits, icon, stravaLink }: CardProps) {
   return (
     <div className="flex flex-col w-full h-full relative p-2">
       <div className="flex gap-4 pb-2">
@@ -24,6 +27,12 @@ export default function Card({ title, description, children, total, totalUnits, 
           <div className="text-right">
             <p className="ml-auto font-bold text-xl bg-gray-300 p-1 rounded w-fit">{total}</p>
             <p className="ml-auto text-[10px] p-1">{totalUnits}</p>
+          </div>
+        ) : stravaLink ? (
+          <div className="ml-auto text-right text-[10px]">
+            <a href={stravaLink} target="_blank">
+              <SquareArrowOutUpRight size={16} className="hover:cursor-pointer" />
+            </a>
           </div>
         ) : null}
       </div>

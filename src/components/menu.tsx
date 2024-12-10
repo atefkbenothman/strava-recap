@@ -53,10 +53,17 @@ export default function Menu() {
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+        {/* <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="hover:cursor-pointer font-semibold"
+        >
+          Info
+        </DropdownMenuItem> */}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={logout}
-          className="hover:cursor-pointer focus:bg-red-500 focus:text-white font-semibold">
+          className="hover:cursor-pointer focus:bg-red-500 focus:text-white font-semibold"
+        >
           Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent >

@@ -156,7 +156,6 @@ function App() {
             <p className="text-2xl font-semibold flex">{currentYear} Fitness Recap</p>
             <div>
               <p className="text-sm text-gray-500">Explore yearly recaps of your Strava activities</p>
-              {/* <p className="text-sm text-gray-500">No data is collected and all data stays in browser.</p> */}
             </div>
           </div>
           <img

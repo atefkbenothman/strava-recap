@@ -40,7 +40,7 @@ export default function Dashboard({ graphs }: Props) {
                   className="max-w-full"
                   src={poweredByStravaLogo}
                   alt="powered by strava logo"
-                  width={60}
+                  width={70}
                   height={80}
                 />
               </div>

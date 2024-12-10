@@ -104,11 +104,10 @@ export const stravaApi = {
   },
   getAllActivities: async (token: string, year: number): Promise<StravaActivity[]> => {
     const allActivities: StravaActivity[] = []
-    let page = 1
     const perPage = 200
     const totalPages = 3
     const allParams = []
-    for (let i = page; i <= totalPages; i++) {
+    for (let i = 1; i <= totalPages; i++) {
       const options = {
         page: i,
         perPage: perPage,

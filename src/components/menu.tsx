@@ -21,17 +21,31 @@ export default function Menu() {
           src={athlete?.profile}
           width={28}
           height={28}
-          className="rounded-full border-2 border-gray-600 hover:cursor-pointer max-w-full"
+          className="rounded-full border-2 hover:border-gray-600 hover:cursor-pointer max-w-full hover:shadow-lg hover:scale-110"
         />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger>Theme</DropdownMenuSubTrigger>
+          <DropdownMenuItem
+            className="hover:cursor-pointer font-semibold"
+          >
+            {athlete ? (
+              <a
+                href={`https://www.strava.com/athletes/${athlete.id}`}
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                Strava Profile
+              </a>
+            ) : null}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuSubTrigger className="font-semibold">Theme</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {Object.keys(Theme).map((theme, idx) => (
               <DropdownMenuItem
                 key={idx}
-                className="hover:cursor-pointer"
+                className="hover:cursor-pointer font-semibold"
                 onClick={() => setThemeName(theme as ThemeName)}
               >
                 {theme}
@@ -42,10 +56,10 @@ export default function Menu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={logout}
-          className="hover:cursor-pointer focus:bg-red-500 focus:text-white">
+          className="hover:cursor-pointer focus:bg-red-500 focus:text-white font-semibold">
           Sign Out
         </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenuContent >
+    </DropdownMenu >
   )
 }

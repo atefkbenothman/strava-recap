@@ -24,6 +24,7 @@ import DistanceVsElevation from "./components/charts/distanceVsElevation"
 import HeartrateVsSpeed from "./components/charts/heartrateVsSpeed"
 
 import Dashboard from "./components/dashboard"
+import InfoDialog from "./components/infoDialog"
 
 import connectWithStravaLogo from "/connect-with-strava.svg"
 
@@ -150,8 +151,14 @@ function App() {
   if (!isAuthenticated) {
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
-        <div className="flex flex-col gap-2">
-          <p className="text-2xl font-semibold">Strava {currentYear} Recap</p>
+        <div className="flex flex-col gap-4 px-8">
+          <div className="flex flex-col gap-2 grow-0">
+            <p className="text-2xl font-semibold flex">{currentYear} Fitness Recap</p>
+            <div>
+              <p className="text-sm text-gray-500">Explore yearly recaps of your Strava activities</p>
+              {/* <p className="text-sm text-gray-500">No data is collected and all data stays in browser.</p> */}
+            </div>
+          </div>
           <img
             className="hover:cursor-pointer"
             width={160}
@@ -159,6 +166,9 @@ function App() {
             alt="login with strava"
             onClick={() => login(currentYear)}
           />
+        </div>
+        <div className="fixed bottom-5 right-5">
+          <InfoDialog />
         </div>
       </div>
     )

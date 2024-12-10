@@ -170,6 +170,7 @@ function App() {
         <div className="fixed bottom-5 right-5">
           <InfoDialog />
         </div>
+        <Analytics />
       </div>
     )
   }
@@ -199,6 +200,7 @@ function App() {
             <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>Go to {thisYear}</a>
           </div>
         </div>
+        <Analytics />
       </div>
     )
   }
@@ -211,6 +213,7 @@ function App() {
           <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
           <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>Go to {thisYear}</a>
         </div>
+        <Analytics />
       </div>
     )
   }

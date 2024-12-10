@@ -24,5 +24,3 @@ dist-ssr
 *.sw?
 
 .env
-_redirects
-vercel.json

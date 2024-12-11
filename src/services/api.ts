@@ -2,11 +2,7 @@ import { StravaActivity, StravaAthlete, StravaGear } from "../types/strava"
 
 
 export const stravaApi = {
-  // clientId: import.meta.env.VITE_STRAVA_CLIENT_ID,
-  clientId:
-    process.env.NODE_ENV === "development"
-      ? import.meta.env.VITE_STRAVA_CLIENT_ID
-      : import.meta.env.VITE_CLIENT_ID,
+  clientId: import.meta.env.VITE_STRAVA_CLIENT_ID,
   clientSecret: import.meta.env.VITE_STRAVA_CLIENT_SECRET,
   defaultRedirectUri:
     process.env.NODE_ENV === "development"

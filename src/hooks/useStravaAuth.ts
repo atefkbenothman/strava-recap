@@ -57,5 +57,12 @@ export const useStravaAuth = (): StravaAuthHook => {
     localStorage.setItem("athlete", JSON.stringify(newAthlete))
   }, [])
 
-  return { isAuthenticated, accessToken, athlete, login, logout, updateStravaAthlete }
+  return {
+    isAuthenticated,
+    accessToken,
+    athlete,
+    login,
+    logout,
+    updateStravaAthlete
+  }
 }

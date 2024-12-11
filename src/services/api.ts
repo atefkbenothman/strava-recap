@@ -6,7 +6,7 @@ export const stravaApi = {
   clientId:
     process.env.NODE_ENV === "development"
       ? import.meta.env.VITE_STRAVA_CLIENT_ID
-      : process.env.CLIENT_ID,
+      : process.env.NODE_ENV,
   clientSecret: import.meta.env.VITE_STRAVA_CLIENT_SECRET,
   defaultRedirectUri:
     process.env.NODE_ENV === "development"

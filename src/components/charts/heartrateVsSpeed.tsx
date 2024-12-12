@@ -15,6 +15,7 @@ import {
 import Card from "../card";
 import NoData from "../noData"
 import { HeartPulse } from "lucide-react"
+import { UnitDefinitions } from "../../types/activity"
 
 
 type ScatterChartData = {
@@ -66,7 +67,7 @@ export default function HeartrateVsSpeed() {
       }
     }
     formatData()
-  }, [activityData, colorPalette])
+  }, [activityData, colorPalette, units])
 
   if (data.length === 0) {
     return (
@@ -100,7 +101,7 @@ export default function HeartrateVsSpeed() {
             type="number"
             dataKey="speed"
             name="speed"
-            unit="mph"
+            unit={UnitDefinitions[units].speed}
             tick={{ fontSize: 10 }}
           />
           <YAxis

@@ -1,3 +1,4 @@
+import { Units } from "../types/activity"
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -6,22 +7,44 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const unitConversion = {
-  convertFromMetersToKm: (meters: number): number => {
-    return meters * 0.01
+  convertDistance: (value: number, toUnit: Units): number => {
+    switch (toUnit) {
+      case "metric":
+        return value * 0.001
+      case "imperial":
+        return value * 0.000621371
+      default:
+        throw new Error(`Unsupported unit type: ${toUnit}`)
+    }
   },
-  convertFromMetersToMi: (meters: number): number => {
-    return meters * 0.000621371
+  convertElevation: (value: number, toUnit: Units): number => {
+    switch (toUnit) {
+      case "metric":
+        return value
+      case "imperial":
+        return value * 3.28084
+      default:
+        throw new Error(`Unsupported unit type: ${toUnit}`)
+    }
   },
-  convertFromMetersToFeet: (meters: number): number => {
-    return meters * 3.28084
+  convertTime: (value: number, toUnit: "minutes" | "hours"): number => {
+    switch (toUnit) {
+      case "minutes":
+        return value / 60
+      case "hours":
+        return value / 3600
+      default:
+        throw new Error(`Unsupported unit type: ${toUnit}`)
+    }
   },
-  convertSecondsToHours: (seconds: number): number => {
-    return seconds / 3600
-  },
-  convertSecondsToMinutes: (seconds: number): number => {
-    return seconds / 60
-  },
-  convertMetersPerSecondToMph: (mps: number): number => {
-    return mps * 2.23694
+  convertSpeed: (value: number, toUnit: Units): number => {
+    switch (toUnit) {
+      case "metric":
+        return value * 3.6
+      case "imperial":
+        return value * 2.23694
+      default:
+        throw new Error(`Unsupported unit type: ${toUnit}`)
+    }
   }
 }

@@ -7,6 +7,7 @@ import Card from "../card"
 import NoData from "../noData"
 
 import polyline from "@mapbox/polyline"
+import { UnitDefinitions } from "../../types/activity"
 
 
 const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
@@ -35,7 +36,7 @@ function Metric({ label, value, unit }: MetricProps) {
  * Biggest Activity by distance
 */
 export default function BiggestActivity() {
-  const { activityData } = useContext(RecapContext)
+  const { activityData, units } = useContext(RecapContext)
 
   const [biggestActivity, setBiggestActivity] = useState<StravaActivity>()
   const [route, setRoute] = useState<[number, number][] | null>()
@@ -88,17 +89,17 @@ export default function BiggestActivity() {
             <div className="flex gap-8 mx-2 items-center justify-center">
               <Metric
                 label="Distance"
-                value={unitConversion.convertFromMetersToMi(biggestActivity.distance!).toFixed(1)}
-                unit="mi"
+                value={unitConversion.convertDistance(biggestActivity.distance!, units).toFixed(1)}
+                unit={UnitDefinitions[units].distance}
               />
               <Metric
                 label="Elevation"
-                value={unitConversion.convertFromMetersToFeet(biggestActivity.total_elevation_gain!).toFixed(0)}
-                unit="ft"
+                value={unitConversion.convertElevation(biggestActivity.total_elevation_gain!, units).toFixed(0)}
+                unit={UnitDefinitions[units].elevation}
               />
               <Metric
                 label="Time"
-                value={unitConversion.convertSecondsToHours(biggestActivity.moving_time!).toFixed(1)}
+                value={unitConversion.convertTime(biggestActivity.moving_time!, "hours").toFixed(1)}
                 unit="hrs"
               />
             </div>

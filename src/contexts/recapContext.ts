@@ -1,6 +1,6 @@
 import { createContext } from "react"
 import { StravaAthlete } from "../types/strava"
-import { ActivityData } from "../types/activity"
+import { ActivityData, Units } from "../types/activity"
 import { Theme, ThemeName } from "../themes/theme"
 
 
@@ -11,6 +11,8 @@ interface RecapContextType {
   activityData: ActivityData
   colorPalette: Record<string, string>
   theme: typeof Theme[ThemeName]
+  units: Units
+  setUnits: (units: Units) => void
   setThemeName: (theme: ThemeName) => void
   updateYear: (year: number) => void
   logout: () => void
@@ -24,6 +26,8 @@ export const RecapContext = createContext<RecapContextType>(
     activityData: {},
     colorPalette: {},
     theme: Theme["emerald"],
+    units: "imperial",
+    setUnits: () => { },
     setThemeName: () => { },
     updateYear: () => { },
     logout: () => { }

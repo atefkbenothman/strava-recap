@@ -7,6 +7,7 @@ import { Medal } from 'lucide-react'
 import Card from "../card"
 import Stat from "../stat"
 import NoData from "../noData"
+import { UnitDefinitions } from "../../types/activity"
 
 
 type CardData = {
@@ -22,7 +23,7 @@ type CardData = {
  * Highest records
 */
 export default function Records() {
-  const { activityData } = useContext(RecapContext)
+  const { activityData, units } = useContext(RecapContext)
 
   const [data, setData] = useState<CardData>()
 
@@ -54,7 +55,7 @@ export default function Records() {
       setData({ topSpeed, highestElevation, maxWatts, maxHeartrate, prCount, athleteCount } as CardData)
     }
     getRecords()
-  }, [activityData])
+  }, [activityData, units])
 
   return (
     <Card
@@ -68,8 +69,8 @@ export default function Records() {
         <div className="w-full grid grid-cols-2 p-2 gap-2">
           <Stat
             label="Top Speed"
-            value={unitConversion.convertMetersPerSecondToMph(data.topSpeed!.max_speed!).toFixed(1)}
-            unit="mph"
+            value={String((unitConversion.convertSpeed(data.topSpeed!.max_speed!, units)).toFixed(1))}
+            unit={UnitDefinitions[units].speed}
           />
           <Stat
             label="Max Watts"
@@ -83,8 +84,8 @@ export default function Records() {
           />
           <Stat
             label="Most Elevation Gain"
-            value={unitConversion.convertFromMetersToFeet(data.highestElevation!.total_elevation_gain!).toFixed(0)}
-            unit="ft"
+            value={String((unitConversion.convertElevation(data.highestElevation!.total_elevation_gain!, units)).toFixed(0))}
+            unit={UnitDefinitions[units].elevation}
           />
           <Stat
             label="PRs"

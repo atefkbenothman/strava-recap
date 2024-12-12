@@ -33,7 +33,7 @@ export default function Socials() {
       description="total kudos and comments"
       icon={<ThumbsUp size={15} strokeWidth={2} />}
     >
-      <div className="flex w-full grid grid-rows-2 p-2 gap-2">
+      <div className="w-full grid grid-rows-2 p-2 gap-2">
         <Stat
           label="Kudos Count"
           value={String(kudosCount)}

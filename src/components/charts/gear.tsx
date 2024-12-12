@@ -37,7 +37,7 @@ export default function Gear() {
       activityData.all!.forEach(act => {
         if (act.gear_id !== null) {
           const gearId = act.gear_id!
-          const movingTime = Math.round(unitConversion.convertSecondsToHours(act.moving_time!))
+          const movingTime = Math.round(unitConversion.convertTime(act.moving_time!, "hours"))
           const existingGear = res.find(item => item.gearId === gearId)
           const athleteBikes = athlete!.bikes
           const athleteShoes = athlete!.shoes

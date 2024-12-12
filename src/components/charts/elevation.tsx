@@ -12,6 +12,7 @@ import {
 } from "recharts"
 import { Mountain } from "lucide-react"
 import Card from "../card"
+import { UnitDefinitions } from "../../types/activity"
 
 
 type BarChartData = {
@@ -23,7 +24,7 @@ type BarChartData = {
  * Monthly Elevation
 */
 export default function Elevation() {
-  const { activityData, colorPalette } = useContext(RecapContext)
+  const { activityData, colorPalette, units } = useContext(RecapContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalElevation, setTotalElevation] = useState<number>(0)
@@ -40,7 +41,7 @@ export default function Elevation() {
         const elevationBySport: Record<string, number> = {}
         acts.forEach((a) => {
           const sportType = a.sport_type! as SportType
-          const elevation = Math.round(unitConversion.convertFromMetersToFeet(a.total_elevation_gain!))
+          const elevation = Math.round(unitConversion.convertElevation(a.total_elevation_gain!, units))
           if (!elevationBySport[sportType]) {
             elevationBySport[sportType] = 0
           }
@@ -53,14 +54,14 @@ export default function Elevation() {
       setTotalElevation(totalElev)
     }
     calculateElevation()
-  }, [activityData])
+  }, [activityData, units])
 
   return (
     <Card
       title="Elevation"
       description="total elevation per month"
       total={Math.round(totalElevation)}
-      totalUnits="ft"
+      totalUnits={UnitDefinitions[units].elevation}
       icon={<Mountain size={16} strokeWidth={2} />}
     >
       <ResponsiveContainer height={350} width="90%">

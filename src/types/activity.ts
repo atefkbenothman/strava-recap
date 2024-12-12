@@ -25,3 +25,10 @@ export type ActivityData = {
   monthly?: MonthlyActivities
   bySportType?: ActivitiesByType
 }
+
+export const UnitDefinitions = {
+  imperial: { type: "imperial", distance: "mi", elevation: "ft", speed: "mph" },
+  metric: { type: "metric", distance: "km", elevation: "m", speed: "kmh" }
+} as const
+
+export type Units = keyof typeof UnitDefinitions

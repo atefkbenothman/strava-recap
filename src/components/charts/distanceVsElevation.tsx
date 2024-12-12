@@ -14,6 +14,7 @@ import {
 } from "recharts"
 import Card from "../card"
 import { ChartNoAxesCombined } from 'lucide-react'
+import { UnitDefinitions } from "../../types/activity"
 
 type ScatterChartData = {
   distance: number
@@ -25,7 +26,7 @@ type ScatterChartData = {
  * Elevation gained per distance
  */
 export default function DistanceVsElevation() {
-  const { activityData, colorPalette } = useContext(RecapContext)
+  const { activityData, colorPalette, units } = useContext(RecapContext)
 
   const [data, setData] = useState<ScatterChartData[]>([])
   const [avgElevationPerDistance, setAvgElevationPerDistance] = useState<number>(0)
@@ -37,8 +38,8 @@ export default function DistanceVsElevation() {
       let totalElevation = 0
       const res: ScatterChartData[] = []
       activityData.all!.forEach(act => {
-        const distance = Math.round(unitConversion.convertFromMetersToMi(act.distance!))
-        const elevation = Math.round(unitConversion.convertFromMetersToFeet(act.total_elevation_gain!))
+        const distance = Math.round(unitConversion.convertDistance(act.distance!, units))
+        const elevation = Math.round(unitConversion.convertElevation(act.total_elevation_gain!, units))
         const sportType = act.sport_type! as SportType
         res.push({ distance, elevation, fill: colorPalette[sportType] })
         totalDistance += distance
@@ -49,7 +50,7 @@ export default function DistanceVsElevation() {
       setAvgElevationPerDistance(avg)
     }
     formatData()
-  }, [activityData, colorPalette])
+  }, [activityData, colorPalette, units])
 
   return (
     <Card
@@ -64,14 +65,14 @@ export default function DistanceVsElevation() {
             type="number"
             dataKey="distance"
             name="distance"
-            unit="mi"
+            unit={UnitDefinitions[units].distance}
             tick={{ fontSize: 10 }}
           />
           <YAxis
             type="number"
             dataKey="elevation"
             name="elevation"
-            unit="ft"
+            unit={UnitDefinitions[units].elevation}
             tick={{ fontSize: 10 }}
             width={38}
           />

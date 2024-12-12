@@ -13,6 +13,7 @@ import {
 import { Rocket } from 'lucide-react'
 
 import Card from "../card"
+import { UnitDefinitions } from "../../types/activity"
 
 type BarChartData = {
   month: string
@@ -23,7 +24,7 @@ type BarChartData = {
  * Total distance per month
 */
 export default function Distance() {
-  const { activityData, colorPalette } = useContext(RecapContext)
+  const { activityData, colorPalette, units } = useContext(RecapContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalDistance, setTotalDistance] = useState<number>(0)
@@ -38,7 +39,7 @@ export default function Distance() {
         const distanceBySport: Record<string, number> = {}
         acts.forEach(a => {
           const sportType = a.sport_type! as SportType
-          const distance = Math.round(unitConversion.convertFromMetersToMi(a.distance!))
+          const distance = Math.round(unitConversion.convertDistance(a.distance!, units))
           if (!distanceBySport[sportType]) {
             distanceBySport[sportType] = 0
           }
@@ -51,14 +52,14 @@ export default function Distance() {
       setTotalDistance(totalDist)
     }
     calculateDistance()
-  }, [activityData])
+  }, [activityData, units])
 
   return (
     <Card
       title="Distance"
       description="total distance per month"
       total={Math.round(totalDistance)}
-      totalUnits="mi"
+      totalUnits={UnitDefinitions[units].distance}
       icon={<Rocket size={16} strokeWidth={2} />}
     >
       <ResponsiveContainer height={350} width="90%">

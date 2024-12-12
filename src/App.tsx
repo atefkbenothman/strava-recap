@@ -5,7 +5,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { useStravaAuth } from "./hooks/useStravaAuth"
 import { stravaApi } from "./services/api"
 import { SportType } from "./types/strava"
-import { ActivitiesByType, ActivityData, MonthlyActivities, Months } from "./types/activity"
+import { ActivitiesByType, ActivityData, MonthlyActivities, Months, Units } from "./types/activity"
 import { RecapContext } from "./contexts/recapContext"
 import { Theme, ThemeName, generateColorPalette, SportColors } from "./themes/theme"
 
@@ -62,6 +62,7 @@ function App() {
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
   const [colorPalette, setColorPalette] = useState<SportColors>({})
   const [themeName, setThemeName] = useState<ThemeName>("emerald")
+  const [units, setUnits] = useState<Units>(localStorage.getItem("units") as Units || "imperial")
 
   const {
     data: activities,
@@ -75,6 +76,11 @@ function App() {
     gcTime: 1000 * 60 * 60 * 24,
     retry: false
   })
+
+  const setUnit = (unit: Units) => {
+    localStorage.setItem("units", unit)
+    setUnits(unit)
+  }
 
   const {
     data: athleteData
@@ -228,6 +234,8 @@ function App() {
           activityData,
           colorPalette,
           theme: Theme[themeName],
+          units,
+          setUnits: setUnit,
           updateYear,
           logout,
           setThemeName

@@ -1,6 +1,7 @@
 import { useContext } from "react"
 import { RecapContext } from "../contexts/recapContext"
 import { Theme, ThemeName } from "../themes/theme"
+import { Units, UnitDefinitions } from "../types/activity"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,9 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu"
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger
+} from "./ui/tabs"
 
 export default function Menu() {
-  const { athlete, setThemeName, logout } = useContext(RecapContext)
+  const { athlete, units, setUnits, setThemeName, logout } = useContext(RecapContext)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -43,26 +49,41 @@ export default function Menu() {
           <DropdownMenuSubTrigger className="font-semibold">Theme</DropdownMenuSubTrigger>
           <DropdownMenuSubContent>
             {Object.keys(Theme).map((theme, idx) => (
-              <DropdownMenuItem
-                key={idx}
-                className="hover:cursor-pointer font-semibold"
-                onClick={() => setThemeName(theme as ThemeName)}
-              >
-                {theme}
-              </DropdownMenuItem>
+              <div key={idx}>
+                <DropdownMenuItem
+                  className="hover:cursor-pointer font-semibold"
+                  onClick={() => setThemeName(theme as ThemeName)}
+                >
+                  {theme}
+                </DropdownMenuItem>
+                {idx !== Object.keys(Theme).length - 1 ? (
+                  <DropdownMenuSeparator />
+                ) : null}
+              </div>
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
-        {/* <DropdownMenuSeparator />
+        <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="hover:cursor-pointer font-semibold"
+          className="font-semibold"
+          onSelect={(e) => e.preventDefault()}
         >
-          Info
-        </DropdownMenuItem> */}
+          <div className="flex w-fit items-center gap-4">
+            <p>Units</p>
+            <div className="ml-auto hover:cursor-pointer">
+              <Tabs defaultValue={UnitDefinitions[units].distance} className="flex w-fit">
+                <TabsList className="bg-slate-200">
+                  <TabsTrigger value="mi" onClick={() => setUnits("imperial")}>Mi</TabsTrigger>
+                  <TabsTrigger value="km" onClick={() => setUnits("metric")}>Km</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
+          </div>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={logout}
-          className="hover:cursor-pointer focus:bg-red-500 focus:text-white font-semibold"
+          className="hover:cursor-pointer bg-red-500 focus:bg-red-600 focus:text-white text-white font-semibold"
         >
           Sign Out
         </DropdownMenuItem>

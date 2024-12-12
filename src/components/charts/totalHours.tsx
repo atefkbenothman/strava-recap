@@ -36,7 +36,7 @@ export default function TotalHours() {
       const res = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
         const acts = activityData.bySportType![sport as SportType]!
         const totalHoursPerSport = acts.reduce((hours, a) => {
-          const movingTime = unitConversion.convertSecondsToHours(a.moving_time!)
+          const movingTime = unitConversion.convertTime(a.moving_time!, "hours")
           hours += movingTime
           totalHrs += movingTime
           return hours

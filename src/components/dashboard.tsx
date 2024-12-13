@@ -16,7 +16,7 @@ export default function Dashboard({ graphs }: Props) {
   const { currentYear } = useContext(ActivityDataContext)
 
   return (
-    <div className="w-full h-full dark:bg-[#0a0a0a] dark:text-white">
+    <div className="w-full h-full dark:bg-[#121212] dark:text-white">
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col p-2 gap-1 h-fit w-full">
 

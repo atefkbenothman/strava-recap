@@ -36,7 +36,7 @@ export function AboutDialog({ trigger, open, onOpenChange }: AboutDialogProps) {
         {trigger}
       </DialogTrigger>
       <DialogContent
-        className="dark:bg-[#1e2223] dark:border-none dark:text-white"
+        className="dark:bg-[#1a1a1a] dark:border-none dark:text-white"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>

@@ -210,7 +210,7 @@ function App() {
         setDarkMode: setDark
       }}>
         <div className={darkMode ? "dark" : ""}>
-          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
             <div className="flex flex-col gap-4 px-8">
               <div className="flex flex-col gap-2 grow-0">
                 <div className="flex items-center gap-6">
@@ -256,7 +256,7 @@ function App() {
         setDarkMode: setDark
       }}>
         <div className={darkMode ? "dark" : ""}>
-          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
             <div className="flex flex-col gap-2 text-lg">
               <p>Retrieving <span className="font-bold text-xl">{currentYear}</span> activities...</p>
             </div>
@@ -278,7 +278,7 @@ function App() {
         setDarkMode: setDark
       }}>
         <div className={darkMode ? "dark" : ""}>
-          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
             <div className="flex flex-col gap-2 text-lg mx-[30%]">
               <div className="flex gap-2">
                 <p className="text-red-500 font-bold">Error: </p>
@@ -309,7 +309,7 @@ function App() {
         setDarkMode: setDark
       }}>
         <div className={darkMode ? "dark" : ""}>
-          <div className="w-screen h-screen flex flex-col items-center justify-center dark:text-white dark:bg-[#0a0a0a]">
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:text-white dark:bg-[#121212]">
             <div className="flex flex-col gap-4 text-lg">
               {filter !== "All" ? (
                 <>

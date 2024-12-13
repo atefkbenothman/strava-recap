@@ -54,7 +54,7 @@ export default function Menu() {
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className={darkMode ? "dark bg-[#0a0a0a] text-white border-white/30" : "bg-white"}>
+        <DropdownMenuContent className={darkMode ? "dark bg-[#121212] text-white border-white/30" : "bg-white"}>
           {/* Strava Profile */}
           <DropdownMenuItem
             className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white"
@@ -74,7 +74,7 @@ export default function Menu() {
           {/* Filter Picker */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Filter</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/30">
+            <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30">
               <DropdownMenuItem
                 className={cn(
                   'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
@@ -110,7 +110,7 @@ export default function Menu() {
           {/* Theme Picker */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Theme</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/30">
+            <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30">
               {Object.keys(Theme).map((t, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
@@ -145,14 +145,14 @@ export default function Menu() {
                     <TabsTrigger
                       value="mi"
                       onClick={() => setUnits("imperial")}
-                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#121212] dark:data-[state=active]:text-white"
                     >
                       Mi
                     </TabsTrigger>
                     <TabsTrigger
                       value="km"
                       onClick={() => setUnits("metric")}
-                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#121212] dark:data-[state=active]:text-white"
                     >
                       Km
                     </TabsTrigger>
@@ -176,14 +176,14 @@ export default function Menu() {
                     <TabsTrigger
                       value="on"
                       onClick={() => setDarkMode(true)}
-                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#121212] dark:data-[state=active]:text-white"
                     >
                       On
                     </TabsTrigger>
                     <TabsTrigger
                       value="off"
                       onClick={() => setDarkMode(false)}
-                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#121212] dark:data-[state=active]:text-white"
                     >
                       Off
                     </TabsTrigger>

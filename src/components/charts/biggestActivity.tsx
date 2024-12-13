@@ -86,7 +86,7 @@ export default function BiggestActivity() {
                 <a
                   href={`https://www.strava.com/activities/${biggestActivity?.id}`}
                   target="_blank"
-                  className="flex items-center justify-center w-[80%] bg-red-100"
+                  className="flex items-center justify-center w-[80%]"
                 >
                   <img
                     src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]

@@ -30,7 +30,7 @@ export default function Socials() {
   return (
     <Card
       title="Socials"
-      description="total kudos and comments"
+      description="total kudos and comments received"
       icon={<ThumbsUp size={15} strokeWidth={2} />}
     >
       <div className="w-full grid grid-rows-2 p-2 gap-2">

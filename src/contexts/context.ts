@@ -41,18 +41,22 @@ export const ActivityDataContext = createContext<ActivityDataContextType>(
 )
 
 interface ThemeContextType {
+  darkMode: boolean
   themeName: ThemeName
   theme: typeof Theme[ThemeName]
   colorPalette: Record<string, string>
   setThemeName: (theme: ThemeName) => void
+  setDarkMode: (status: boolean) => void
 }
 
 export const ThemeContext = createContext<ThemeContextType>(
   {
+    darkMode: false,
     themeName: "Default",
     theme: Theme["Default"],
     colorPalette: {},
-    setThemeName: () => { }
+    setThemeName: () => { },
+    setDarkMode: () => { }
   }
 )
 

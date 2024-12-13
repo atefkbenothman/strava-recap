@@ -16,19 +16,19 @@ export default function YearPicker() {
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline"
+            className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline dark:hover:text-white"
             title={String((currentYear ?? 0) - 1)}
             onClick={(() => updateYear((currentYear ?? 0) - 1))}
           />
         </PaginationItem>
         <PaginationItem>
-          <PaginationLink className="font-semibold hover:bg-transparent mx-4">
+          <PaginationLink className="font-semibold hover:bg-transparent mx-4 dark:hover:text-white">
             {currentYear}
           </PaginationLink>
         </PaginationItem>
         <PaginationItem>
           <PaginationNext
-            className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline"
+            className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline dark:hover:text-white"
             title={String((currentYear ?? 0) + 1)}
             onClick={() => updateYear((currentYear ?? 0) + 1)}
           />

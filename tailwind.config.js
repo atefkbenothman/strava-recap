@@ -58,5 +58,6 @@ export default {
 		}
 	},
 	plugins: [tailwindcssAnimate],
+	darkMode: "class"
 }
 

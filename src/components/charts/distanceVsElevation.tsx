@@ -29,7 +29,7 @@ type ScatterChartData = {
  */
 export default function DistanceVsElevation() {
   const { activityData, units } = useContext(ActivityDataContext)
-  const { colorPalette } = useContext(ThemeContext)
+  const { colorPalette, darkMode } = useContext(ThemeContext)
 
   const [data, setData] = useState<ScatterChartData[]>([])
   const [avgElevationPerDistance, setAvgElevationPerDistance] = useState<number>(0)
@@ -93,17 +93,24 @@ export default function DistanceVsElevation() {
             dataKey="distance"
             name="distance"
             unit={UnitDefinitions[units].distance}
-            tick={{ fontSize: 10 }}
+            tick={{
+              fontSize: 10,
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
           />
           <YAxis
             type="number"
             dataKey="elevation"
             name="elevation"
             unit={UnitDefinitions[units].elevation}
-            tick={{ fontSize: 10 }}
+            tick={{
+              fontSize: 10,
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
             width={38}
           />
-          <ZAxis range={[30, 40]} />
           <Tooltip />
           <ReferenceLine
             ifOverflow="extendDomain"
@@ -111,9 +118,10 @@ export default function DistanceVsElevation() {
               { x: 0, y: 0 },
               { x: Math.max(...data.map(d => d.distance)), y: Math.max(...data.map(d => d.distance)) * avgElevationPerDistance }
             ]}
-            stroke="black"
+            stroke={darkMode ? "#c2c2c2" : "black"}
             strokeDasharray="3 3"
           />
+          <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>
     </Card>

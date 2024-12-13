@@ -68,6 +68,9 @@ function App() {
   const [themeName, setThemeName] = useState<ThemeName>("Default")
   const [units, setUnits] = useState<Units>(localStorage.getItem("units") as Units || "imperial")
   const [filter, setFilter] = useState<SportType | "All">("All")
+  const [darkMode, setDarkMode] = useState<boolean>(JSON.parse(localStorage.getItem("dark") || "true"))
+
+  console.log(darkMode)
 
   const {
     data: activities,
@@ -85,6 +88,11 @@ function App() {
   const setUnit = (unit: Units) => {
     localStorage.setItem("units", unit)
     setUnits(unit)
+  }
+
+  const setDark = (status: boolean) => {
+    localStorage.setItem("dark", JSON.stringify(status))
+    setDarkMode(status)
   }
 
   const {
@@ -184,82 +192,134 @@ function App() {
 
   if (!isAuthenticated) {
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center">
-        <div className="flex flex-col gap-4 px-8">
-          <div className="flex flex-col gap-2 grow-0">
-            <p className="text-2xl font-semibold flex">{currentYear} Fitness Recap</p>
-            <div>
-              <p className="text-sm text-gray-500">Explore yearly recaps of your Strava activities</p>
+      <ThemeContext.Provider value={{
+        darkMode,
+        themeName,
+        theme: Theme[themeName],
+        colorPalette,
+        setThemeName,
+        setDarkMode: setDark
+      }}>
+        <div className={darkMode ? "dark" : ""}>
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
+            <div className="flex flex-col gap-4 px-8">
+              <div className="flex flex-col gap-2 grow-0">
+                <div className="flex items-center gap-4">
+                  <p className="text-2xl font-semibold flex">{currentYear} Fitness Recap</p>
+                  <Info
+                    size={18}
+                    strokeWidth={2}
+                    color={darkMode ? "#ebebeb" : "#525252"}
+                    className="hover:cursor-pointer hover:scale-125"
+                  />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-white/80">Explore yearly recaps of your Strava activities</p>
+                </div>
+              </div>
+              <img
+                className="hover:cursor-pointer"
+                width={160}
+                src={connectWithStravaLogo}
+                alt="login with strava"
+                onClick={() => login(currentYear)}
+              />
             </div>
           </div>
-          <img
-            className="hover:cursor-pointer"
-            width={160}
-            src={connectWithStravaLogo}
-            alt="login with strava"
-            onClick={() => login(currentYear)}
-          />
-        </div>
-        <div className="fixed bottom-5 right-5">
-          <Info
-            strokeWidth={2}
-            color="#525252"
-            className="hover:cursor-pointer hover:scale-125"
-          />
         </div>
         <Analytics />
-      </div>
+      </ThemeContext.Provider>
     )
   }
 
   if (isLoading) {
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center">
-        <div className="flex flex-col gap-2 text-lg">
-          <p>Retrieving <span className="font-bold text-xl">{currentYear}</span> activities...</p>
+      <ThemeContext.Provider value={{
+        darkMode,
+        themeName,
+        theme: Theme[themeName],
+        colorPalette,
+        setThemeName,
+        setDarkMode: setDark
+      }}>
+        <div className={darkMode ? "dark" : ""}>
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
+            <div className="flex flex-col gap-2 text-lg">
+              <p>Retrieving <span className="font-bold text-xl">{currentYear}</span> activities...</p>
+            </div>
+          </div>
         </div>
-      </div>
+      </ThemeContext.Provider>
     )
   }
 
   if (error) {
     const thisYear = new Date().getFullYear()
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center">
-        <div className="flex flex-col gap-2 text-lg mx-[30%]">
-          <div className="flex gap-2">
-            <p className="text-red-500 font-bold">Error: </p>
-            <p>{error.message}</p>
-          </div>
-          <div className="flex gap-6">
-            <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
-            <p>or</p>
-            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
+      <ThemeContext.Provider value={{
+        darkMode,
+        themeName,
+        theme: Theme[themeName],
+        colorPalette,
+        setThemeName,
+        setDarkMode: setDark
+      }}>
+        <div className={darkMode ? "dark" : ""}>
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
+            <div className="flex flex-col gap-2 text-lg mx-[30%]">
+              <div className="flex gap-2">
+                <p className="text-red-500 font-bold">Error: </p>
+                <p>{error.message}</p>
+              </div>
+              <div className="flex gap-6">
+                <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
+                <p>or</p>
+                <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
+              </div>
+            </div>
           </div>
         </div>
         <Analytics />
-      </div>
+      </ThemeContext.Provider>
     )
   }
 
   if (Object.keys(activityData).length === 0 || Object.keys(activityData.all!).length === 0) {
     const thisYear = new Date().getFullYear()
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center">
-        <div className="flex flex-col gap-4 text-lg">
-          {filter !== "All" ? (
-            <p>No activities ({filter}) from <span className="font-bold text-xl">{currentYear}</span></p>
-          ) : (
-            <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
-          )}
-          <div className="flex gap-6">
-            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
-            <p>or</p>
-            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => setFilter("All")}>reset filter</a>
+      <ThemeContext.Provider value={{
+        darkMode,
+        themeName,
+        theme: Theme[themeName],
+        colorPalette,
+        setThemeName,
+        setDarkMode: setDark
+      }}>
+        <div className={darkMode ? "dark" : ""}>
+          <div className="w-screen h-screen flex flex-col items-center justify-center dark:text-white dark:bg-[#0a0a0a]">
+            <div className="flex flex-col gap-4 text-lg">
+              {filter !== "All" ? (
+                <>
+                  <p>No activities ({filter}) from <span className="font-bold text-xl">{currentYear}</span></p>
+                  <div className="flex gap-6">
+                    <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
+                    <p>or</p>
+                    <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => setFilter("All")}>reset filter</a>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
+                  <div className="flex gap-6">
+                    <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
         <Analytics />
-      </div>
+      </ThemeContext.Provider>
     )
   }
 
@@ -280,12 +340,16 @@ function App() {
           setUnits: setUnit
         }}>
           <ThemeContext.Provider value={{
+            darkMode,
             themeName,
             theme: Theme[themeName],
             colorPalette,
-            setThemeName
+            setThemeName,
+            setDarkMode: setDark
           }}>
-            <Dashboard graphs={shuffledGraphComponents} />
+            <div className={darkMode ? "dark" : ""}>
+              <Dashboard graphs={shuffledGraphComponents} />
+            </div>
           </ThemeContext.Provider>
         </ActivityDataContext.Provider>
       </AuthContext.Provider>

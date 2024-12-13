@@ -28,7 +28,7 @@ type BarChartData = {
 export default function Gear() {
   const { athlete } = useContext(AuthContext)
   const { activityData } = useContext(ActivityDataContext)
-  const { theme } = useContext(ThemeContext)
+  const { darkMode, theme } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
 
@@ -93,7 +93,11 @@ export default function Gear() {
           <Bar
             dataKey="hours"
             isAnimationActive={false}
-            label={{ position: "right", fontSize: 10 }}
+            label={{
+              position: "right",
+              fontSize: 10,
+              fill: darkMode ? "#c2c2c2" : ""
+            }}
             radius={[4, 4, 4, 4]}
           >
             {data.map((d, idx) => (
@@ -103,10 +107,16 @@ export default function Gear() {
           <YAxis
             type="category"
             dataKey="gearName"
-            tick={{ fontSize: 10 }}
+            tick={{
+              fontSize: 10,
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
             width={38}
           />
-          <XAxis type="number" hide={true} />
+          <XAxis
+            type="number"
+            hide={true}
+          />
           <Tooltip />
         </BarChart>
       </ResponsiveContainer>

@@ -26,7 +26,7 @@ type BarChartData = {
 */
 export default function Distance() {
   const { activityData, units } = useContext(ActivityDataContext)
-  const { colorPalette } = useContext(ThemeContext)
+  const { darkMode, colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalDistance, setTotalDistance] = useState<number>(0)
@@ -83,8 +83,12 @@ export default function Distance() {
           <XAxis
             type="category"
             dataKey="month"
-            tick={{ fontSize: 12 }}
             interval="equidistantPreserveStart"
+            tick={{
+              fontSize: 12,
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
           />
           {Object.keys(activityData!.bySportType!).map(sport => (
             <Bar
@@ -94,7 +98,12 @@ export default function Distance() {
               dataKey={sport}
               isAnimationActive={false}
               fill={colorPalette[sport]}
-              label={{ position: "top", fontSize: 9 }}
+              label={{
+                position: "top",
+                fontSize: 9,
+                color: darkMode ? "#c2c2c2" : "#666",
+                fill: darkMode ? "#c2c2c2" : "#666",
+              }}
             />
           ))}
         </BarChart>

@@ -23,7 +23,7 @@ import { ChevronDown } from "lucide-react"
 
 export default function Menu() {
   const { athlete, logout } = useContext(AuthContext)
-  const { setThemeName, themeName } = useContext(ThemeContext)
+  const { setThemeName, themeName, darkMode, setDarkMode } = useContext(ThemeContext)
   const { activityData, filter, units, setUnits, setFilter } = useContext(ActivityDataContext)
 
   const [sportTypes, setSportTypes] = useState<SportType[]>([])
@@ -38,7 +38,7 @@ export default function Menu() {
   }, [activityData])
 
   return (
-    <div>
+    <div >
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center gap-2 hover:cursor-pointer">
@@ -52,13 +52,10 @@ export default function Menu() {
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent>
-          {/* <DropdownMenuLabel className="bg-black rounded text-white">Menu</DropdownMenuLabel>
-          <DropdownMenuSeparator /> */}
-
+        <DropdownMenuContent className={darkMode ? "dark bg-[#0a0a0a] text-white border-white/50" : "bg-white"}>
           {/* Strava Profile */}
           <DropdownMenuItem
-            className="hover:cursor-pointer font-semibold"
+            className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white"
           >
             {athlete ? (
               <a
@@ -70,15 +67,15 @@ export default function Menu() {
               </a>
             ) : null}
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 
           {/* Filter Picker */}
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="font-semibold">Filter</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
+            <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Filter</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/50">
               <DropdownMenuItem
                 className={cn(
-                  'hover:cursor-pointer font-semibold',
+                  'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
                   filter === "All" && `text-white bg-slate-700`
                 )}
                 onClick={() => setFilter("All")}
@@ -86,12 +83,12 @@ export default function Menu() {
               >
                 All
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
               {sportTypes.map((sport, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
                     className={cn(
-                      'hover:cursor-pointer font-semibold',
+                      'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
                       sport === filter && `text-white bg-slate-700`
                     )}
                     onClick={() => setFilter(sport)}
@@ -100,34 +97,23 @@ export default function Menu() {
                     {sport}
                   </DropdownMenuItem>
                   {idx !== sportTypes.length - 1 ? (
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
                   ) : null}
                 </div>
               ))}
-              {/* <DropdownMenuItem
-                className="font-semibold"
-                onSelect={(e) => e.preventDefault()}
-              >
-                <RadioGroup defaultValue="all">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="all" id="all" />
-                    <Label htmlFor="all" className="font-semibold">All</Label>
-                  </div>
-                </RadioGroup>
-              </DropdownMenuItem> */}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 
           {/* Theme Picker */}
           <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="font-semibold">Theme</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent>
+            <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Theme</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/50">
               {Object.keys(Theme).map((t, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
                     className={cn(
-                      'hover:cursor-pointer font-semibold',
+                      'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
                       t === themeName && `text-white bg-slate-700`
                     )}
                     onClick={() => setThemeName(t as ThemeName)}
@@ -136,40 +122,83 @@ export default function Menu() {
                     {t}
                   </DropdownMenuItem>
                   {idx !== Object.keys(Theme).length - 1 ? (
-                    <DropdownMenuSeparator />
+                    <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
                   ) : null}
                 </div>
               ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 
           {/* Unit Picker */}
           <DropdownMenuItem
-            className="font-semibold"
+            className="font-semibol dark:hover:bg-[#1d1d1e] dark:hover:text-white"
             onSelect={(e) => e.preventDefault()}
           >
-            <div className="flex w-fit items-center gap-4">
+            <div className="flex w-full items-center gap-4 font-semibold">
               <p>Units</p>
-              <div className="ml-auto hover:cursor-pointer">
-                <Tabs defaultValue={UnitDefinitions[units].distance} className="flex w-fit">
-                  <TabsList className="bg-slate-200">
-                    <TabsTrigger value="mi" onClick={() => setUnits("imperial")}>Mi</TabsTrigger>
-                    <TabsTrigger value="km" onClick={() => setUnits("metric")}>Km</TabsTrigger>
+              <div className="hover:cursor-pointer w-full flex justify-end">
+                <Tabs defaultValue={UnitDefinitions[units].distance} className="">
+                  <TabsList className="bg-slate-200 dark:bg-[#232527] dark:text-white">
+                    <TabsTrigger
+                      value="mi"
+                      onClick={() => setUnits("imperial")}
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                    >
+                      Mi
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="km"
+                      onClick={() => setUnits("metric")}
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                    >
+                      Km
+                    </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
             </div>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 
-          {/* Sign Out */}
+          {/* Dark Mode */}
           <DropdownMenuItem
-            className="hover:cursor-pointer font-semibold"
+            className="font-semibol dark:hover:bg-[#1d1d1e] dark:hover:text-white"
+            onSelect={(e) => e.preventDefault()}
+          >
+            <div className="flex w-full items-center gap-4 font-semibold">
+              <p>Dark Mode</p>
+              <div className="hover:cursor-pointer flex justify-end">
+                <Tabs defaultValue={darkMode ? "on" : "off"} className="flex w-fit">
+                  <TabsList className="bg-slate-200 dark:bg-[#232527] dark:text-white">
+                    <TabsTrigger
+                      value="on"
+                      onClick={() => setDarkMode(true)}
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                    >
+                      On
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="off"
+                      onClick={() => setDarkMode(false)}
+                      className="dark:text-white/80 dark:data-[state=active]:bg-[#0a0a0a] dark:data-[state=active]:text-white"
+                    >
+                      Off
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </div>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
+
+          {/* Donate */}
+          <DropdownMenuItem
+            className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white"
           >
             <a href="https://www.buymeacoffee.com/atefkbenothman" target="_blank" className="w-full">Donate</a>
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 
           {/* Sign Out */}
           <DropdownMenuItem

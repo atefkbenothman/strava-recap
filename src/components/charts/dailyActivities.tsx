@@ -18,21 +18,30 @@ type CalendarData = {
  * Daily activity calendar
 */
 export default function DailyActivities() {
-  const { activityData } = useContext(ActivityDataContext)
+  const { activityData, currentYear } = useContext(ActivityDataContext)
 
   const [data, setData] = useState<CalendarData[]>([])
 
   useEffect(() => {
     if (!activityData) return
     function formatData() {
-      const res = activityData.all!
-        .sort((a, b) => new Date(a.start_date_local!).getTime() - new Date(b.start_date_local!).getTime())
-        .map((activity) => {
-          const date = activity.start_date_local!.split("T")[0]
-          const count = 1
-          const level = Math.min(Math.floor((activity.moving_time!) / 1000), 4)
-          return { date, count, level }
-        })
+      const jan1 = `${currentYear}-01-01`
+      const dec31 = `${currentYear}-12-31`
+
+      const res = activityData.all!.reduce((acc, activity) => {
+        const date = activity.start_date_local!.split("T")[0]
+        const count = 1
+        const level = Math.min(Math.floor(activity.moving_time! / 1000), 4)
+        acc.push({ date, count, level })
+        return acc
+      }, [] as CalendarData[])
+
+      const dateSet = new Set(res.map((entry) => entry.date))
+
+      if (!dateSet.has(jan1)) res.push({ date: jan1, count: 0, level: 0 })
+      if (!dateSet.has(dec31)) res.push({ date: dec31, count: 0, level: 0 })
+
+      res.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       setData(res)
     }
     formatData()
@@ -53,7 +62,7 @@ export default function DailyActivities() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full dark:text-white">
       <div className="flex items-center m-2 gap-2">
         <CalendarDays size={16} strokeWidth={2} />
         <p className="font-semibold text-sm">Daily Activities</p>

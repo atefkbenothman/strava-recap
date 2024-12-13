@@ -23,7 +23,7 @@ type AreaChartData = {
 */
 export default function StartTimes() {
   const { activityData } = useContext(ActivityDataContext)
-  const { theme, colorPalette } = useContext(ThemeContext)
+  const { darkMode, theme, colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<AreaChartData[]>([])
   const [chartColor, setChartColor] = useState<string>("")
@@ -75,9 +75,21 @@ export default function StartTimes() {
             strokeWidth={2}
             fill={chartColor}
             isAnimationActive={false}
-            label={{ position: "top", fontSize: 9 }}
+            label={{
+              position: "top",
+              fontSize: 9,
+              color: darkMode ? "#c2c2c2" : "#666",
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
           />
-          <XAxis dataKey="hour" tick={{ fontSize: 12 }} />
+          <XAxis
+            dataKey="hour"
+            tick={{
+              fontSize: 12,
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
+          />
           <Tooltip />
           <Legend />
         </AreaChart>

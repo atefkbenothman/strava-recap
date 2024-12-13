@@ -21,7 +21,7 @@ type AreaChartData = {
 
 export default function PrsOverTime() {
   const { activityData } = useContext(ActivityDataContext)
-  const { theme, colorPalette } = useContext(ThemeContext)
+  const { darkMode, theme, colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<AreaChartData[]>([])
   const [chartColor, setChartColor] = useState<string>("")
@@ -70,9 +70,21 @@ export default function PrsOverTime() {
             strokeWidth={2.5}
             type="step"
             isAnimationActive={false}
-            label={{ position: "top", fontSize: 9 }}
+            label={{
+              position: "top",
+              fontSize: 9,
+              color: darkMode ? "#c2c2c2" : "#666",
+              fill: darkMode ? "#c2c2c2" : "#666",
+            }}
           />
-          <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+          <XAxis
+            dataKey="month"
+            tick={{
+              fontSize: 12,
+              fill: darkMode ? "#c2c2c2" : "#666"
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
+          />
           <Tooltip />
           <Legend />
         </LineChart>

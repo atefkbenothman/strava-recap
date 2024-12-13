@@ -26,7 +26,7 @@ type BarChartData = {
 */
 export default function Elevation() {
   const { activityData, units } = useContext(ActivityDataContext)
-  const { colorPalette } = useContext(ThemeContext)
+  const { darkMode, colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalElevation, setTotalElevation] = useState<number>(0)
@@ -83,7 +83,12 @@ export default function Elevation() {
           <XAxis
             type="category"
             dataKey="month"
-            tick={{ fontSize: 12 }}
+            tick={{
+              fontSize: 12,
+              color: darkMode ? "#c2c2c2" : "#666",
+              fill: darkMode ? "#c2c2c2" : "#666",
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
           />
           <Tooltip />
           {sportTypes.map(sport => (
@@ -94,7 +99,12 @@ export default function Elevation() {
               dataKey={sport}
               isAnimationActive={false}
               fill={colorPalette[sport]}
-              label={{ position: "top", fontSize: 9 }}
+              label={{
+                position: "top",
+                fontSize: 9,
+                color: darkMode ? "#c2c2c2" : "#666",
+                fill: darkMode ? "#c2c2c2" : "#666",
+              }}
             />
           ))}
           <Legend />

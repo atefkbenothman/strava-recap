@@ -25,42 +25,18 @@ type ScatterChartData = {
   fill: string
 }
 
-// type RegressionLine = {
-//   slope: number
-//   intercept: number
-// }
-
-// type ChartBounds = {
-//   minX: number
-//   minY: number
-//   maxX: number
-//   maxY: number
-// }
-
 /*
  * Heartrate vs perceived exertion
 */
 export default function HeartrateVsSpeed() {
   const { activityData, units } = useContext(ActivityDataContext)
-  const { colorPalette } = useContext(ThemeContext)
+  const { darkMode, colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  // const [regressionLine, setRegressionLine] = useState<RegressionLine | null>()
-  // const [bounds, setBounds] = useState<ChartBounds | null>()
 
   useEffect(() => {
     if (!activityData) return
     function formatData() {
-      // function calculateRegression(d: ScatterChartData[]) {
-      //   const n = d.length
-      //   const sumX = data.reduce((sum, d) => sum + d.speed, 0)
-      //   const sumY = data.reduce((sum, d) => sum + d.heartrate, 0)
-      //   const sumXY = data.reduce((sum, d) => sum + d.speed * d.heartrate, 0)
-      //   const sumX2 = data.reduce((sum, d) => sum + d.speed ** 2, 0)
-      //   const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX ** 2)
-      //   const intercept = (sumY - slope * sumX) / n
-      //   return { slope, intercept }
-      // }
       const res: ScatterChartData[] = []
       activityData.all!.forEach(act => {
         const id = act.id!
@@ -72,23 +48,9 @@ export default function HeartrateVsSpeed() {
         }
       })
       setData(res)
-      // if (res.length > 1) {
-      //   const regression = calculateRegression(res)
-      //   setRegressionLine(regression)
-      // }
-      // console.log(minX, maxX, minY, maxY)
-      // setBounds({ minX, minY, maxX, maxY })
     }
     formatData()
   }, [activityData, colorPalette, units])
-
-  // const xAxisDomain = [0, Math.max(...data.map(d => d.speed))]
-  // const minX = xAxisDomain[0]
-  // const maxX = xAxisDomain[1]
-
-  // const minY = regressionLine ? regressionLine.slope * minX + regressionLine.intercept : 0
-  // const maxY = regressionLine ? regressionLine.slope * maxX + regressionLine.intercept : 0
-
   const handleDotClick = (data: any) => {
     if (data.url) {
       window.open(data.url, "_blank")
@@ -126,7 +88,12 @@ export default function HeartrateVsSpeed() {
             dataKey="speed"
             name="speed"
             unit={UnitDefinitions[units].speed}
-            tick={{ fontSize: 10 }}
+            tick={{
+              fontSize: 10,
+              color: darkMode ? "#c2c2c2" : "#666",
+              fill: darkMode ? "#c2c2c2" : "#666",
+            }}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
           />
           <YAxis
             type="number"
@@ -134,12 +101,62 @@ export default function HeartrateVsSpeed() {
             name="heartrate"
             unit="bpm"
             domain={[90, 210]}
-            tick={{ fontSize: 10 }}
+            tick={{
+              fontSize: 10,
+              color: darkMode ? "#c2c2c2" : "#666",
+              fill: darkMode ? "#c2c2c2" : "#666",
+            }}
             width={38}
+            stroke={darkMode ? "#c2c2c2" : "#666"}
           />
           <ZAxis range={[30, 40]} />
           <Tooltip />
-          {/* {regressionLine && (
+        </ScatterChart>
+      </ResponsiveContainer>
+    </Card>
+  )
+}
+
+// type RegressionLine = {
+//   slope: number
+//   intercept: number
+// }
+
+// type ChartBounds = {
+//   minX: number
+//   minY: number
+//   maxX: number
+//   maxY: number
+// }
+
+// const xAxisDomain = [0, Math.max(...data.map(d => d.speed))]
+// const minX = xAxisDomain[0]
+// const maxX = xAxisDomain[1]
+
+// const minY = regressionLine ? regressionLine.slope * minX + regressionLine.intercept : 0
+// const maxY = regressionLine ? regressionLine.slope * maxX + regressionLine.intercept : 0
+
+
+// const [regressionLine, setRegressionLine] = useState<RegressionLine | null>()
+// const [bounds, setBounds] = useState<ChartBounds | null>()
+// if (res.length > 1) {
+//   const regression = calculateRegression(res)
+//   setRegressionLine(regression)
+// }
+// console.log(minX, maxX, minY, maxY)
+// setBounds({ minX, minY, maxX, maxY })
+
+// function calculateRegression(d: ScatterChartData[]) {
+//   const n = d.length
+//   const sumX = data.reduce((sum, d) => sum + d.speed, 0)
+//   const sumY = data.reduce((sum, d) => sum + d.heartrate, 0)
+//   const sumXY = data.reduce((sum, d) => sum + d.speed * d.heartrate, 0)
+//   const sumX2 = data.reduce((sum, d) => sum + d.speed ** 2, 0)
+//   const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX ** 2)
+//   const intercept = (sumY - slope * sumX) / n
+//   return { slope, intercept }
+// }
+{/* {regressionLine && (
             <ReferenceLine
               ifOverflow="extendDomain"
               segment={[
@@ -152,8 +169,3 @@ export default function HeartrateVsSpeed() {
               strokeDasharray="3 3"
             />
           )} */}
-        </ScatterChart>
-      </ResponsiveContainer>
-    </Card>
-  )
-}

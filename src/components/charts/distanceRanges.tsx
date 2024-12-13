@@ -44,7 +44,7 @@ const getDistanceRanges = (units: string) => {
 */
 export default function DistanceRanges() {
   const { activityData, units } = useContext(ActivityDataContext)
-  const { theme } = useContext(ThemeContext)
+  const { theme, darkMode } = useContext(ThemeContext)
 
   const [data, setData] = useState<RadialBarChartData[]>([])
 
@@ -92,8 +92,8 @@ export default function DistanceRanges() {
           endAngle={-180}
         >
           <RadialBar
-            label={{ fontSize: 12, position: "bottom", fill: "#000000" }}
-            background={{ fill: "#e5e7eb" }}
+            label={{ fontSize: 12, position: "bottom", fill: darkMode ? "#ffffff" : "#000000" }}
+            background={{ fill: darkMode ? "#232527" : "#e5e7eb" }}
             dataKey="activities"
             cornerRadius={4}
           />

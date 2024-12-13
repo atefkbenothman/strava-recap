@@ -16,7 +16,7 @@ export default function Dashboard({ graphs }: Props) {
   const { currentYear } = useContext(ActivityDataContext)
 
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full dark:bg-[#0a0a0a] dark:text-white">
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col p-2 gap-1 h-fit w-full">
 
@@ -54,12 +54,12 @@ export default function Dashboard({ graphs }: Props) {
 
             <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-2 w-full">
 
-              <div className="bg-[#efefef] col-span-1 sm:col-span-2 rounded">
+              <div className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 sm:col-span-2 rounded">
                 <DailyActivities />
               </div>
 
               {graphs.map((graph, index) => (
-                <div key={index} className="bg-[#efefef] col-span-1 rounded">
+                <div key={index} className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 rounded">
                   {graph}
                 </div>
               ))}

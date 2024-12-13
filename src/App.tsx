@@ -70,7 +70,7 @@ function App() {
   const [themeName, setThemeName] = useState<ThemeName>("Default")
   const [units, setUnits] = useState<Units>(localStorage.getItem("units") as Units || "imperial")
   const [filter, setFilter] = useState<SportType | "All">("All")
-  const [darkMode, setDarkMode] = useState<boolean>(JSON.parse(localStorage.getItem("dark") || "false"))
+  const [darkMode, setDarkMode] = useState<boolean>(JSON.parse(localStorage.getItem("dark") || "true"))
 
   const {
     data: activities,

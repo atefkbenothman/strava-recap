@@ -18,10 +18,10 @@ export default function Dashboard({ graphs }: Props) {
   return (
     <div className="w-full h-full dark:bg-[#121212] dark:text-white">
       <div className="flex flex-col w-full h-full">
-        <div className="flex flex-col p-2 gap-1 h-fit w-full">
+        <div className="flex flex-col p-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
 
           {/* Top Bar */}
-          <div className="grid grid-cols-2 dark:bg-[#121212] dark:text-white">
+          <div className="grid grid-cols-2">
 
             {/* Left Side */}
             <div className="font-semibold text-xl flex items-center">
@@ -29,7 +29,7 @@ export default function Dashboard({ graphs }: Props) {
             </div>
 
             {/* Right Side */}
-            <div className="flex flex-wrap w-full gap-6 items-center h-full justify-end">
+            <div className="flex w-full gap-6 items-center h-full justify-end">
               <div className="items-center hidden sm:block">
                 <YearPicker />
               </div>

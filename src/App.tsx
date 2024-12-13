@@ -70,8 +70,6 @@ function App() {
   const [filter, setFilter] = useState<SportType | "All">("All")
   const [darkMode, setDarkMode] = useState<boolean>(JSON.parse(localStorage.getItem("dark") || "true"))
 
-  console.log(darkMode)
-
   const {
     data: activities,
     isLoading,
@@ -84,6 +82,15 @@ function App() {
     gcTime: 1000 * 60 * 60 * 24,
     retry: false
   })
+
+  // update background color
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }, [darkMode])
 
   const setUnit = (unit: Units) => {
     localStorage.setItem("units", unit)

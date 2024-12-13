@@ -1,5 +1,5 @@
 import { useContext, ReactElement } from "react"
-import { ActivityDataContext, AuthContext } from "../contexts/context"
+import { ActivityDataContext, AuthContext, ThemeContext } from "../contexts/context"
 
 import DailyActivities from "./charts/dailyActivities"
 import YearPicker from "./yearPicker"
@@ -14,9 +14,10 @@ type Props = {
 export default function Dashboard({ graphs }: Props) {
   const { athlete } = useContext(AuthContext)
   const { currentYear } = useContext(ActivityDataContext)
+  const { darkMode } = useContext(ThemeContext)
 
   return (
-    <div className="w-full h-full dark:bg-[#121212] dark:text-white">
+    <div className={`w-full h-full dark:bg-[#121212] dark:text-white ${darkMode && 'dark'}`}>
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col p-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
 

@@ -360,9 +360,7 @@ function App() {
             setThemeName,
             setDarkMode: setDark
           }}>
-            <div className={darkMode ? "dark" : ""}>
-              <Dashboard graphs={shuffledGraphComponents} />
-            </div>
+            <Dashboard graphs={shuffledGraphComponents} />
           </ThemeContext.Provider>
         </ActivityDataContext.Provider>
       </AuthContext.Provider>

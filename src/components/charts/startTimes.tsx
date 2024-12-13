@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { getRandomColor } from "../../themes/theme"
 import {
   AreaChart,
@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import { Clock } from 'lucide-react'
 import Card from "../card"
+import NoData from "../noData"
 
 type AreaChartData = {
   hour: string
@@ -21,7 +22,8 @@ type AreaChartData = {
  * Activity start times
 */
 export default function StartTimes() {
-  const { activityData, theme, colorPalette } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
+  const { theme, colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<AreaChartData[]>([])
   const [chartColor, setChartColor] = useState<string>("")
@@ -45,6 +47,18 @@ export default function StartTimes() {
     }
     calculateStartTimes()
   }, [activityData, colorPalette])
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Start Times"
+        description="activity start times"
+        icon={<Clock size={15} strokeWidth={2.5} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
 
   return (
     <Card

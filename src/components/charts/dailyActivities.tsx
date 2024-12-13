@@ -1,7 +1,8 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext } from "../../contexts/context"
 import ActivityCalendar, { ThemeInput } from "react-activity-calendar"
 import { CalendarDays } from 'lucide-react'
+import NoData from "../noData"
 
 const colors: ThemeInput = {
   dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
@@ -17,7 +18,7 @@ type CalendarData = {
  * Daily activity calendar
 */
 export default function DailyActivities() {
-  const { activityData } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
 
   const [data, setData] = useState<CalendarData[]>([])
 
@@ -36,6 +37,20 @@ export default function DailyActivities() {
     }
     formatData()
   }, [activityData])
+
+  if (data.length === 0) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="flex items-center m-2 gap-2">
+          <CalendarDays size={16} strokeWidth={2} />
+          <p className="font-semibold text-sm">Daily Activities</p>
+        </div>
+        <div className="flex h-full items-center justify-center p-4">
+          <NoData />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full">

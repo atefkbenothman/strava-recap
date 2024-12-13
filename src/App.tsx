@@ -6,9 +6,11 @@ import { useStravaAuth } from "./hooks/useStravaAuth"
 import { stravaApi } from "./services/api"
 import { SportType } from "./types/strava"
 import { ActivitiesByType, ActivityData, MonthlyActivities, Months, Units } from "./types/activity"
-import { RecapContext } from "./contexts/recapContext"
+import { ActivityDataContext, AuthContext, ThemeContext } from "./contexts/context"
 import { Theme, ThemeName, generateColorPalette, SportColors } from "./themes/theme"
+import { Info } from "lucide-react"
 
+import Dashboard from "./components/dashboard"
 import SportTypes from "./components/charts/sportTypes"
 import TotalHours from "./components/charts/totalHours"
 import Distance from "./components/charts/distance"
@@ -23,9 +25,8 @@ import Gear from "./components/charts/gear"
 import BiggestActivity from "./components/charts/biggestActivity"
 import DistanceVsElevation from "./components/charts/distanceVsElevation"
 import HeartrateVsSpeed from "./components/charts/heartrateVsSpeed"
-
-import Dashboard from "./components/dashboard"
-import InfoDialog from "./components/infoDialog"
+import PrsOverTime from "./components/charts/prsOverTime"
+import RestDays from "./components/charts/restDays"
 
 import connectWithStravaLogo from "/connect-with-strava.svg"
 
@@ -46,7 +47,10 @@ const GRAPH_COMPONENTS = [
   <Gear />,
   <BiggestActivity />,
   <DistanceVsElevation />,
-  <HeartrateVsSpeed />
+  <HeartrateVsSpeed />,
+  <PrsOverTime />,
+  <RestDays />,
+  // <HeatMap />
 ]
 
 function App() {
@@ -61,8 +65,9 @@ function App() {
 
   const [currentYear, setCurrentYear] = useState<number>(Number(window.location.pathname.split("/")[1]) || 0)
   const [colorPalette, setColorPalette] = useState<SportColors>({})
-  const [themeName, setThemeName] = useState<ThemeName>("emerald")
+  const [themeName, setThemeName] = useState<ThemeName>("Default")
   const [units, setUnits] = useState<Units>(localStorage.getItem("units") as Units || "imperial")
+  const [filter, setFilter] = useState<SportType | "All">("All")
 
   const {
     data: activities,
@@ -93,6 +98,17 @@ function App() {
     retry: false
   })
 
+  const {
+    data: athleteZones
+  } = useQuery({
+    queryKey: ["athleteZones"],
+    queryFn: () => stravaApi.getAthleteZones(accessToken!),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24,
+    retry: false
+  })
+
   // shuffle graphs
   const shuffledGraphComponents = useMemo(() => {
     return GRAPH_COMPONENTS
@@ -104,13 +120,21 @@ function App() {
   // process activities
   const activityData = useMemo(() => {
     if (!activities) return {} as ActivityData
+
     const sportTypes: SportType[] = []
     const activitiesByMonth: MonthlyActivities = {}
     const activitiesByType: ActivitiesByType = {}
+
     Months.forEach(month => {
       activitiesByMonth[month] = []
     })
-    activities.forEach(activity => {
+
+    // filter activities based on filter
+    const filteredActivities = filter === "All"
+      ? activities
+      : activities.filter((act) => act.sport_type! === filter)
+
+    filteredActivities.forEach(activity => {
       const sportType = activity.sport_type! as SportType
       const activityMonth = new Date(activity.start_date!).toLocaleString("default", { month: "long" })
       if (!activitiesByType[sportType]) {
@@ -120,13 +144,16 @@ function App() {
       activitiesByType[sportType].push(activity)
       sportTypes.push(activity.sport_type! as SportType)
     })
+
     setColorPalette(generateColorPalette(sportTypes, themeName, colorPalette))
+
     return {
-      all: activities,
+      all: filteredActivities,
       monthly: activitiesByMonth,
       bySportType: activitiesByType
     }
-  }, [activities])
+
+  }, [activities, filter])
 
   // update athlete data with bike and shoes data
   useEffect(() => {
@@ -174,7 +201,11 @@ function App() {
           />
         </div>
         <div className="fixed bottom-5 right-5">
-          <InfoDialog />
+          <Info
+            strokeWidth={2}
+            color="#525252"
+            className="hover:cursor-pointer hover:scale-125"
+          />
         </div>
         <Analytics />
       </div>
@@ -203,7 +234,7 @@ function App() {
           <div className="flex gap-6">
             <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={logout}>Reauthenticate</p>
             <p>or</p>
-            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>Go to {thisYear}</a>
+            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
           </div>
         </div>
         <Analytics />
@@ -216,8 +247,16 @@ function App() {
     return (
       <div className="w-screen h-screen flex flex-col items-center justify-center">
         <div className="flex flex-col gap-4 text-lg">
-          <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
-          <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>Go to {thisYear}</a>
+          {filter !== "All" ? (
+            <p>No activities ({filter}) from <span className="font-bold text-xl">{currentYear}</span></p>
+          ) : (
+            <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
+          )}
+          <div className="flex gap-6">
+            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
+            <p>or</p>
+            <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => setFilter("All")}>reset filter</a>
+          </div>
         </div>
         <Analytics />
       </div>
@@ -226,24 +265,32 @@ function App() {
 
   return (
     <div className="w-screen h-screen">
-      <RecapContext.Provider
-        value={{
-          isAuthenticated,
+      <AuthContext.Provider value={{
+        isAuthenticated,
+        athlete,
+        logout
+      }}>
+        <ActivityDataContext.Provider value={{
           currentYear,
-          athlete,
           activityData,
-          colorPalette,
-          theme: Theme[themeName],
           units,
-          setUnits: setUnit,
+          filter,
+          setFilter,
           updateYear,
-          logout,
-          setThemeName
+          setUnits: setUnit
         }}>
-        <Dashboard graphs={shuffledGraphComponents} />
-      </RecapContext.Provider>
+          <ThemeContext.Provider value={{
+            themeName,
+            theme: Theme[themeName],
+            colorPalette,
+            setThemeName
+          }}>
+            <Dashboard graphs={shuffledGraphComponents} />
+          </ThemeContext.Provider>
+        </ActivityDataContext.Provider>
+      </AuthContext.Provider>
       <Analytics />
-    </div >
+    </div>
   )
 }
 

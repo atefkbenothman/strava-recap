@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext } from "../../contexts/context"
 import { ThumbsUp } from 'lucide-react'
 
 import Card from "../card"
@@ -10,7 +10,7 @@ import Stat from "../stat"
  * Social stats
 */
 export default function Socials() {
-  const { activityData } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
 
   const [kudosCount, setKudosCount] = useState<number>(0)
   const [commentCount, setCommentCount] = useState<number>(0)

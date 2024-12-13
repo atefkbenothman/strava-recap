@@ -1,5 +1,5 @@
 import { useContext, ReactElement } from "react"
-import { RecapContext } from "../contexts/recapContext"
+import { ActivityDataContext, AuthContext } from "../contexts/context"
 
 import DailyActivities from "./charts/dailyActivities"
 import YearPicker from "./yearPicker"
@@ -12,7 +12,8 @@ type Props = {
 }
 
 export default function Dashboard({ graphs }: Props) {
-  const { athlete, currentYear } = useContext(RecapContext)
+  const { athlete } = useContext(AuthContext)
+  const { currentYear } = useContext(ActivityDataContext)
 
   return (
     <div className="w-full h-full">

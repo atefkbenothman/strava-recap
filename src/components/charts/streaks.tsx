@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext } from "../../contexts/context"
 import { StravaActivity } from "../../types/strava"
 import { getWeek, getMonth } from 'date-fns'
 import { Flame } from 'lucide-react'
@@ -8,7 +8,7 @@ import Stat from "../stat"
 
 
 export default function Streaks() {
-  const { activityData } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
 
   const [months, setMonths] = useState<number[]>([])
   const [weeks, setWeeks] = useState<number[]>([])

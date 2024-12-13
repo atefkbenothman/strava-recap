@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { SportType } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import {
@@ -11,6 +11,7 @@ import {
   Legend
 } from "recharts"
 import { Watch } from "lucide-react"
+import NoData from "../noData"
 import Card from "../card"
 
 
@@ -24,7 +25,8 @@ type PieChartData = {
  * Total hours spent per sport
 */
 export default function TotalHours() {
-  const { activityData, colorPalette } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<PieChartData[]>([])
   const [totalHours, setTotalHours] = useState<number>(0)
@@ -41,7 +43,9 @@ export default function TotalHours() {
           totalHrs += movingTime
           return hours
         }, 0)
-        acc.push({ sport: sport as SportType, hours: Math.round(totalHoursPerSport), color: colorPalette[sport] })
+        if (totalHoursPerSport >= 1) {
+          acc.push({ sport: sport as SportType, hours: Math.round(totalHoursPerSport), color: colorPalette[sport] })
+        }
         return acc
       }, [] as PieChartData[])
       setData(res)
@@ -49,6 +53,18 @@ export default function TotalHours() {
     }
     calculateTotalHours()
   }, [activityData, colorPalette])
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Total Hours"
+        description="total hours spent per sport"
+        icon={<Watch size={17} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
 
   return (
     <Card
@@ -67,6 +83,7 @@ export default function TotalHours() {
             nameKey="sport"
             innerRadius={50}
             outerRadius={80}
+            cornerRadius={4}
             isAnimationActive={false}
             paddingAngle={3}
           >

@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { RecapContext } from "../contexts/recapContext"
+import { ActivityDataContext } from "../contexts/context"
 import {
   Pagination,
   PaginationContent,
@@ -10,7 +10,7 @@ import {
 } from "./ui/pagination"
 
 export default function YearPicker() {
-  const { currentYear, updateYear } = useContext(RecapContext)
+  const { currentYear, updateYear } = useContext(ActivityDataContext)
   return (
     <Pagination className="h-fit">
       <PaginationContent>

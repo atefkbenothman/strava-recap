@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext } from "../../contexts/context"
 import { StravaActivity } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import { Trophy } from 'lucide-react'
@@ -36,7 +36,7 @@ function Metric({ label, value, unit }: MetricProps) {
  * Biggest Activity by distance
 */
 export default function BiggestActivity() {
-  const { activityData, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
 
   const [biggestActivity, setBiggestActivity] = useState<StravaActivity>()
   const [route, setRoute] = useState<[number, number][] | null>()
@@ -56,12 +56,22 @@ export default function BiggestActivity() {
     getBiggestActivity()
   }, [activityData])
 
+  if (biggestActivity === null) {
+    return (
+      <Card
+        title="Biggest Activity"
+        icon={<Trophy size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
+
   return (
     <Card
       title="Biggest Activity"
       description=""
       icon={<Trophy size={16} strokeWidth={2} />}
-      stravaLink={`https://www.strava.com/activities/${biggestActivity?.id}`}
     >
       <div className="flex justify-center">
         {!biggestActivity || activityData.all!.length === 0 ? (
@@ -73,17 +83,23 @@ export default function BiggestActivity() {
             </div>
             <div className="flex items-center justify-center">
               {route ? (
-                <img
-                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]
-                    },${biggestActivity.start_latlng![0]}),pin-s-b+000(${biggestActivity.end_latlng![1]
-                    },${biggestActivity.end_latlng![0]}),path-5+f44-0.5(${encodeURIComponent(
-                      polyline.encode(route)
-                    )})/auto/500x500?access_token=${token}&zoom=14`}
-                  alt="map"
-                  height="80%"
-                  width="80%"
-                  className="rounded shadow-md"
-                />
+                <a
+                  href={`https://www.strava.com/activities/${biggestActivity?.id}`}
+                  target="_blank"
+                  className="flex items-center justify-center w-[80%] bg-red-100"
+                >
+                  <img
+                    src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]
+                      },${biggestActivity.start_latlng![0]}),pin-s-b+000(${biggestActivity.end_latlng![1]
+                      },${biggestActivity.end_latlng![0]}),path-5+f44-0.5(${encodeURIComponent(
+                        polyline.encode(route)
+                      )})/auto/500x500?access_token=${token}&zoom=14`}
+                    alt="map"
+                    height="80%"
+                    width="100%"
+                    className="rounded hover:cursor-pointer"
+                  />
+                </a>
               ) : null}
             </div>
             <div className="flex gap-8 mx-2 items-center justify-center">

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { SportType } from "../../types/strava"
 import {
   ResponsiveContainer,
@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { BicepsFlexed } from 'lucide-react';
 import Card from "../card"
+import NoData from "../noData";
 
 
 type BarChartData = {
@@ -22,7 +23,8 @@ type BarChartData = {
  * Number of activities per month
 */
 export default function ActivityCount() {
-  const { activityData, colorPalette } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalActivities, setTotalActivities] = useState<number>(0)
@@ -49,7 +51,19 @@ export default function ActivityCount() {
       setTotalActivities(totalActs)
     }
     calculateActivityCount()
-  }, [activityData])
+  }, [activityData, colorPalette])
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Activity Count"
+        description="number of activities per month"
+        icon={<BicepsFlexed size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
 
   return (
     <Card
@@ -70,6 +84,7 @@ export default function ActivityCount() {
           {Object.keys(activityData.bySportType!).map(sport => (
             <Bar
               key={sport}
+              radius={[4, 4, 4, 4]}
               stackId="stack"
               dataKey={sport}
               isAnimationActive={false}

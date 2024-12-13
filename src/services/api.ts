@@ -126,6 +126,28 @@ export const stravaApi = {
     }
     return allActivities
   },
+  getAthleteZones: async (token: string): Promise<any> => {
+    const baseUrl = "https://www.strava.com/api/v3/athlete/zones"
+    try {
+      const res = await fetch(baseUrl, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.message)
+      }
+      const data = await res.json()
+      return data
+    } catch (err) {
+      if (err instanceof Error) {
+        throw new Error(err.message)
+      }
+      return []
+    }
+  },
   getGear: async (token: string, gearId: string): Promise<StravaGear[]> => {
     const baseUrl = `https://www.strava.com/api/v3/gear/${gearId}`
     try {

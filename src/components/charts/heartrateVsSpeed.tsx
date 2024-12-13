@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
@@ -21,6 +21,7 @@ import { UnitDefinitions } from "../../types/activity"
 type ScatterChartData = {
   heartrate: number
   speed: number
+  url: string
   fill: string
 }
 
@@ -29,20 +30,29 @@ type RegressionLine = {
   intercept: number
 }
 
+type ChartBounds = {
+  minX: number
+  minY: number
+  maxX: number
+  maxY: number
+}
+
 /*
  * Heartrate vs perceived exertion
 */
 export default function HeartrateVsSpeed() {
-  const { activityData, colorPalette, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  const [regressionLine, setRegressionLine] = useState<RegressionLine | null>(null)
+  const [regressionLine, setRegressionLine] = useState<RegressionLine | null>()
+  const [bounds, setBounds] = useState<ChartBounds | null>()
 
   useEffect(() => {
     if (!activityData) return
     function formatData() {
-      function calculateRegression(data: ScatterChartData[]) {
-        const n = data.length
+      function calculateRegression(d: ScatterChartData[]) {
+        const n = d.length
         const sumX = data.reduce((sum, d) => sum + d.speed, 0)
         const sumY = data.reduce((sum, d) => sum + d.heartrate, 0)
         const sumXY = data.reduce((sum, d) => sum + d.speed * d.heartrate, 0)
@@ -53,11 +63,12 @@ export default function HeartrateVsSpeed() {
       }
       const res: ScatterChartData[] = []
       activityData.all!.forEach(act => {
+        const id = act.id!
         const hr = act.average_heartrate!
         const speed = Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2))
         const sportType = act.sport_type! as SportType
         if (hr && speed) {
-          res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType] })
+          res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType], url: `https://www.strava.com/activities/${id}` })
         }
       })
       setData(res)
@@ -65,9 +76,24 @@ export default function HeartrateVsSpeed() {
         const regression = calculateRegression(res)
         setRegressionLine(regression)
       }
+      // console.log(minX, maxX, minY, maxY)
+      // setBounds({ minX, minY, maxX, maxY })
     }
     formatData()
   }, [activityData, colorPalette, units])
+
+  const xAxisDomain = [0, Math.max(...data.map(d => d.speed))]
+  const minX = xAxisDomain[0]
+  const maxX = xAxisDomain[1]
+
+  const minY = regressionLine ? regressionLine.slope * minX + regressionLine.intercept : 0
+  const maxY = regressionLine ? regressionLine.slope * maxX + regressionLine.intercept : 0
+
+  const handleDotClick = (data: any) => {
+    if (data.url) {
+      window.open(data.url, "_blank")
+    }
+  }
 
   if (data.length === 0) {
     return (
@@ -81,13 +107,6 @@ export default function HeartrateVsSpeed() {
     )
   }
 
-  const xAxisDomain = [0, Math.max(...data.map(d => d.speed))]
-  const minX = xAxisDomain[0]
-  const maxX = xAxisDomain[1]
-
-  const minY = regressionLine ? regressionLine.slope * minX + regressionLine.intercept : 0
-  const maxY = regressionLine ? regressionLine.slope * maxX + regressionLine.intercept : 0
-
   return (
     <Card
       title="Heartrate vs. Speed"
@@ -96,7 +115,12 @@ export default function HeartrateVsSpeed() {
     >
       <ResponsiveContainer height={350} width="90%">
         <ScatterChart>
-          <Scatter data={data} isAnimationActive={false} />
+          <Scatter
+            data={data}
+            isAnimationActive={false}
+            onClick={handleDotClick}
+            className="hover:cursor-pointer"
+          />
           <XAxis
             type="number"
             dataKey="speed"
@@ -115,17 +139,19 @@ export default function HeartrateVsSpeed() {
           />
           <ZAxis range={[30, 40]} />
           <Tooltip />
-          {regressionLine && (
+          {/* {regressionLine && (
             <ReferenceLine
               ifOverflow="extendDomain"
               segment={[
+                // { x: bounds.minX, y: bounds.minY },
+                // { x: bounds.maxX, y: bounds.maxY }
                 { x: minX, y: minY },
                 { x: maxX, y: maxY }
               ]}
               stroke="black"
               strokeDasharray="3 3"
             />
-          )}
+          )} */}
         </ScatterChart>
       </ResponsiveContainer>
     </Card>

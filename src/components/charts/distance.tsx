@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { SportType } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import {
@@ -14,6 +14,7 @@ import { Rocket } from 'lucide-react'
 
 import Card from "../card"
 import { UnitDefinitions } from "../../types/activity"
+import NoData from "../noData"
 
 type BarChartData = {
   month: string
@@ -24,7 +25,8 @@ type BarChartData = {
  * Total distance per month
 */
 export default function Distance() {
-  const { activityData, colorPalette, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalDistance, setTotalDistance] = useState<number>(0)
@@ -52,7 +54,19 @@ export default function Distance() {
       setTotalDistance(totalDist)
     }
     calculateDistance()
-  }, [activityData, units])
+  }, [activityData, units, colorPalette])
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Distance"
+        description="total distance per month"
+        icon={<Rocket size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
 
   return (
     <Card
@@ -75,6 +89,7 @@ export default function Distance() {
           {Object.keys(activityData!.bySportType!).map(sport => (
             <Bar
               key={sport}
+              radius={[4, 4, 4, 4]}
               stackId="stack"
               dataKey={sport}
               isAnimationActive={false}

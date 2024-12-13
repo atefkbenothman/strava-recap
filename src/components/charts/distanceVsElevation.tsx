@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
@@ -15,10 +15,12 @@ import {
 import Card from "../card"
 import { ChartNoAxesCombined } from 'lucide-react'
 import { UnitDefinitions } from "../../types/activity"
+import NoData from "../noData"
 
 type ScatterChartData = {
   distance: number
   elevation: number
+  url: string
   fill: string
 }
 
@@ -26,7 +28,8 @@ type ScatterChartData = {
  * Elevation gained per distance
  */
 export default function DistanceVsElevation() {
-  const { activityData, colorPalette, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<ScatterChartData[]>([])
   const [avgElevationPerDistance, setAvgElevationPerDistance] = useState<number>(0)
@@ -38,10 +41,11 @@ export default function DistanceVsElevation() {
       let totalElevation = 0
       const res: ScatterChartData[] = []
       activityData.all!.forEach(act => {
+        const id = act.id!
         const distance = Math.round(unitConversion.convertDistance(act.distance!, units))
         const elevation = Math.round(unitConversion.convertElevation(act.total_elevation_gain!, units))
         const sportType = act.sport_type! as SportType
-        res.push({ distance, elevation, fill: colorPalette[sportType] })
+        res.push({ distance, elevation, fill: colorPalette[sportType], url: `https://www.strava.com/activities/${id}` })
         totalDistance += distance
         totalElevation += elevation
       })
@@ -52,6 +56,24 @@ export default function DistanceVsElevation() {
     formatData()
   }, [activityData, colorPalette, units])
 
+  const handleDotClick = (data: any) => {
+    if (data.url) {
+      window.open(data.url, "_blank")
+    }
+  }
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Distance vs. Elevation"
+        description="elevation gained per distance"
+        icon={<ChartNoAxesCombined size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
+
   return (
     <Card
       title="Distance vs. Elevation"
@@ -60,7 +82,12 @@ export default function DistanceVsElevation() {
     >
       <ResponsiveContainer height={350} width="90%">
         <ScatterChart>
-          <Scatter data={data} isAnimationActive={false} />
+          <Scatter
+            data={data}
+            isAnimationActive={false}
+            onClick={handleDotClick}
+            className="hover:cursor-pointer"
+          />
           <XAxis
             type="number"
             dataKey="distance"

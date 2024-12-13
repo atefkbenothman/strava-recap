@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext } from "../../contexts/context"
 import { unitConversion } from "../../utils/utils"
 import { StravaActivity } from "../../types/strava"
-import { Medal } from 'lucide-react'
 
 import Card from "../card"
 import Stat from "../stat"
 import NoData from "../noData"
 import { UnitDefinitions } from "../../types/activity"
+import { Award } from "lucide-react"
 
 
 type CardData = {
@@ -23,7 +23,7 @@ type CardData = {
  * Highest records
 */
 export default function Records() {
-  const { activityData, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
 
   const [data, setData] = useState<CardData>()
 
@@ -57,11 +57,23 @@ export default function Records() {
     getRecords()
   }, [activityData, units])
 
+  if (data === undefined) {
+    return (
+      <Card
+        title="Records"
+        description="your top stats"
+        icon={<Award size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
+
   return (
     <Card
       title="Records"
       description="your top stats"
-      icon={<Medal size={16} strokeWidth={2} />}
+      icon={<Award size={16} strokeWidth={2} />}
     >
       {!data || activityData.all!.length === 0 ? (
         <NoData />

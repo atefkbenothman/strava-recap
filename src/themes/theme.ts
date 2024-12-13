@@ -1,14 +1,14 @@
 import { SportType } from "../types/strava"
 
 export const Theme = {
-  emerald: [
+  Default: [
     "#06d6a0",
     "#20aaa1",
     "#198190",
     "#0e5d72",
     "#073b4c"
   ],
-  one: [
+  Light: [
     "#ccebc5",
     "#a8ddb5",
     "#7bccc4",
@@ -17,14 +17,14 @@ export const Theme = {
     "#0868ac",
     "#084081"
   ],
-  two: [
+  Blue: [
     "#7fcdbb",
     "#41b6c4",
     "#1d91c0",
     "#225ea8",
     "#253494"
   ],
-  divergent: [
+  Red: [
     "#9e0142",
     "#d53e4f",
     "#f46d43",

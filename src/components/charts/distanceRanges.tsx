@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import {
   ResponsiveContainer,
   RadialBarChart,
@@ -10,6 +10,7 @@ import {
 import { unitConversion } from "../../utils/utils"
 import { Ruler } from 'lucide-react'
 import Card from "../card"
+import NoData from "../noData"
 
 
 type RadialBarChartData = {
@@ -42,7 +43,8 @@ const getDistanceRanges = (units: string) => {
  * Number of activities that are within a certain distance range
 */
 export default function DistanceRanges() {
-  const { activityData, theme, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
+  const { theme } = useContext(ThemeContext)
 
   const [data, setData] = useState<RadialBarChartData[]>([])
 
@@ -61,6 +63,18 @@ export default function DistanceRanges() {
     }
     formatData()
   }, [activityData, theme, units])
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Distance Ranges"
+        description="number of activities within a distance range"
+        icon={<Ruler size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
 
   return (
     <Card
@@ -81,6 +95,7 @@ export default function DistanceRanges() {
             label={{ fontSize: 12, position: "bottom", fill: "#000000" }}
             background={{ fill: "#e5e7eb" }}
             dataKey="activities"
+            cornerRadius={4}
           />
           <Legend
             verticalAlign="bottom"

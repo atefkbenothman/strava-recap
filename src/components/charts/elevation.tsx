@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
@@ -8,11 +8,12 @@ import {
   Bar,
   XAxis,
   Tooltip,
-  Legend
+  Legend,
 } from "recharts"
 import { Mountain } from "lucide-react"
 import Card from "../card"
 import { UnitDefinitions } from "../../types/activity"
+import NoData from "../noData"
 
 
 type BarChartData = {
@@ -24,7 +25,8 @@ type BarChartData = {
  * Monthly Elevation
 */
 export default function Elevation() {
-  const { activityData, colorPalette, units } = useContext(RecapContext)
+  const { activityData, units } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
   const [totalElevation, setTotalElevation] = useState<number>(0)
@@ -54,7 +56,19 @@ export default function Elevation() {
       setTotalElevation(totalElev)
     }
     calculateElevation()
-  }, [activityData, units])
+  }, [activityData, units, colorPalette])
+
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Elevation"
+        description="total elevation per month"
+        icon={<Mountain size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
 
   return (
     <Card
@@ -75,6 +89,7 @@ export default function Elevation() {
           {sportTypes.map(sport => (
             <Bar
               key={sport}
+              radius={[4, 4, 4, 4]}
               stackId="stack"
               dataKey={sport}
               isAnimationActive={false}

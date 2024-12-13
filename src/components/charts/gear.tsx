@@ -1,5 +1,5 @@
 import { useContext, useState, useEffect } from "react"
-import { RecapContext } from "../../contexts/recapContext"
+import { ActivityDataContext, AuthContext, ThemeContext } from "../../contexts/context"
 import { unitConversion } from "../../utils/utils"
 import { getRandomColor } from "../../themes/theme"
 import {
@@ -13,6 +13,7 @@ import {
 } from "recharts"
 import { Wrench } from 'lucide-react'
 import Card from "../card"
+import NoData from "../noData"
 
 
 type BarChartData = {
@@ -26,7 +27,9 @@ type BarChartData = {
  * Total time usage for each piece of gear
 */
 export default function Gear() {
-  const { activityData, theme, athlete } = useContext(RecapContext)
+  const { athlete } = useContext(AuthContext)
+  const { activityData } = useContext(ActivityDataContext)
+  const { theme } = useContext(ThemeContext)
 
   const [data, setData] = useState<BarChartData[]>([])
 
@@ -34,7 +37,8 @@ export default function Gear() {
     if (!activityData) return
     function getGear() {
       const res: BarChartData[] = []
-      activityData.all!.forEach(act => {
+      let idx = 1
+      activityData.all!.forEach((act) => {
         if (act.gear_id !== null) {
           const gearId = act.gear_id!
           const movingTime = Math.round(unitConversion.convertTime(act.moving_time!, "hours"))
@@ -56,7 +60,8 @@ export default function Gear() {
           if (existingGear) {
             existingGear.hours += movingTime
           } else {
-            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: getRandomColor(theme as readonly string[]) })
+            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: theme[theme.length - idx] })
+            idx += 1
           }
         }
       })
@@ -66,10 +71,22 @@ export default function Gear() {
     getGear()
   }, [activityData, theme])
 
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Gear"
+        description="total hours spent using gear"
+        icon={<Wrench size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
+
   return (
     <Card
       title="Gear"
-      description="total time usage for each gear"
+      description="total hours spent using gear"
       icon={<Wrench size={16} strokeWidth={2} />}
     >
       <ResponsiveContainer height={350} width="90%">
@@ -78,6 +95,7 @@ export default function Gear() {
             dataKey="hours"
             isAnimationActive={false}
             label={{ position: "right", fontSize: 10 }}
+            radius={[4, 4, 4, 4]}
           >
             {data.map((d, idx) => (
               <Cell key={idx} fill={d.fill} />

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react"
+import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import { SportType } from "../../types/strava"
-import { RecapContext } from "../../contexts/recapContext"
 import {
   ResponsiveContainer,
   PieChart,
@@ -11,6 +11,7 @@ import {
 } from "recharts"
 import { Zap } from 'lucide-react'
 import Card from "../card"
+import NoData from "../noData"
 
 type PieChartData = {
   sport: SportType
@@ -22,7 +23,8 @@ type PieChartData = {
  * All sport types
 */
 export default function SportTypes() {
-  const { activityData, colorPalette } = useContext(RecapContext)
+  const { activityData } = useContext(ActivityDataContext)
+  const { colorPalette } = useContext(ThemeContext)
 
   const [data, setData] = useState<PieChartData[]>([])
   const [numSportTypes, setNumSportTypes] = useState<number>(0)
@@ -41,6 +43,18 @@ export default function SportTypes() {
     formatData()
   }, [activityData, colorPalette])
 
+  if (data.length === 0) {
+    return (
+      <Card
+        title="Sport Types"
+        description="number of activities per sport type"
+        icon={<Zap size={16} strokeWidth={2} />}
+      >
+        <NoData />
+      </Card>
+    )
+  }
+
   return (
     <Card
       title="Sport Types"
@@ -58,6 +72,7 @@ export default function SportTypes() {
             nameKey="sport"
             innerRadius={50}
             outerRadius={80}
+            cornerRadius={4}
             isAnimationActive={false}
             paddingAngle={3}
           >

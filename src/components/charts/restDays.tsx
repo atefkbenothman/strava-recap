@@ -1,7 +1,5 @@
 import { useContext, useEffect, useState } from "react"
 import { ActivityDataContext, ThemeContext } from "../../contexts/context"
-import { getRandomColor } from "../../themes/theme"
-import { SportType } from "../../types/strava"
 import {
   ResponsiveContainer,
   PieChart,

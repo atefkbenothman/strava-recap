@@ -1,7 +1,6 @@
 import { useContext, useState, useEffect } from "react"
 import { ActivityDataContext, AuthContext, ThemeContext } from "../../contexts/context"
 import { unitConversion } from "../../utils/utils"
-import { getRandomColor } from "../../themes/theme"
 import {
   ResponsiveContainer,
   BarChart,

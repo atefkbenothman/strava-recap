@@ -98,16 +98,16 @@ function App() {
     retry: false
   })
 
-  const {
-    data: athleteZones
-  } = useQuery({
-    queryKey: ["athleteZones"],
-    queryFn: () => stravaApi.getAthleteZones(accessToken!),
-    enabled: isAuthenticated,
-    staleTime: 1000 * 60 * 60,
-    gcTime: 1000 * 60 * 60 * 24,
-    retry: false
-  })
+  // const {
+  //   data: athleteZones
+  // } = useQuery({
+  //   queryKey: ["athleteZones"],
+  //   queryFn: () => stravaApi.getAthleteZones(accessToken!),
+  //   enabled: isAuthenticated,
+  //   staleTime: 1000 * 60 * 60,
+  //   gcTime: 1000 * 60 * 60 * 24,
+  //   retry: false
+  // })
 
   // shuffle graphs
   const shuffledGraphComponents = useMemo(() => {

@@ -21,7 +21,7 @@ export default function Dashboard({ graphs }: Props) {
         <div className="flex flex-col p-2 gap-1 h-fit w-full">
 
           {/* Top Bar */}
-          <div className="grid grid-cols-2 pb-2 sm:pb-0">
+          <div className="grid grid-cols-2 dark:bg-[#121212] dark:text-white">
 
             {/* Left Side */}
             <div className="font-semibold text-xl flex items-center">

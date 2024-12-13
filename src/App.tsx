@@ -28,6 +28,8 @@ import HeartrateVsSpeed from "./components/charts/heartrateVsSpeed"
 import PrsOverTime from "./components/charts/prsOverTime"
 import RestDays from "./components/charts/restDays"
 
+import { AboutDialog } from "./components/aboutDialog"
+
 import connectWithStravaLogo from "/connect-with-strava.svg"
 
 import "./App.css"
@@ -211,13 +213,17 @@ function App() {
           <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#0a0a0a] dark:text-white">
             <div className="flex flex-col gap-4 px-8">
               <div className="flex flex-col gap-2 grow-0">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-6">
                   <p className="text-2xl font-semibold flex">{currentYear} Fitness Recap</p>
-                  <Info
-                    size={18}
-                    strokeWidth={2}
-                    color={darkMode ? "#ebebeb" : "#525252"}
-                    className="hover:cursor-pointer hover:scale-125"
+                  <AboutDialog
+                    trigger={
+                      <Info
+                        size={18}
+                        strokeWidth={2}
+                        color={darkMode ? "#ebebeb" : "#525252"}
+                        className="hover:cursor-pointer hover:scale-125"
+                      />
+                    }
                   />
                 </div>
                 <div>

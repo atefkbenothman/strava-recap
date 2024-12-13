@@ -18,6 +18,7 @@ import {
   TabsList,
   TabsTrigger
 } from "./ui/tabs"
+import { AboutDialog } from "./aboutDialog"
 import { cn } from "../utils/utils"
 import { ChevronDown } from "lucide-react"
 
@@ -27,6 +28,7 @@ export default function Menu() {
   const { activityData, filter, units, setUnits, setFilter } = useContext(ActivityDataContext)
 
   const [sportTypes, setSportTypes] = useState<SportType[]>([])
+  const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false)
 
   useEffect(() => {
     function getSportTypes() {
@@ -52,7 +54,7 @@ export default function Menu() {
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className={darkMode ? "dark bg-[#0a0a0a] text-white border-white/50" : "bg-white"}>
+        <DropdownMenuContent className={darkMode ? "dark bg-[#0a0a0a] text-white border-white/30" : "bg-white"}>
           {/* Strava Profile */}
           <DropdownMenuItem
             className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white"
@@ -72,7 +74,7 @@ export default function Menu() {
           {/* Filter Picker */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Filter</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/50">
+            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/30">
               <DropdownMenuItem
                 className={cn(
                   'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
@@ -108,7 +110,7 @@ export default function Menu() {
           {/* Theme Picker */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Theme</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/50">
+            <DropdownMenuSubContent className="dark:bg-[#0a0a0a] dark:text-white border-white/30">
               {Object.keys(Theme).map((t, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
@@ -189,6 +191,21 @@ export default function Menu() {
                 </Tabs>
               </div>
             </div>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
+
+          {/* About */}
+          <DropdownMenuItem
+            className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:focus:bg-[#1d1d1e] dark:focus:text-white"
+            onSelect={(e) => e.preventDefault()}
+          >
+            <AboutDialog
+              open={openAboutDialog}
+              onOpenChange={setOpenAboutDialog}
+              trigger={
+                <p onClick={() => setOpenAboutDialog(true)} className="w-full">About</p>
+              }
+            />
           </DropdownMenuItem>
           <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 

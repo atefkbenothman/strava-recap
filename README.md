@@ -1,5 +1,5 @@
 # Strava Recap
-### Explore yearly recaps of your Strava activities
+Explore yearly recaps of your Strava activities
 
 ![Screen Shot 2024-12-13 at 5 10 56 AM](https://github.com/user-attachments/assets/07665c6b-1d87-4640-9e17-d825dbd95047)
 

@@ -47,7 +47,7 @@ export function AboutDialog({ trigger, open, onOpenChange }: AboutDialogProps) {
           </DialogDescription>
         </DialogHeader>
         <div>
-          <DialogDescription className="my-2 text-xs flex flex-col gap-4 text-black dark:text-white/90 items-center justify-center w-[70%] w-full">
+          <DialogDescription className="my-2 text-xs flex flex-col gap-4 text-black dark:text-white/90 items-center justify-center w-full">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid grid-rows-3 items-center justify-center leading-relaxed">
                 <p>* This website will only ask for read permissions. No writes will be made.</p>

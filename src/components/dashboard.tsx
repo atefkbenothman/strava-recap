@@ -22,32 +22,35 @@ export default function Dashboard({ graphs }: Props) {
         <div className="flex flex-col p-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
 
           {/* Top Bar */}
-          <div className="grid grid-cols-2">
-
+          <div className="w-full h-full grid grid-cols-2 items-center">
             {/* Left Side */}
-            <div className="font-semibold text-xl flex items-center">
-              <p>{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
+            <div className="h-full w-full items-center flex">
+              <div className="font-semibold text-xl w-full brak-words">
+                <p className="break-words">{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
+              </div>
             </div>
-
             {/* Right Side */}
-            <div className="flex w-full gap-6 items-center h-full justify-end">
-              <div className="items-center hidden sm:block">
-                <YearPicker />
-              </div>
-              <div>
-                <Menu />
-              </div>
-              <div>
-                <img
-                  className="max-w-full"
-                  src={poweredByStravaLogo}
-                  alt="powered by strava logo"
-                  width={70}
-                  height={80}
-                />
+            <div className="w-fit h-full ml-auto">
+              <div className="w-full h-full grid grid-rows-2 sm:grid-rows-1 grid-flow-col gap-x-6">
+                <div className="flex items-center justify-center">
+                  <YearPicker />
+                </div>
+                <div className="flex items-center justify-end">
+                  <Menu />
+                </div>
+                <div className="items-center hidden sm:block w-fit ml-auto">
+                  <div className="flex items-center h-full">
+                    <img
+                      src={poweredByStravaLogo}
+                      alt="powered by strava logo"
+                      width={70}
+                      height={80}
+                      className="h-full"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-
           </div>
 
           {/* Main Content */}

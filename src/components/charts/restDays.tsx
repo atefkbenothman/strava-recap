@@ -26,7 +26,7 @@ type PieChartData = {
 export default function RestDays() {
   const { currentYear } = useCurrentYearContext()
   const { activityData } = useStravaActivityContext()
-  const { colorPalette, theme, themeColors } = useThemeContext()
+  const { colorPalette, themeColors } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [restPerentage, setRestPercentage] = useState<number>(0)

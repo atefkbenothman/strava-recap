@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { Themes } from "../../contexts/themeContext"
 import {
   LineChart,
   Line,

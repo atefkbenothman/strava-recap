@@ -27,7 +27,7 @@ import { Themes, Theme } from "../../contexts/themeContext"
 export default function Menu() {
   const { activityData, filter, units, setUnits, setFilter } = useStravaActivityContext()
   const { athlete, logout } = useStravaAuthContext()
-  const { theme, themeColors, updateTheme, darkMode, setDarkMode } = useThemeContext()
+  const { theme, updateTheme, darkMode, setDarkMode } = useThemeContext()
 
   const [sportTypes, setSportTypes] = useState<SportType[]>([])
   const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false)

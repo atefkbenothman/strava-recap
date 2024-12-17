@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ResponsiveContainer,
   RadialBarChart,
@@ -45,7 +45,7 @@ const getDistanceRanges = (units: string) => {
 */
 export default function DistanceRanges() {
   const { activityData, units } = useStravaActivityContext()
-  const { theme, themeColors, darkMode } = useThemeContext()
+  const { themeColors, darkMode } = useThemeContext()
 
   const [data, setData] = useState<RadialBarChartData[]>([])
 

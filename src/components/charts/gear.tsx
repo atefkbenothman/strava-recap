@@ -15,7 +15,6 @@ import NoData from "../common/noData"
 import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
-import { Themes } from "../../contexts/themeContext"
 
 
 type BarChartData = {

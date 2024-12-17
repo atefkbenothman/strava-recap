@@ -11,7 +11,6 @@ import { Clock } from 'lucide-react'
 import Card from "../common/card"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
-import { Themes } from "../../contexts/themeContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 
 type AreaChartData = {
@@ -24,7 +23,7 @@ type AreaChartData = {
 */
 export default function StartTimes() {
   const { activityData } = useStravaActivityContext()
-  const { darkMode, theme, themeColors, colorPalette } = useThemeContext()
+  const { darkMode, themeColors, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<AreaChartData[]>([])
   const [chartColor, setChartColor] = useState<string>("")

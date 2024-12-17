@@ -32,11 +32,9 @@ const Content = () => {
   }
 
   return (
-    <div className="flex flex-col">
-      <StravaActivityContextProvider>
-        <Dashboard />
-      </StravaActivityContextProvider>
-    </div>
+    <StravaActivityContextProvider>
+      <Dashboard />
+    </StravaActivityContextProvider>
   )
 }
 

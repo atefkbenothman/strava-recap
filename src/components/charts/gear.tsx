@@ -37,37 +37,29 @@ export default function Gear() {
   useEffect(() => {
     if (!activityData) return
     function getGear() {
-      const res: BarChartData[] = []
-      let idx = 1
-      activityData.all!.forEach((act) => {
-        if (act.gear_id !== null) {
+      try {
+        const res: BarChartData[] = []
+        let idx = 1
+        const athleteGear = [...(athlete?.bikes ?? []), ...(athlete?.shoes ?? [])];
+        activityData.all!.forEach((act) => {
+          if (!act.gear_id) return
           const gearId = act.gear_id!
           const movingTime = Math.round(unitConversion.convertTime(act.moving_time!, "hours"))
           const existingGear = res.find(item => item.gearId === gearId)
-          const athleteBikes = athlete!.bikes
-          const athleteShoes = athlete!.shoes
-          const bikes = athleteBikes!.filter(bike => (
-            bike.id === gearId
-          ))
-          const shoes = athleteShoes!.filter(shoes => (
-            shoes.id === gearId
-          ))
-          let gear
-          if (bikes.length > 0) {
-            gear = bikes[0]
-          } else if (shoes.length > 0) {
-            gear = shoes[0]
-          }
+          const gear = athleteGear.find(item => item.id === gearId);
+          if (!gear) { return }
           if (existingGear) {
             existingGear.hours += movingTime
           } else {
-            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: themeColors[themeColors.length - idx] })
+            res.push({ gearId: gearId, gearName: gear!.name, hours: movingTime, fill: themeColors[themeColors.length - idx] })
             idx += 1
           }
-        }
-      })
-      res.sort((a, b) => b.hours - a.hours)
-      setData(res)
+        })
+        res.sort((a, b) => b.hours - a.hours)
+        setData(res)
+      } catch (err) {
+        console.warn(err)
+      }
     }
     getGear()
   }, [activityData, theme])

@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
@@ -12,10 +11,12 @@ import {
   ZAxis,
   ReferenceLine,
 } from "recharts"
-import Card from "../card"
+import Card from "../common/card"
 import { ChartNoAxesCombined } from 'lucide-react'
 import { UnitDefinitions } from "../../types/activity"
-import NoData from "../noData"
+import NoData from "../common/noData"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 
 type ScatterChartData = {
   distance: number
@@ -28,8 +29,8 @@ type ScatterChartData = {
  * Elevation gained per distance
  */
 export default function DistanceVsElevation() {
-  const { activityData, units } = useContext(ActivityDataContext)
-  const { colorPalette, darkMode } = useContext(ThemeContext)
+  const { activityData, units } = useStravaActivityContext()
+  const { colorPalette, darkMode } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
   const [avgElevationPerDistance, setAvgElevationPerDistance] = useState<number>(0)
@@ -45,7 +46,7 @@ export default function DistanceVsElevation() {
         const distance = Math.round(unitConversion.convertDistance(act.distance!, units))
         const elevation = Math.round(unitConversion.convertElevation(act.total_elevation_gain!, units))
         const sportType = act.sport_type! as SportType
-        res.push({ distance, elevation, fill: colorPalette[sportType], url: `https://www.strava.com/activities/${id}` })
+        res.push({ distance, elevation, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
         totalDistance += distance
         totalElevation += elevation
       })

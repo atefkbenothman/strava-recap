@@ -6,8 +6,8 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription
-} from "./ui/dialog"
-import { Separator } from "../components/ui/separator"
+} from "../ui/dialog"
+import { Separator } from "../ui/separator"
 
 import poweredByStravaLogoOrange from "/powered-by-strava-orange.svg"
 import screenshotImg from "/screenshot-1.png"
@@ -21,9 +21,9 @@ interface AboutDialogProps {
 }
 
 export function AboutDialog({ trigger, open, onOpenChange }: AboutDialogProps) {
+  // remove focus from all elements when the dialog opens
   useEffect(() => {
     if (open) {
-      // remove focus from all elements when the dialog opens
       document.activeElement instanceof HTMLElement && document.activeElement.blur()
     }
   }, [open])
@@ -37,7 +37,7 @@ export function AboutDialog({ trigger, open, onOpenChange }: AboutDialogProps) {
         {trigger}
       </DialogTrigger>
       <DialogContent
-        className="dark:bg-[#1a1a1a] dark:border-none dark:text-white"
+        className={"dark:bg-[#1a1a1a] dark:border-none dark:text-white"}
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <DialogHeader>
@@ -60,7 +60,7 @@ export function AboutDialog({ trigger, open, onOpenChange }: AboutDialogProps) {
             </div>
           </DialogDescription>
         </div>
-        <Separator className="bg-white/60 rounded" />
+        <Separator className="dark:bg-white/15 rounded" />
         <DialogDescription>
           <div className="flex">
             <div className="text-black dark:text-white text-sm font-semibold">

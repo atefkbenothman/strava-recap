@@ -1,5 +1,4 @@
-import { useContext } from "react"
-import { ActivityDataContext } from "../contexts/context"
+import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 import {
   Pagination,
   PaginationContent,
@@ -7,10 +6,11 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "./ui/pagination"
+} from "../ui/pagination"
 
 export default function YearPicker() {
-  const { currentYear, updateYear } = useContext(ActivityDataContext)
+  const { currentYear, updateYear } = useCurrentYearContext()
+
   return (
     <Pagination className="h-fit">
       <PaginationContent>
@@ -18,7 +18,7 @@ export default function YearPicker() {
           <PaginationPrevious
             className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline dark:hover:text-white"
             title={String((currentYear ?? 0) - 1)}
-            onClick={(() => updateYear((currentYear ?? 0) - 1))}
+            onClick={(() => updateYear(currentYear - 1))}
           />
         </PaginationItem>
         <PaginationItem>
@@ -30,7 +30,7 @@ export default function YearPicker() {
           <PaginationNext
             className="hover:bg-transparent p-0 hover:cursor-pointer hover:underline dark:hover:text-white"
             title={String((currentYear ?? 0) + 1)}
-            onClick={() => updateYear((currentYear ?? 0) + 1)}
+            onClick={() => updateYear(currentYear + 1)}
           />
         </PaginationItem>
       </PaginationContent>

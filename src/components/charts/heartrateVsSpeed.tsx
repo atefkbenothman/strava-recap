@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
@@ -12,10 +11,12 @@ import {
   ZAxis,
   // ReferenceLine,
 } from "recharts"
-import Card from "../card";
-import NoData from "../noData"
+import Card from "../common/card";
+import NoData from "../common/noData"
 import { HeartPulse } from "lucide-react"
 import { UnitDefinitions } from "../../types/activity"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext";
+import { useThemeContext } from "../../hooks/useThemeContext";
 
 
 type ScatterChartData = {
@@ -29,8 +30,8 @@ type ScatterChartData = {
  * Heartrate vs perceived exertion
 */
 export default function HeartrateVsSpeed() {
-  const { activityData, units } = useContext(ActivityDataContext)
-  const { darkMode, colorPalette } = useContext(ThemeContext)
+  const { activityData, units } = useStravaActivityContext()
+  const { darkMode, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
 
@@ -44,7 +45,7 @@ export default function HeartrateVsSpeed() {
         const speed = Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2))
         const sportType = act.sport_type! as SportType
         if (hr && speed) {
-          res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType], url: `https://www.strava.com/activities/${id}` })
+          res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
         }
       })
       setData(res)

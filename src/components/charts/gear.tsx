@@ -1,5 +1,4 @@
-import { useContext, useState, useEffect } from "react"
-import { ActivityDataContext, AuthContext, ThemeContext } from "../../contexts/context"
+import { useState, useEffect } from "react"
 import { unitConversion } from "../../utils/utils"
 import {
   ResponsiveContainer,
@@ -11,8 +10,12 @@ import {
   Cell
 } from "recharts"
 import { Wrench } from 'lucide-react'
-import Card from "../card"
-import NoData from "../noData"
+import Card from "../common/card"
+import NoData from "../common/noData"
+import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
+import { Themes } from "../../contexts/themeContext"
 
 
 type BarChartData = {
@@ -26,9 +29,9 @@ type BarChartData = {
  * Total time usage for each piece of gear
 */
 export default function Gear() {
-  const { athlete } = useContext(AuthContext)
-  const { activityData } = useContext(ActivityDataContext)
-  const { darkMode, theme } = useContext(ThemeContext)
+  const { athlete } = useStravaAuthContext()
+  const { activityData } = useStravaActivityContext()
+  const { darkMode, theme, themeColors } = useThemeContext()
 
   const [data, setData] = useState<BarChartData[]>([])
 
@@ -59,7 +62,7 @@ export default function Gear() {
           if (existingGear) {
             existingGear.hours += movingTime
           } else {
-            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: theme[theme.length - idx] })
+            res.push({ gearId: gear!.id, gearName: gear!.name, hours: movingTime, fill: themeColors[themeColors.length - idx] })
             idx += 1
           }
         }

@@ -1,16 +1,16 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import { ThumbsUp } from 'lucide-react'
 
-import Card from "../card"
-import Stat from "../stat"
+import Card from "../common/card"
+import Stat from "../common/stat"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
 
 /*
  * Social stats
 */
 export default function Socials() {
-  const { activityData } = useContext(ActivityDataContext)
+  const { activityData } = useStravaActivityContext()
 
   const [kudosCount, setKudosCount] = useState<number>(0)
   const [commentCount, setCommentCount] = useState<number>(0)

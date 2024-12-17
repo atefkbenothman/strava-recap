@@ -1,5 +1,4 @@
 import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
 import {
   ResponsiveContainer,
   RadialBarChart,
@@ -9,8 +8,10 @@ import {
 } from "recharts"
 import { unitConversion } from "../../utils/utils"
 import { Ruler } from 'lucide-react'
-import Card from "../card"
-import NoData from "../noData"
+import Card from "../common/card"
+import NoData from "../common/noData"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 
 
 type RadialBarChartData = {
@@ -43,8 +44,8 @@ const getDistanceRanges = (units: string) => {
  * Number of activities that are within a certain distance range
 */
 export default function DistanceRanges() {
-  const { activityData, units } = useContext(ActivityDataContext)
-  const { theme, darkMode } = useContext(ThemeContext)
+  const { activityData, units } = useStravaActivityContext()
+  const { theme, themeColors, darkMode } = useThemeContext()
 
   const [data, setData] = useState<RadialBarChartData[]>([])
 
@@ -52,17 +53,17 @@ export default function DistanceRanges() {
     if (!activityData) return
     function formatData() {
       const currentRanges = getDistanceRanges(units)
-      const res = currentRanges.map((range, index) => {
+      const res = currentRanges.map((range, idx) => {
         const activitiesInRange = activityData.all!.filter(activity => {
           const distance = unitConversion.convertDistance(activity.distance!, units)
           return distance >= range.min && distance < range.max
         })
-        return { name: range.name, activities: activitiesInRange.length, fill: theme[index] } as RadialBarChartData
+        return { name: range.name, activities: activitiesInRange.length, fill: themeColors[idx] } as RadialBarChartData
       })
       setData(res)
     }
     formatData()
-  }, [activityData, theme, units])
+  }, [activityData, themeColors, units])
 
   if (data.length === 0) {
     return (

@@ -1,11 +1,11 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import { unitConversion } from "../../utils/utils"
 import { StravaActivity } from "../../types/strava"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
-import Card from "../card"
-import Stat from "../stat"
-import NoData from "../noData"
+import Card from "../common/card"
+import Stat from "../common/stat"
+import NoData from "../common/noData"
 import { UnitDefinitions } from "../../types/activity"
 import { Award } from "lucide-react"
 
@@ -23,7 +23,7 @@ type CardData = {
  * Highest records
 */
 export default function Records() {
-  const { activityData, units } = useContext(ActivityDataContext)
+  const { activityData, units } = useStravaActivityContext()
 
   const [data, setData] = useState<CardData>()
 

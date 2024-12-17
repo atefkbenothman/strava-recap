@@ -1,14 +1,14 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext } from "../../contexts/context"
-import { StravaActivity } from "../../types/strava"
+import { useEffect, useState } from "react"
 import { getWeek, getMonth } from 'date-fns'
 import { Flame } from 'lucide-react'
-import Card from "../card"
-import Stat from "../stat"
+import Card from "../common/card"
+import Stat from "../common/stat"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { StravaActivity } from "../../types/strava"
 
 
 export default function Streaks() {
-  const { activityData } = useContext(ActivityDataContext)
+  const { activityData } = useStravaActivityContext()
 
   const [months, setMonths] = useState<number[]>([])
   const [weeks, setWeeks] = useState<number[]>([])

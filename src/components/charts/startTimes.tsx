@@ -1,6 +1,4 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
-import { getRandomColor } from "../../themes/theme"
+import { useEffect, useState } from "react"
 import {
   AreaChart,
   Area,
@@ -10,8 +8,11 @@ import {
   Legend
 } from 'recharts'
 import { Clock } from 'lucide-react'
-import Card from "../card"
-import NoData from "../noData"
+import Card from "../common/card"
+import NoData from "../common/noData"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { Themes } from "../../contexts/themeContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 
 type AreaChartData = {
   hour: string
@@ -22,14 +23,14 @@ type AreaChartData = {
  * Activity start times
 */
 export default function StartTimes() {
-  const { activityData } = useContext(ActivityDataContext)
-  const { darkMode, theme, colorPalette } = useContext(ThemeContext)
+  const { activityData } = useStravaActivityContext()
+  const { darkMode, theme, themeColors, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<AreaChartData[]>([])
   const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
-    setChartColor(getRandomColor(theme as readonly string[]))
+    setChartColor(themeColors[themeColors.length - 1])
     if (!activityData) return
     function calculateStartTimes() {
       const res = Array(24).fill(0).map((_, index) => {
@@ -74,6 +75,7 @@ export default function StartTimes() {
             stroke={chartColor}
             strokeWidth={2}
             fill={chartColor}
+            fillOpacity={100}
             isAnimationActive={false}
             label={{
               position: "top",

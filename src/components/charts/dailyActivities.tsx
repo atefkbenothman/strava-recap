@@ -1,8 +1,9 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import ActivityCalendar, { ThemeInput } from "react-activity-calendar"
 import { CalendarDays } from 'lucide-react'
-import NoData from "../noData"
+import NoData from "../common/noData"
+import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 
 const colors: ThemeInput = {
   dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
@@ -18,7 +19,8 @@ type CalendarData = {
  * Daily activity calendar
 */
 export default function DailyActivities() {
-  const { activityData, currentYear } = useContext(ActivityDataContext)
+  const { activityData } = useStravaActivityContext()
+  const { currentYear } = useCurrentYearContext()
 
   const [data, setData] = useState<CalendarData[]>([])
 

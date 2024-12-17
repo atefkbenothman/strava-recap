@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import { SportType } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import {
@@ -11,8 +10,10 @@ import {
   Legend
 } from "recharts"
 import { Watch } from "lucide-react"
-import NoData from "../noData"
-import Card from "../card"
+import NoData from "../common/noData"
+import Card from "../common/card"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 
 
 type PieChartData = {
@@ -25,8 +26,8 @@ type PieChartData = {
  * Total hours spent per sport
 */
 export default function TotalHours() {
-  const { activityData } = useContext(ActivityDataContext)
-  const { colorPalette } = useContext(ThemeContext)
+  const { activityData } = useStravaActivityContext()
+  const { colorPalette } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [totalHours, setTotalHours] = useState<number>(0)
@@ -44,7 +45,7 @@ export default function TotalHours() {
           return hours
         }, 0)
         if (totalHoursPerSport >= 1) {
-          acc.push({ sport: sport as SportType, hours: Math.round(totalHoursPerSport), color: colorPalette[sport] })
+          acc.push({ sport: sport as SportType, hours: Math.round(totalHoursPerSport), color: colorPalette[sport as SportType]! })
         }
         return acc
       }, [] as PieChartData[])

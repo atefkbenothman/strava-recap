@@ -1,6 +1,5 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
-import { getRandomColor } from "../../themes/theme"
+import { useEffect, useState } from "react"
+import { Themes } from "../../contexts/themeContext"
 import {
   LineChart,
   Line,
@@ -10,8 +9,10 @@ import {
   Legend
 } from 'recharts'
 import { Medal } from 'lucide-react'
-import Card from "../card"
-import NoData from "../noData"
+import Card from "../common/card"
+import NoData from "../common/noData"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 
 type AreaChartData = {
   month: string
@@ -20,14 +21,14 @@ type AreaChartData = {
 
 
 export default function PrsOverTime() {
-  const { activityData } = useContext(ActivityDataContext)
-  const { darkMode, theme, colorPalette } = useContext(ThemeContext)
+  const { activityData } = useStravaActivityContext()
+  const { darkMode, themeColors, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<AreaChartData[]>([])
   const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
-    setChartColor(getRandomColor(theme as readonly string[]))
+    setChartColor(themeColors[themeColors.length - 1])
     if (!activityData) return
     function calculatePrsOverTime() {
       const res: AreaChartData[] = []

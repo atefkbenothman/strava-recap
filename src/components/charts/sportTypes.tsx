@@ -1,6 +1,7 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { SportType } from "../../types/strava"
+import { useThemeContext } from "../../hooks/useThemeContext"
 import {
   ResponsiveContainer,
   PieChart,
@@ -10,8 +11,8 @@ import {
   Cell
 } from "recharts"
 import { Zap } from 'lucide-react'
-import Card from "../card"
-import NoData from "../noData"
+import Card from "../common/card"
+import NoData from "../common/noData"
 
 type PieChartData = {
   sport: SportType
@@ -23,8 +24,8 @@ type PieChartData = {
  * All sport types
 */
 export default function SportTypes() {
-  const { activityData } = useContext(ActivityDataContext)
-  const { colorPalette } = useContext(ThemeContext)
+  const { activityData } = useStravaActivityContext()
+  const { colorPalette } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [numSportTypes, setNumSportTypes] = useState<number>(0)
@@ -35,7 +36,7 @@ export default function SportTypes() {
     function formatData() {
       const res = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
         const numActs = activityData.bySportType![sport as SportType]!.length
-        acc.push({ sport: sport as SportType, activities: numActs, color: colorPalette[sport] })
+        acc.push({ sport: sport as SportType, activities: numActs, color: colorPalette[sport as SportType]! })
         return acc
       }, [] as PieChartData[])
       setData(res)

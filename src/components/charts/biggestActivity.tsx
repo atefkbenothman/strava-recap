@@ -1,13 +1,12 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import { StravaActivity } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import { Trophy } from 'lucide-react'
-import Card from "../card"
-import NoData from "../noData"
-
+import Card from "../common/card"
+import NoData from "../common/noData"
 import polyline from "@mapbox/polyline"
 import { UnitDefinitions } from "../../types/activity"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
 
 const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
@@ -36,7 +35,7 @@ function Metric({ label, value, unit }: MetricProps) {
  * Biggest Activity by distance
 */
 export default function BiggestActivity() {
-  const { activityData, units } = useContext(ActivityDataContext)
+  const { activityData, units } = useStravaActivityContext()
 
   const [biggestActivity, setBiggestActivity] = useState<StravaActivity>()
   const [route, setRoute] = useState<[number, number][] | null>()

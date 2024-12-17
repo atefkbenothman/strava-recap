@@ -1,8 +1,8 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, AuthContext, ThemeContext } from "../contexts/context"
-import { Theme, ThemeName } from "../themes/theme"
-import { UnitDefinitions } from "../types/activity"
-import { SportType } from "../types/strava"
+import { useEffect, useState } from "react"
+import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
+import { UnitDefinitions } from "../../types/activity"
+import { SportType } from "../../types/strava"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,20 +12,22 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu"
+} from "../ui/dropdown-menu"
 import {
   Tabs,
   TabsList,
   TabsTrigger
-} from "./ui/tabs"
-import { AboutDialog } from "./aboutDialog"
-import { cn } from "../utils/utils"
+} from "../ui/tabs"
+import { AboutDialog } from "../common/aboutDialog"
+import { cn } from "../../utils/utils"
 import { ChevronDown } from "lucide-react"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { Themes, Theme } from "../../contexts/themeContext"
 
 export default function Menu() {
-  const { athlete, logout } = useContext(AuthContext)
-  const { setThemeName, themeName, darkMode, setDarkMode } = useContext(ThemeContext)
-  const { activityData, filter, units, setUnits, setFilter } = useContext(ActivityDataContext)
+  const { activityData, filter, units, setUnits, setFilter } = useStravaActivityContext()
+  const { athlete, logout } = useStravaAuthContext()
+  const { theme, themeColors, updateTheme, darkMode, setDarkMode } = useThemeContext()
 
   const [sportTypes, setSportTypes] = useState<SportType[]>([])
   const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false)
@@ -111,19 +113,19 @@ export default function Menu() {
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Theme</DropdownMenuSubTrigger>
             <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30">
-              {Object.keys(Theme).map((t, idx) => (
+              {Object.keys(Themes).map((t, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
                     className={cn(
                       'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
-                      t === themeName && `text-white bg-slate-700`
+                      t === theme && `text-white bg-slate-700`
                     )}
-                    onClick={() => setThemeName(t as ThemeName)}
+                    onClick={() => updateTheme(t as Theme)}
                     onSelect={(e) => e.preventDefault()}
                   >
                     {t}
                   </DropdownMenuItem>
-                  {idx !== Object.keys(Theme).length - 1 ? (
+                  {idx !== Object.keys(Themes).length - 1 ? (
                     <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
                   ) : null}
                 </div>

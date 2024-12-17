@@ -1,5 +1,4 @@
-import { useContext, useEffect, useState } from "react"
-import { ActivityDataContext, ThemeContext } from "../../contexts/context"
+import { useEffect, useState } from "react"
 import {
   ResponsiveContainer,
   PieChart,
@@ -9,8 +8,11 @@ import {
   Cell
 } from "recharts"
 import { Bed } from "lucide-react"
-import Card from "../card"
-import NoData from "../noData"
+import Card from "../common/card"
+import NoData from "../common/noData"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
+import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 
 type PieChartData = {
   kind: string
@@ -22,8 +24,9 @@ type PieChartData = {
  * Rest days vs. active days
  */
 export default function RestDays() {
-  const { activityData, currentYear } = useContext(ActivityDataContext)
-  const { colorPalette, theme } = useContext(ThemeContext)
+  const { currentYear } = useCurrentYearContext()
+  const { activityData } = useStravaActivityContext()
+  const { colorPalette, theme, themeColors } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [restPerentage, setRestPercentage] = useState<number>(0)
@@ -54,12 +57,12 @@ export default function RestDays() {
         {
           kind: "active",
           days: activeDays.size,
-          color: theme[0],
+          color: themeColors[0],
         } as PieChartData,
         {
           kind: "rest",
           days: restDays,
-          color: theme[theme.length - 1]
+          color: themeColors[themeColors.length - 1]
         } as PieChartData,
       ]
 

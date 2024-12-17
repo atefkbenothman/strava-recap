@@ -49,6 +49,8 @@ export default function DistanceRanges() {
 
   const [data, setData] = useState<RadialBarChartData[]>([])
 
+  console.log(activityData)
+
   useEffect(() => {
     if (!activityData) return
     function formatData() {
@@ -58,7 +60,8 @@ export default function DistanceRanges() {
           const distance = unitConversion.convertDistance(activity.distance!, units)
           return distance >= range.min && distance < range.max
         })
-        return { name: range.name, activities: activitiesInRange.length, fill: themeColors[idx] } as RadialBarChartData
+        const color = themeColors[idx]
+        return { name: range.name, activities: activitiesInRange.length, fill: color } as RadialBarChartData
       })
       setData(res)
     }

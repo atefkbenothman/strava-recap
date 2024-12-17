@@ -43,6 +43,7 @@ export default function Distance() {
         acts.forEach(a => {
           const sportType = a.sport_type! as SportType
           const distance = Math.round(unitConversion.convertDistance(a.distance!, units))
+          if (distance === 0) return
           if (!distanceBySport[sportType]) {
             distanceBySport[sportType] = 0
           }
@@ -57,7 +58,7 @@ export default function Distance() {
     calculateDistance()
   }, [activityData, units, colorPalette])
 
-  if (data.length === 0) {
+  if (totalDistance === 0) {
     return (
       <Card
         title="Distance"

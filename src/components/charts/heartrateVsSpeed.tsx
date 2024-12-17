@@ -38,17 +38,21 @@ export default function HeartrateVsSpeed() {
   useEffect(() => {
     if (!activityData) return
     function formatData() {
-      const res: ScatterChartData[] = []
-      activityData.all!.forEach(act => {
-        const id = act.id!
-        const hr = act.average_heartrate!
-        const speed = Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2))
-        const sportType = act.sport_type! as SportType
-        if (hr && speed) {
-          res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
-        }
-      })
-      setData(res)
+      try {
+        const res: ScatterChartData[] = []
+        activityData.all!.forEach(act => {
+          const id = act.id!
+          const hr = act.average_heartrate!
+          const speed = Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2))
+          const sportType = act.sport_type! as SportType
+          if (hr && speed) {
+            res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
+          }
+        })
+        setData(res)
+      } catch (err) {
+        console.warn(err)
+      }
     }
     formatData()
   }, [activityData, colorPalette, units])

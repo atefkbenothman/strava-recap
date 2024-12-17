@@ -45,6 +45,7 @@ export default function DistanceVsElevation() {
         const id = act.id!
         const distance = Math.round(unitConversion.convertDistance(act.distance!, units))
         const elevation = Math.round(unitConversion.convertElevation(act.total_elevation_gain!, units))
+        if (distance === 0 && elevation === 0) return
         const sportType = act.sport_type! as SportType
         res.push({ distance, elevation, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
         totalDistance += distance

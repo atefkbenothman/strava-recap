@@ -45,6 +45,7 @@ export default function Elevation() {
         acts.forEach((a) => {
           const sportType = a.sport_type! as SportType
           const elevation = Math.round(unitConversion.convertElevation(a.total_elevation_gain!, units))
+          if (elevation === 0) return
           if (!elevationBySport[sportType]) {
             elevationBySport[sportType] = 0
           }
@@ -59,7 +60,7 @@ export default function Elevation() {
     calculateElevation()
   }, [activityData, units, colorPalette])
 
-  if (data.length === 0) {
+  if (totalElevation === 0) {
     return (
       <Card
         title="Elevation"

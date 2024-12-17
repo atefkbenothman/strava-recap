@@ -35,7 +35,7 @@ export default function Gear() {
   const [data, setData] = useState<BarChartData[]>([])
 
   useEffect(() => {
-    if (!activityData) return
+    if (!activityData || !athlete) return
     function getGear() {
       try {
         const res: BarChartData[] = []
@@ -51,7 +51,8 @@ export default function Gear() {
           if (existingGear) {
             existingGear.hours += movingTime
           } else {
-            res.push({ gearId: gearId, gearName: gear!.name, hours: movingTime, fill: themeColors[themeColors.length - idx] })
+            const color = themeColors[(themeColors.length - idx) % themeColors.length]
+            res.push({ gearId: gearId, gearName: gear!.name, hours: movingTime, fill: color })
             idx += 1
           }
         })

@@ -47,8 +47,9 @@ export default function BiggestActivity() {
         return activity.distance! > acc.distance! ? activity : acc
       }, activityData.all![0])
       setBiggestActivity(biggestAct)
-      if (biggestAct.map?.summary_polyline) {
-        const route = polyline.decode(biggestAct.map!.summary_polyline!)
+      setRoute(null)
+      if (biggestAct.map?.summary_polyline && biggestAct.map.summary_polyline !== '') {
+        const route = polyline.decode(biggestAct.map.summary_polyline)
         setRoute(route)
       }
     }
@@ -97,6 +98,7 @@ export default function BiggestActivity() {
                     height="80%"
                     width="100%"
                     className="rounded hover:cursor-pointer"
+                    onError={() => { }}
                   />
                 </a>
               ) : null}

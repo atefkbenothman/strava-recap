@@ -40,6 +40,15 @@ export const stravaApi = {
       if (!res.ok) {
         throw new Error("Failed to exchange token")
       }
+      Sentry.captureMessage(exchangeUrl, {
+        level: "info",
+        extra: {
+          method: "exchangeToken()",
+          params: params,
+          status: res.status,
+          statusText: res.statusText,
+        }
+      })
       const data = await res.json()
       return { accessToken: data.access_token, athlete: data.athlete }
     } catch (err) {
@@ -60,6 +69,14 @@ export const stravaApi = {
         const err = await res.json()
         throw new Error(err.message)
       }
+      Sentry.captureMessage(baseUrl, {
+        level: "info",
+        extra: {
+          method: "getAthlete()",
+          status: res.status,
+          statusText: res.statusText
+        }
+      })
       const data = await res.json()
       return data
     } catch (err) {
@@ -96,6 +113,15 @@ export const stravaApi = {
         const err = await res.json()
         throw new Error(err.message)
       }
+      Sentry.captureMessage(baseUrl, {
+        level: "info",
+        extra: {
+          method: "getActivities()",
+          params: params,
+          status: res.status,
+          statusText: res.statusText,
+        }
+      })
       const data = await res.json()
       return data.reverse()
     } catch (err) {
@@ -144,6 +170,14 @@ export const stravaApi = {
         throw new Error(err.message)
       }
       const data = await res.json()
+      Sentry.captureMessage(baseUrl, {
+        level: "info",
+        extra: {
+          method: "getAthleteZones()",
+          status: res.status,
+          statusText: res.statusText
+        }
+      })
       return data
     } catch (err) {
       if (err instanceof Error) {
@@ -154,9 +188,10 @@ export const stravaApi = {
     }
   },
   getGear: async (token: string, gearId: string): Promise<StravaGear[]> => {
-    const baseUrl = `https://www.strava.com/api/v3/gear/${gearId}`
+    const baseUrl = "https://www.strava.com/api/v3/gear"
+    const gearUrl = `${baseUrl}/${gearId}`
     try {
-      const res = await fetch(baseUrl, {
+      const res = await fetch(gearUrl, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`
@@ -166,6 +201,15 @@ export const stravaApi = {
         const err = await res.json()
         throw new Error(err.message)
       }
+      Sentry.captureMessage(baseUrl, {
+        level: "info",
+        extra: {
+          method: "getGear()",
+          gearId: gearId,
+          status: res.status,
+          statusText: res.statusText
+        }
+      })
       const data = await res.json()
       return data
     } catch (err) {

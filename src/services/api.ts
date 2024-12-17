@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react"
 import { StravaActivity, StravaAthlete, StravaGear } from "../types/strava"
 
 
@@ -42,7 +43,7 @@ export const stravaApi = {
       const data = await res.json()
       return { accessToken: data.access_token, athlete: data.athlete }
     } catch (err) {
-      console.error("Token exchange error: ", err)
+      Sentry.captureException(err)
       return null
     }
   },
@@ -63,6 +64,7 @@ export const stravaApi = {
       return data
     } catch (err) {
       if (err instanceof Error) {
+        Sentry.captureException(err)
         throw new Error(err.message)
       }
       throw new Error("could not get athlete")
@@ -98,6 +100,7 @@ export const stravaApi = {
       return data.reverse()
     } catch (err) {
       if (err instanceof Error) {
+        Sentry.captureException(err)
         throw new Error(err.message)
       }
       return []
@@ -121,6 +124,7 @@ export const stravaApi = {
       allActivities.push(...pageData.flat())
     } catch (err) {
       if (err instanceof Error) {
+        Sentry.captureException(err)
         throw new Error(`Failed to fetch all activities (${err.message})`)
       }
     }
@@ -143,6 +147,7 @@ export const stravaApi = {
       return data
     } catch (err) {
       if (err instanceof Error) {
+        Sentry.captureException(err)
         throw new Error(err.message)
       }
       return []
@@ -165,6 +170,7 @@ export const stravaApi = {
       return data
     } catch (err) {
       if (err instanceof Error) {
+        Sentry.captureException(err)
         throw new Error(err.message)
       }
       return []

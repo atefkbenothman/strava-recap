@@ -44,7 +44,13 @@ type ThemeContextProviderProps = {
 }
 
 export default function ThemeContextProvider({ children }: ThemeContextProviderProps) {
-  const [theme, setTheme] = useState<Theme>(localStorage.getItem("theme") as Theme || "Default")
+  const storedTheme = localStorage.getItem("theme")
+
+  const [theme, setTheme] = useState<Theme>(
+    Object.keys(Themes).includes(storedTheme as string)
+      ? storedTheme as Theme
+      : "Default"
+  )
   const [darkMode, setDarkMode] = useState<boolean>(JSON.parse(localStorage.getItem("dark") || "true"))
   const [colorPalette, setColorPalette] = useState<ColorPalette>({})
 

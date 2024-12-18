@@ -1,3 +1,18 @@
+export type Zone = {
+  min: number
+  max: number
+}
+
+export type StravaAthleteZones = {
+  heart_rate?: {
+    custom_zones: boolean
+    zones: Zone[]
+  }
+  power?: {
+    zones: Zone[]
+  }
+}
+
 export type StravaGear = {
   id: string
   resource_state: number

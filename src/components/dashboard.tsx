@@ -30,6 +30,7 @@ import DistanceVsElevation from "./charts/distanceVsElevation"
 import HeartrateVsSpeed from "./charts/heartrateVsSpeed"
 import PrsOverTime from "./charts/prsOverTime"
 import RestDays from "./charts/restDays"
+import HeartrateZones from "./charts/heartrateZones"
 
 const GRAPH_COMPONENTS = [
   <SportTypes />,
@@ -48,6 +49,7 @@ const GRAPH_COMPONENTS = [
   <HeartrateVsSpeed />,
   <PrsOverTime />,
   <RestDays />,
+  <HeartrateZones />
 ]
 
 

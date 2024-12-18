@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query"
 import { createContext, useEffect, useMemo, useState } from "react"
 import { stravaApi } from "../services/api"
 import { ActivitiesByType, ActivityData, MonthlyActivities, Months, Units } from "../types/activity"
-import { SportType } from "../types/strava"
+import { SportType, StravaAthleteZones } from "../types/strava"
 import { useStravaAuthContext } from "../hooks/useStravaAuthContext"
 import { useCurrentYearContext } from "../hooks/useCurrentYearContext"
 import { useThemeContext } from "../hooks/useThemeContext"
@@ -12,6 +12,7 @@ interface StravaActivityContextType {
   isLoading: boolean
   error: Error | null
   activityData: ActivityData
+  athleteZones: StravaAthleteZones
   units: Units
   filter: SportType | "All"
   setUnits: (units: Units) => void
@@ -23,6 +24,7 @@ export const StravaActivityContext = createContext<StravaActivityContextType>(
     isLoading: false,
     error: null,
     activityData: {},
+    athleteZones: {},
     units: "imperial",
     filter: "All",
     setUnits: () => { },
@@ -55,16 +57,18 @@ export default function StravaActivityContextProvider({ children }: StravaActivi
     retry: false
   })
 
-  // const {
-  //   data: athleteZones
-  // } = useQuery({
-  //   queryKey: ["athleteZones"],
-  //   queryFn: () => stravaApi.getAthleteZones(accessToken!),
-  //   enabled: isAuthenticated,
-  //   staleTime: 1000 * 60 * 60,
-  //   gcTime: 1000 * 60 * 60 * 24,
-  //   retry: false
-  // })
+  const {
+    data: athleteZones
+  } = useQuery({
+    queryKey: ["athleteZones"],
+    queryFn: () => stravaApi.getAthleteZones(accessToken!),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 60,
+    gcTime: 1000 * 60 * 60 * 24,
+    retry: false
+  })
+
+  console.log(athleteZones)
 
   const updateSportColors = (sportTypes: SportType[], reset: boolean = false) => {
     setColorPalette(generateColorPalette(Array.from(sportTypes), theme, colorPalette, reset))
@@ -124,6 +128,7 @@ export default function StravaActivityContextProvider({ children }: StravaActivi
         isLoading,
         error,
         activityData,
+        athleteZones,
         units,
         filter,
         setUnits: updateUnits,

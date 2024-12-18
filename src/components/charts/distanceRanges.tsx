@@ -49,8 +49,6 @@ export default function DistanceRanges() {
 
   const [data, setData] = useState<RadialBarChartData[]>([])
 
-  console.log(activityData)
-
   useEffect(() => {
     if (!activityData) return
     function formatData() {

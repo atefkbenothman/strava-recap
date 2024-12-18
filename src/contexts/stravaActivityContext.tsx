@@ -68,8 +68,6 @@ export default function StravaActivityContextProvider({ children }: StravaActivi
     retry: false
   })
 
-  console.log(athleteZones)
-
   const updateSportColors = (sportTypes: SportType[], reset: boolean = false) => {
     setColorPalette(generateColorPalette(Array.from(sportTypes), theme, colorPalette, reset))
   }

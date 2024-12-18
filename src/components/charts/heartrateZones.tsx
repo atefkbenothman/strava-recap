@@ -48,14 +48,14 @@ export default function HeartrateZones() {
     }
     activityData.all!.forEach(activity => {
       const avg_heartrate = activity.average_heartrate!
-      const movingTime = Math.round(unitConversion.convertTime(activity.moving_time!, "hours"))
+      const movingTime = unitConversion.convertTime(activity.moving_time!, "hours")
       const sport = activity.sport_type! as SportType
       if (avg_heartrate) {
         const item = res.find(item => {
           return avg_heartrate >= item.zone.min && avg_heartrate <= item.zone.max
         })
         if (item) {
-          item[sport as SportType] += movingTime
+          item[sport as SportType] += Number(movingTime.toFixed(1))
         }
       }
     })

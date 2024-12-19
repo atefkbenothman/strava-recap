@@ -23,7 +23,7 @@ export default function Card({ title, description, children, total, totalUnits, 
           </div>
           <p className="text-[10px] font-normal text-black/75 pl-6 dark:text-white/75">{description}</p>
         </div>
-        {total ? (
+        {total !== undefined ? (
           <div className="text-right">
             <p className="ml-auto font-bold text-xl bg-gray-300 dark:bg-[#2e3032] dark:text-white p-1 rounded w-fit">{total}</p>
             <p className="ml-auto text-[10px] p-1 dark:text-white">{totalUnits}</p>

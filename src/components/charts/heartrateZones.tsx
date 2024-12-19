@@ -34,7 +34,7 @@ export default function HeartrateZones() {
   const [sportTypes, setSportTypes] = useState<SportType[]>([])
 
   useEffect(() => {
-    if (!athleteZones || !athleteZones.heart_rate || athleteZones.heart_rate.zones.length === 0) return
+    if (!activityData || !athleteZones || !athleteZones.heart_rate || athleteZones.heart_rate.zones.length === 0) return
     const types = Object.keys(activityData.bySportType!)
     const zones = athleteZones.heart_rate.zones
     // initialize radial chart data with athlete zones
@@ -46,21 +46,28 @@ export default function HeartrateZones() {
     for (let i = 0; i < zones.length; i++) {
       res.push({ zone: { min: zones[i].min, max: zones[i].max }, zoneName: `Zone ${i + 1}`, ...sports })
     }
+    let hrCount = 0
     activityData.all!.forEach(activity => {
       const avg_heartrate = activity.average_heartrate!
       const movingTime = unitConversion.convertTime(activity.moving_time!, "hours")
       const sport = activity.sport_type! as SportType
       if (avg_heartrate) {
+        hrCount += 1
         const item = res.find(item => {
           return avg_heartrate >= item.zone.min && avg_heartrate <= item.zone.max
         })
         if (item) {
-          item[sport as SportType] += Number(movingTime.toFixed(1))
+          item[sport as SportType] += Number(movingTime.toFixed(0))
         }
       }
     })
-    setData(res)
     setSportTypes(types as SportType[])
+    // if no heartrate data, set to empty
+    if (hrCount === 0) {
+      setData([])
+    } else {
+      setData(res)
+    }
   }, [activityData, athleteZones, colorPalette])
 
   if (data.length === 0) {

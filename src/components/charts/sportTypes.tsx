@@ -31,9 +31,9 @@ export default function SportTypes() {
   const [numSportTypes, setNumSportTypes] = useState<number>(0)
 
   useEffect(() => {
-    if (!activityData) return
-    setNumSportTypes(Object.keys(activityData.bySportType!).length)
     function formatData() {
+      if (!activityData) return
+      setNumSportTypes(Object.keys(activityData.bySportType!).length)
       const res = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
         const numActs = activityData.bySportType![sport as SportType]!.length
         acc.push({ sport: sport as SportType, activities: numActs, color: colorPalette[sport as SportType]! })

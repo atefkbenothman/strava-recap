@@ -24,7 +24,12 @@ import { ChevronDown } from "lucide-react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { Themes, Theme } from "../../contexts/themeContext"
 
-export default function Menu() {
+
+type MenuProps = {
+  shuffle: () => void
+}
+
+export default function Menu({ shuffle }: MenuProps) {
   const { activityData, filter, units, setUnits, setFilter } = useStravaActivityContext()
   const { athlete, logout } = useStravaAuthContext()
   const { theme, updateTheme, darkMode, setDarkMode } = useThemeContext()
@@ -132,6 +137,16 @@ export default function Menu() {
               ))}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
+          <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
+
+          {/* Reshuffle */}
+          <DropdownMenuItem
+            className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:focus:bg-[#1d1d1e] dark:focus:text-white"
+            onClick={shuffle}
+            onSelect={(e) => e.preventDefault()}
+          >
+            <p>Reshuffle</p>
+          </DropdownMenuItem>
           <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
 
           {/* Unit Picker */}

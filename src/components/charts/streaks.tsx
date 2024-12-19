@@ -14,8 +14,8 @@ export default function Streaks() {
   const [weeks, setWeeks] = useState<number[]>([])
 
   useEffect(() => {
-    if (!activityData) return
     function getWeeksMonths() {
+      if (!activityData) return
       const months = [...new Set(
         activityData.all!.map((activity) => {
           return getMonth(new Date(activity.start_date!))
@@ -85,11 +85,13 @@ export default function Streaks() {
           value={String(findMaxConsecutive(weeks))}
           unit="weeks"
         />
-        <Stat
-          label="Days"
-          value={String(findMaxConsecutiveDays(activityData.all!))}
-          unit="days"
-        />
+        {activityData ? (
+          <Stat
+            label="Days"
+            value={String(findMaxConsecutiveDays(activityData.all!))}
+            unit="days"
+          />
+        ) : null}
       </div>
     </Card>
   )

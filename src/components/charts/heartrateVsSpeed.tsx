@@ -36,8 +36,8 @@ export default function HeartrateVsSpeed() {
   const [data, setData] = useState<ScatterChartData[]>([])
 
   useEffect(() => {
-    if (!activityData) return
     function formatData() {
+      if (!activityData) return
       try {
         const res: ScatterChartData[] = []
         activityData.all!.forEach(act => {

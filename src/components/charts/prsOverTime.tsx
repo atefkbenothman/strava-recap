@@ -27,9 +27,9 @@ export default function PrsOverTime() {
   const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
-    setChartColor(themeColors[themeColors.length - 1])
-    if (!activityData) return
     function calculatePrsOverTime() {
+      if (!activityData) return
+      setChartColor(themeColors[themeColors.length - 1])
       const res: AreaChartData[] = []
       Object.keys(activityData.monthly!).forEach(month => {
         const acts = activityData.monthly![month]!

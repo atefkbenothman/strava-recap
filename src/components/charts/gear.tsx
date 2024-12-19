@@ -35,8 +35,8 @@ export default function Gear() {
   const [data, setData] = useState<BarChartData[]>([])
 
   useEffect(() => {
-    if (!activityData || !athlete) return
     function getGear() {
+      if (!activityData || !athlete) return
       try {
         const res: BarChartData[] = []
         let idx = 1

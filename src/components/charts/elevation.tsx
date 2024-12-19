@@ -34,9 +34,9 @@ export default function Elevation() {
   const [sportTypes, setSportTypes] = useState<string[]>([])
 
   useEffect(() => {
-    if (!activityData) return
-    setSportTypes(Object.keys(activityData.bySportType!))
     function calculateElevation() {
+      if (!activityData) return
+      setSportTypes(Object.keys(activityData.bySportType!))
       let totalElev = 0
       const res: BarChartData[] = []
       Object.keys(activityData.monthly!).forEach(month => {

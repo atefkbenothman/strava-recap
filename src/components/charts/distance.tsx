@@ -33,8 +33,8 @@ export default function Distance() {
   const [totalDistance, setTotalDistance] = useState<number>(0)
 
   useEffect(() => {
-    if (!activityData) return
     function calculateDistance() {
+      if (!activityData) return
       let totalDist = 0
       const res: BarChartData[] = []
       Object.keys(activityData.monthly!).forEach(month => {

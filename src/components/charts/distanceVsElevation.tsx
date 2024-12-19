@@ -36,8 +36,8 @@ export default function DistanceVsElevation() {
   const [avgElevationPerDistance, setAvgElevationPerDistance] = useState<number>(0)
 
   useEffect(() => {
-    if (!activityData) return
     function formatData() {
+      if (!activityData) return
       let totalDistance = 0
       let totalElevation = 0
       const res: ScatterChartData[] = []

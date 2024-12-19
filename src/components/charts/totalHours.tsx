@@ -33,8 +33,8 @@ export default function TotalHours() {
   const [totalHours, setTotalHours] = useState<number>(0)
 
   useEffect(() => {
-    if (!activityData) return
     function calculateTotalHours() {
+      if (!activityData) return
       let totalHrs = 0
       const res = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
         const acts = activityData.bySportType![sport as SportType]!

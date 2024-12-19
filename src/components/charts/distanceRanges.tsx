@@ -50,8 +50,8 @@ export default function DistanceRanges() {
   const [data, setData] = useState<RadialBarChartData[]>([])
 
   useEffect(() => {
-    if (!activityData) return
     function formatData() {
+      if (!activityData) return
       const currentRanges = getDistanceRanges(units)
       const res = currentRanges.map((range, idx) => {
         const activitiesInRange = activityData.all!.filter(activity => {

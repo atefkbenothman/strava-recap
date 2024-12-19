@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useStravaActivityContext } from "../hooks/useStravaActivityContext"
 import Loading from "./displays/loading"
 import Error from "./displays/error"
@@ -31,6 +31,7 @@ import HeartrateVsSpeed from "./charts/heartrateVsSpeed"
 import PrsOverTime from "./charts/prsOverTime"
 import RestDays from "./charts/restDays"
 import HeartrateZones from "./charts/heartrateZones"
+import Photo from "./charts/photo"
 
 const GRAPH_COMPONENTS = [
   <SportTypes />,
@@ -49,7 +50,8 @@ const GRAPH_COMPONENTS = [
   <HeartrateVsSpeed />,
   <PrsOverTime />,
   <RestDays />,
-  <HeartrateZones />
+  <HeartrateZones />,
+  <Photo />
 ]
 
 
@@ -59,13 +61,19 @@ export default function Dashboard() {
   const { currentYear } = useCurrentYearContext()
   const { darkMode } = useThemeContext()
 
+  const [shuffle, setShuffle] = useState<boolean>(false)
+
   // shuffle graphs
-  const shuffledGraphComponents = useMemo(() => {
+  const shuffleGraphComponents = useMemo(() => {
     return GRAPH_COMPONENTS
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
       .map(({ value }) => value);
-  }, [])
+  }, [shuffle])
+
+  const toggleShuffle = () => {
+    setShuffle(prevState => !prevState)
+  }
 
   if (isLoading) {
     return (
@@ -86,7 +94,7 @@ export default function Dashboard() {
   }
 
   // succesfully authenticated but user has no activities
-  if (Object.keys(activityData).length === 0 || Object.keys(activityData.all!).length === 0) {
+  if (!activityData || Object.keys(activityData).length === 0 || Object.keys(activityData.all!).length === 0) {
     return (
       <div>
         <NoActivities />
@@ -114,7 +122,7 @@ export default function Dashboard() {
                   <YearPicker />
                 </div>
                 <div className="flex items-center justify-end">
-                  <Menu />
+                  <Menu shuffle={toggleShuffle} />
                 </div>
                 <div className="items-center hidden sm:block w-fit ml-auto">
                   <div className="flex items-center h-full">
@@ -136,7 +144,7 @@ export default function Dashboard() {
               <div className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 sm:col-span-2 rounded">
                 <DailyActivities />
               </div>
-              {shuffledGraphComponents.map((graph, index) => (
+              {shuffleGraphComponents.map((graph, index) => (
                 <div key={index} className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 rounded">
                   {graph}
                 </div>

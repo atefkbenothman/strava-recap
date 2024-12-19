@@ -32,8 +32,8 @@ export default function RestDays() {
   const [restPerentage, setRestPercentage] = useState<number>(0)
 
   useEffect(() => {
-    if (!activityData) return
     function formatData() {
+      if (!activityData) return
       const activeDays = new Set(
         activityData.all!
           .filter(activity => activity.start_date_local!)

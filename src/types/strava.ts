@@ -1,3 +1,27 @@
+export type StravaPhoto = {
+  activity_id: number
+  activity_name: string
+  athlete_id: number
+  caption: string
+  created_at: string
+  created_at_local: string
+  cursor: any
+  default_photo: boolean
+  location: [number, number]
+  placeholder_image: any
+  post_id: any
+  resource_state: number
+  source: number
+  status: number
+  type: number
+  unique_id: string
+  uploaded_at: string
+  urls: {
+    [key: number]: string
+  }
+  video_url?: string
+}
+
 export type Zone = {
   min: number
   max: number

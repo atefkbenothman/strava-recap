@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/react"
-import { StravaActivity, StravaAthlete, StravaGear } from "../types/strava"
+import { StravaActivity, StravaAthlete, StravaAthleteZones, StravaGear, StravaPhoto } from "../types/strava"
 
 
 export const stravaApi = {
@@ -13,6 +13,9 @@ export const stravaApi = {
     process.env.NODE_ENV === "development"
       ? import.meta.env.VITE_STRAVA_REDIRECT_URI_DEV
       : import.meta.env.VITE_STRAVA_REDIRECT_URI_PROD,
+  updateRedirectUri: (year: number): void => {
+    stravaApi.redirectUri = `${stravaApi.defaultRedirectUri}/${year}`
+  },
   generateAuthUrl: (): string => {
     const baseUrl = "https://www.strava.com/oauth/authorize"
     const params = new URLSearchParams({
@@ -24,55 +27,22 @@ export const stravaApi = {
     }).toString()
     return `${baseUrl}?${params}`
   },
-  exchangeToken: async (code: string): Promise<{ accessToken: string, athlete: StravaAthlete } | null> => {
-    const baseUrl = "https://www.strava.com/oauth/token"
+  getData: async (baseUrl: string, method: string, options: { headers?: any, params?: string }): Promise<any> => {
+    const { headers, params } = options
+    const url = params ? `${baseUrl}?${params}` : baseUrl
     try {
-      const params = new URLSearchParams({
-        client_id: stravaApi.clientId,
-        client_secret: stravaApi.clientSecret,
-        code: code,
-        grant_type: "authorization_code"
-      }).toString()
-      const exchangeUrl = `${baseUrl}?${params}`
-      const res = await fetch(exchangeUrl, {
-        method: "POST"
+      const res = await fetch(url, {
+        method: method,
+        headers: headers ?? {}
       })
       if (!res.ok) {
-        throw new Error("Failed to exchange token")
+        throw new Error(`Failed api call to ${url}: ${res.status} ${res.statusText}`)
       }
-      Sentry.captureMessage(exchangeUrl, {
-        level: "info",
+      Sentry.captureMessage(url, {
+        level: "log",
         extra: {
-          method: "exchangeToken()",
-          params: params,
-          status: res.status,
-          statusText: res.statusText,
-        }
-      })
-      const data = await res.json()
-      return { accessToken: data.access_token, athlete: data.athlete }
-    } catch (err) {
-      Sentry.captureException(err)
-      return null
-    }
-  },
-  getAthlete: async (token: string): Promise<StravaAthlete> => {
-    try {
-      const baseUrl = "https://www.strava.com/api/v3/athlete"
-      const res = await fetch(baseUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.message)
-      }
-      Sentry.captureMessage(baseUrl, {
-        level: "info",
-        extra: {
-          method: "getAthlete()",
+          method: method,
+          params: params ?? "",
           status: res.status,
           statusText: res.statusText
         }
@@ -80,147 +50,88 @@ export const stravaApi = {
       const data = await res.json()
       return data
     } catch (err) {
-      if (err instanceof Error) {
-        Sentry.captureException(err)
-        throw new Error(err.message)
-      }
-      throw new Error("could not get athlete")
+      Sentry.captureException(err)
+      throw err
     }
+  },
+  exchangeToken: async (code: string): Promise<{ accessToken: string, athlete: StravaAthlete }> => {
+    const baseUrl = "https://www.strava.com/oauth/token"
+    const params = new URLSearchParams({
+      client_id: stravaApi.clientId,
+      client_secret: stravaApi.clientSecret,
+      code: code,
+      grant_type: "authorization_code"
+    }).toString()
+    const data = await stravaApi.getData(baseUrl, "POST", { params: params })
+    return {
+      accessToken: data.access_token,
+      athlete: data.athlete
+    }
+  },
+  getAthlete: async (token: string): Promise<StravaAthlete> => {
+    const baseUrl = "https://www.strava.com/api/v3/athlete"
+    const headers = {
+      Authorization: `Bearer ${token}`
+    }
+    const data = await stravaApi.getData(baseUrl, "GET", { headers: headers })
+    return data
   },
   getActivities: async (token: string, options?: { page?: number, perPage?: number, year?: number }): Promise<StravaActivity[]> => {
     const { page = 1, perPage = 200, year = new Date().getFullYear() } = options || {}
-    if (year < 2010 || year > new Date().getFullYear() + 1) {
-      return []
-    }
-    const beforeDate = Math.floor(new Date(`${year + 1}-01-01`).getTime() / 1000).toString()
-    const afterDate = Math.floor(new Date(`${year}-01-01`).getTime() / 1000).toString()
+    if (year < 2010 || year >= new Date().getFullYear() + 1) return []
+    const [beforeDate, afterDate] = [Math.floor(new Date(`${year + 1}-01-01`).getTime() / 1000).toString(), Math.floor(new Date(`${year}-01-01`).getTime() / 1000).toString()]
     const baseUrl = "https://strava.com/api/v3/athlete/activities"
+    const headers = {
+      Authorization: `Bearer ${token}`
+    }
     const params = new URLSearchParams({
       after: afterDate,
       before: beforeDate,
       page: page.toString(),
       per_page: perPage.toString()
     }).toString()
-    const activitiesUrl = `${baseUrl}?${params}`
-    try {
-      const res = await fetch(activitiesUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.message)
-      }
-      Sentry.captureMessage(baseUrl, {
-        level: "info",
-        extra: {
-          method: "getActivities()",
-          params: params,
-          status: res.status,
-          statusText: res.statusText,
-        }
-      })
-      const data = await res.json()
-      return data.reverse()
-    } catch (err) {
-      if (err instanceof Error) {
-        Sentry.captureException(err)
-        throw new Error(err.message)
-      }
-      return []
-    }
+    const data = await stravaApi.getData(baseUrl, "GET", { headers: headers, params: params })
+    return data.reverse()
   },
   getAllActivities: async (token: string, year: number): Promise<StravaActivity[]> => {
-    const allActivities: StravaActivity[] = []
     const perPage = 200
     const totalPages = 3
     const allParams = []
     for (let i = 1; i <= totalPages; i++) {
-      const options = {
-        page: i,
-        perPage: perPage,
-        year: year
-      }
+      const options = { page: i, perPage: perPage, year: year }
       allParams.push(options)
     }
-    try {
-      const pageData = await Promise.all(allParams.map(options => stravaApi.getActivities(token, options)))
-      allActivities.push(...pageData.flat())
-    } catch (err) {
-      if (err instanceof Error) {
-        Sentry.captureException(err)
-        throw new Error(`Failed to fetch all activities (${err.message})`)
-      }
-    }
+    const allActivities: StravaActivity[] = []
+    const pageData = await Promise.all(allParams.map(options => stravaApi.getActivities(token, options)))
+    allActivities.push(...pageData.flat())
     return allActivities
   },
-  getAthleteZones: async (token: string): Promise<any> => {
+  getAthleteZones: async (token: string): Promise<StravaAthleteZones> => {
     const baseUrl = "https://www.strava.com/api/v3/athlete/zones"
-    try {
-      const res = await fetch(baseUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.message)
-      }
-      const data = await res.json()
-      Sentry.captureMessage(baseUrl, {
-        level: "info",
-        extra: {
-          method: "getAthleteZones()",
-          status: res.status,
-          statusText: res.statusText
-        }
-      })
-      return data
-    } catch (err) {
-      if (err instanceof Error) {
-        Sentry.captureException(err)
-        throw new Error(err.message)
-      }
-      return []
+    const headers = {
+      Authorization: `Bearer ${token}`
     }
+    const data = await stravaApi.getData(baseUrl, "GET", { headers: headers })
+    return data
   },
   getGear: async (token: string, gearId: string): Promise<StravaGear[]> => {
     const baseUrl = "https://www.strava.com/api/v3/gear"
-    const gearUrl = `${baseUrl}/${gearId}`
-    try {
-      const res = await fetch(gearUrl, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.message)
-      }
-      Sentry.captureMessage(baseUrl, {
-        level: "info",
-        extra: {
-          method: "getGear()",
-          gearId: gearId,
-          status: res.status,
-          statusText: res.statusText
-        }
-      })
-      const data = await res.json()
-      return data
-    } catch (err) {
-      if (err instanceof Error) {
-        Sentry.captureException(err)
-        throw new Error(err.message)
-      }
-      return []
+    const headers = {
+      Authorization: `Bearer ${token}`
     }
+    const data = await stravaApi.getData(baseUrl, "GET", { headers: headers, params: gearId })
+    return data
   },
-  updateRedirectUri: (year: number): void => {
-    stravaApi.redirectUri = `${stravaApi.defaultRedirectUri}/${year}`
+  getActivityPhotos: async (token: string, activityId: number): Promise<StravaPhoto[]> => {
+    const baseUrl = `https://www.strava.com/api/v3/activities/${activityId}/photos`
+    const headers = {
+      Authorization: `Bearer ${token}`
+    }
+    const params = new URLSearchParams({
+      size: "2000",
+      photo_sources: "true"
+    }).toString()
+    const data = await stravaApi.getData(baseUrl, "GET", { headers: headers, params: params })
+    return data
   }
 }

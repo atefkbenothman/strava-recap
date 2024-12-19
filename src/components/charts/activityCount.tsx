@@ -31,8 +31,8 @@ export default function ActivityCount() {
   const [totalActivities, setTotalActivities] = useState<number>(0)
 
   useEffect(() => {
-    if (!activityData) return
     function calculateActivityCount() {
+      if (!activityData) return
       let totalActs = 0
       const res: BarChartData[] = []
       Object.keys(activityData.monthly!).forEach(month => {
@@ -86,7 +86,7 @@ export default function ActivityCount() {
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
           <Tooltip />
-          {Object.keys(activityData.bySportType!).map(sport => (
+          {activityData && Object.keys(activityData.bySportType!).map(sport => (
             <Bar
               key={sport}
               radius={[4, 4, 4, 4]}

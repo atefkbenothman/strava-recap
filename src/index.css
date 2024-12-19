@@ -61,3 +61,7 @@ html {
 html.dark {
   background-color: #121212;
 }
+
+video::-webkit-media-controls-panel {
+  background-image: linear-gradient(transparent, transparent) !important;
+}

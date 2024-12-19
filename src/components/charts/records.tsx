@@ -28,8 +28,8 @@ export default function Records() {
   const [data, setData] = useState<CardData>()
 
   useEffect(() => {
-    if (!activityData || activityData.all!.length < 0) return
     function getRecords() {
+      if (!activityData || activityData.all!.length < 0) return
       const topSpeed = activityData.all!.reduce((acc, act) => {
         return act.max_speed! > acc.max_speed! ? act : acc
       }, activityData.all![0])
@@ -75,7 +75,7 @@ export default function Records() {
       description="your top stats"
       icon={<Award size={16} strokeWidth={2} />}
     >
-      {!data || activityData.all!.length === 0 ? (
+      {!data || !activityData || activityData.all!.length === 0 ? (
         <NoData />
       ) : (
         <div className="w-full grid grid-cols-2 p-2 gap-2">

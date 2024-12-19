@@ -41,8 +41,8 @@ export default function BiggestActivity() {
   const [route, setRoute] = useState<[number, number][] | null>()
 
   useEffect(() => {
-    if (!activityData || activityData.all!.length === 0) return
     function getBiggestActivity() {
+      if (!activityData || activityData.all!.length === 0) return
       const biggestAct = activityData.all!.reduce((acc, activity) => {
         return activity.distance! > acc.distance! ? activity : acc
       }, activityData.all![0])
@@ -74,7 +74,7 @@ export default function BiggestActivity() {
       icon={<Trophy size={16} strokeWidth={2} />}
     >
       <div className="flex justify-center">
-        {!biggestActivity || activityData.all!.length === 0 ? (
+        {!biggestActivity || !activityData || activityData.all!.length === 0 ? (
           <NoData />
         ) : (
           <div className="grid grid-rows-[repeat(3,min-content)_1fr] h-full gap-4 rounded p-1">
@@ -86,7 +86,7 @@ export default function BiggestActivity() {
                 <a
                   href={`https://www.strava.com/activities/${biggestActivity?.id}`}
                   target="_blank"
-                  className="flex items-center justify-center w-[80%]"
+                  className="flex items-center justify-center w-[85%]"
                 >
                   <img
                     src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]
@@ -97,7 +97,7 @@ export default function BiggestActivity() {
                     alt="map"
                     height="80%"
                     width="100%"
-                    className="rounded hover:cursor-pointer"
+                    className="rounded hover:cursor-pointer shadow"
                     onError={() => { }}
                   />
                 </a>

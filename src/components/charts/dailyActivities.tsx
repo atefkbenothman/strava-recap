@@ -25,8 +25,8 @@ export default function DailyActivities() {
   const [data, setData] = useState<CalendarData[]>([])
 
   useEffect(() => {
-    if (!activityData) return
     function formatData() {
+      if (!activityData) return
       const jan1 = `${currentYear}-01-01`
       const dec31 = `${currentYear}-12-31`
 

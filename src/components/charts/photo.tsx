@@ -70,7 +70,7 @@ export default function Photo() {
                         loop
                         controls
                         muted
-                        playing
+                        playsinline
                       />
                     </div>
                   </CarouselItem>

@@ -41,8 +41,6 @@ export default function Photo() {
     )
   }
 
-  console.log(photo)
-
   return (
     <Card
       title="Photo"

@@ -9,7 +9,7 @@ import {
   YAxis,
   Tooltip,
   ZAxis,
-  // ReferenceLine,
+  ReferenceLine,
 } from "recharts"
 import Card from "../common/card";
 import NoData from "../common/noData"
@@ -26,6 +26,11 @@ type ScatterChartData = {
   fill: string
 }
 
+type RegressionCoefficients = {
+  slope: number
+  intercept: number
+}
+
 /*
  * Heartrate vs perceived exertion
 */
@@ -34,12 +39,32 @@ export default function HeartrateVsSpeed() {
   const { darkMode, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
+  const [regression, setRegression] = useState<RegressionCoefficients>({ slope: 0, intercept: 0 })
 
   useEffect(() => {
+    function calculateLinearRegression(data: ScatterChartData[]): RegressionCoefficients {
+      const n = data.length
+      if (n === 0) return { slope: 0, intercept: 0 }
+      // calculate means
+      const meanX = data.reduce((sum, point) => sum + point.speed, 0) / n
+      const meanY = data.reduce((sum, point) => sum + point.heartrate, 0) / n
+      // calculate slope
+      const numerator = data.reduce((sum, point) => {
+        return sum + (point.speed - meanX) * (point.heartrate - meanY)
+      }, 0)
+      const denominator = data.reduce((sum, point) => {
+        return sum + Math.pow(point.speed - meanX, 2)
+      }, 0)
+      const slope = numerator / denominator
+      const intercept = meanY - slope * meanX
+      return { slope, intercept }
+    }
     function formatData() {
       if (!activityData) return
       try {
         const res: ScatterChartData[] = []
+        let totalRatio = 0
+        let validPoints = 0
         activityData.all!.forEach(act => {
           const id = act.id!
           const hr = act.average_heartrate!
@@ -47,9 +72,12 @@ export default function HeartrateVsSpeed() {
           const sportType = act.sport_type! as SportType
           if (hr && speed) {
             res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
+            totalRatio += hr / speed
+            validPoints++
           }
         })
         setData(res)
+        setRegression(calculateLinearRegression(res))
       } catch (err) {
         console.warn(err)
       }
@@ -61,6 +89,12 @@ export default function HeartrateVsSpeed() {
       window.open(data.url, "_blank")
     }
   }
+
+  // calculate regression line endpoints
+  const maxSpeed = Math.max(...data.map(d => d.speed))
+  const extendedMaxSpeed = maxSpeed * 1.2
+  const startY = regression.slope * 0 + regression.intercept
+  const endY = regression.slope * extendedMaxSpeed + regression.intercept
 
   if (data.length === 0) {
     return (
@@ -80,7 +114,7 @@ export default function HeartrateVsSpeed() {
       description="heartrate compared to speed"
       icon={<HeartPulse size={16} strokeWidth={2} />}
     >
-      <ResponsiveContainer height={350} width="90%">
+      <ResponsiveContainer height={350} width="90%" className="overflow-hidden">
         <ScatterChart>
           <Scatter
             data={data}
@@ -93,6 +127,7 @@ export default function HeartrateVsSpeed() {
             dataKey="speed"
             name="speed"
             unit={UnitDefinitions[units].speed}
+            domain={[0, 'auto']}
             tick={{
               fontSize: 10,
               color: darkMode ? "#c2c2c2" : "#666",
@@ -113,6 +148,15 @@ export default function HeartrateVsSpeed() {
             }}
             width={38}
             stroke={darkMode ? "#c2c2c2" : "#666"}
+          />
+          <ReferenceLine
+            ifOverflow="extendDomain"
+            segment={[
+              { x: 0, y: startY },
+              { x: extendedMaxSpeed, y: endY }
+            ]}
+            stroke={darkMode ? "#c2c2c2" : "black"}
+            strokeDasharray="3 3"
           />
           <ZAxis range={[30, 40]} />
           <Tooltip />

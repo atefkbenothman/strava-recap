@@ -46,16 +46,17 @@ export default function Photo() {
   return (
     <Card
       title="Photo"
+      description={new Date(photo[0].created_at_local).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
       icon={< Image size={17} strokeWidth={2} />}
     >
-      <div className="h-full w-full items-center justify-center flex p-2">
+      <div className="h-full w-full items-center justify-center flex px-2 py-1">
         <Carousel
-          className="h-full w-full flex-col items-center justify-center space-y-2"
+          className="h-full w-full flex items-center justify-center"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
           plugins={[
             Autoplay({
-              delay: 9000
+              delay: 10000
             })
           ]}
         >
@@ -66,11 +67,12 @@ export default function Photo() {
                   <CarouselItem key={idx} className="w-full h-full">
                     <div className="h-full w-full flex items-center justify-center">
                       <ReactPlayer
-                        url={p.video_url}
+                        url={p.video_url.split("?")[0]}
                         loop
                         controls
                         muted
                         playsinline
+                        playing
                       />
                     </div>
                   </CarouselItem>
@@ -78,15 +80,12 @@ export default function Photo() {
               } else {
                 return (
                   <CarouselItem key={idx} className="flex items-center justify-center">
-                    <img src={p.urls[2000]} className="rounded aspect-auto max-h-[350px]" />
+                    <img src={p.urls[2000]} className="rounded aspect-auto max-h-[330px]" />
                   </CarouselItem>
                 )
               }
             })}
           </CarouselContent>
-          <p className="text-xs dark:text-white/70 flex items-center justify-center">
-            {new Date(photo[0].created_at_local).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-          </p>
           {photo && photo.length > 1 ? (
             <>
               <CarouselPrevious

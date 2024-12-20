@@ -19,9 +19,9 @@ export default function NoActivities() {
             <>
               <p>No activities [{filter}] from <span className="font-bold text-xl">{currentYear}</span></p>
               <div className="flex gap-6">
-                <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
-                <p>or</p>
                 <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => setFilter("All")}>reset filter</a>
+                <p>or</p>
+                <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
               </div>
             </>
           ) : (

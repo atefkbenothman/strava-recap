@@ -8,9 +8,13 @@ export default function Loading() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
-        <div className="flex flex-col gap-2 text-lg">
-          <p>Retrieving <span className="font-bold text-xl">{currentYear}</span> activities...</p>
+      <div className="w-screen h-screen dark:bg-[#121212] dark:text-white">
+        <div className="w-full h-full flex items-center justify-center">
+          <div className="flex-col p-2 space-y-4">
+            <div>
+              <p>Retrieving <span className="font-bold text-xl">{currentYear}</span> activities...</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

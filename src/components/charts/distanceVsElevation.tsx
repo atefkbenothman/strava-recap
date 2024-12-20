@@ -100,6 +100,7 @@ export default function DistanceVsElevation() {
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
+            domain={[0, 'auto']}
           />
           <YAxis
             type="number"

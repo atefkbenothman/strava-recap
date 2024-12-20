@@ -1,12 +1,15 @@
 import { useEffect } from "react"
 import { Analytics } from "@vercel/analytics/react"
+
 import ThemeContextProvider from "./contexts/themeContext"
-import { useThemeContext } from "./hooks/useThemeContext"
 import StravaAuthContextProvider from "./contexts/stravaAuthContext"
 import CurrentYearContextProvider from "./contexts/currentYearContext"
-import { useStravaAuthContext } from "./hooks/useStravaAuthContext"
-import Unauthenticated from "./components/displays/unauthenticated"
 import StravaActivityContextProvider from "./contexts/stravaActivityContext"
+
+import { useThemeContext } from "./hooks/useThemeContext"
+import { useStravaAuthContext } from "./hooks/useStravaAuthContext"
+
+import Unauthenticated from "./components/displays/unauthenticated"
 import Dashboard from "./components/dashboard"
 
 

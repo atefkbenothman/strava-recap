@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { useState } from "react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { Image } from "lucide-react"
 import Card from "../common/card"
@@ -6,8 +6,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi
 } from "../ui/carousel"
 import ReactPlayer from "react-player"
@@ -19,15 +17,6 @@ export default function Photo() {
   const { photo, photoLoading } = useStravaActivityContext()
 
   const [api, setApi] = useState<CarouselApi>()
-
-  useEffect(() => {
-    if (!api) return
-    // setCount(api.scrollSnapList().length)
-    // setCurrent(api.selectedScrollSnap() + 1)
-    // api.on("select", () => {
-    //   setCurrent(api.selectedScrollSnap() + 1)
-    // })
-  }, [api])
 
   if (!photo) {
     return (
@@ -103,37 +92,3 @@ export default function Photo() {
     </Card >
   )
 }
-// {photo && photo.map((p, idx) => {
-//   if (p.video_url) {
-//     return (
-//       <CarouselItem key={idx} className="">
-//         <div className="bg-red-500">
-//           <ReactPlayer
-//             url={p.video_url.split("?")[0]}
-//             loop
-//             controls
-//             muted
-//             playsinline
-//             playing
-//           />
-//         </div>
-//       </CarouselItem>
-//     )
-//   } else {
-//     return (
-//       <CarouselItem key={idx} className="flex items-center justify-center">
-//         <img src={p.urls[2000]} className="rounded aspect-auto max-h-[330px]" />
-//       </CarouselItem>
-//     )
-//   }
-// })}
-{/* {photo && photo.length > 1 ? (
-            <>
-              <CarouselPrevious
-                className={`dark:text-black transition-opacity duration-300 ${isHovering ? 'visible' : 'invisible'}`}
-              />
-              <CarouselNext
-                className={`dark:text-black transition-opacity duration-300 ${isHovering ? 'visible' : 'invisible'}`}
-              />
-            </>
-          ) : null} */}

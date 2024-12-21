@@ -20,6 +20,9 @@ export type StravaPhoto = {
     [key: number]: string
   }
   video_url?: string
+  sizes: {
+    [key: number]: [number, number]
+  }
 }
 
 export type Zone = {

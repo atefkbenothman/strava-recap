@@ -10,6 +10,14 @@
   font-size: 12px;
 }
 
+video {
+  overflow: hidden;
+  border-radius: 0.25rem;
+  width: 230px;
+  height: 300px;
+  object-fit: cover;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

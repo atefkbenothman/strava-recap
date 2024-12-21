@@ -57,11 +57,11 @@ export default function Photo() {
           setApi={setApi}
           opts={{ loop: true }}
         >
-          <CarouselContent>
+          <CarouselContent className="-ml-6">
             {photo && photo.map((p, idx) => {
               if (p.video_url) {
                 return (
-                  <CarouselItem key={idx} className="flex items-center justify-center overflow-hidden">
+                  <CarouselItem key={idx} className="flex items-center justify-center overflow-hidden pl-6">
                     <ReactPlayer
                       url={p.video_url.split("?")[0]}
                       loop
@@ -74,7 +74,7 @@ export default function Photo() {
                 )
               } else {
                 return (
-                  <CarouselItem key={idx} className="flex items-center justify-center">
+                  <CarouselItem key={idx} className="flex items-center justify-center pl-6">
                     <img src={p.urls[2000]} className="rounded h-[350px]" />
                   </CarouselItem>
                 )

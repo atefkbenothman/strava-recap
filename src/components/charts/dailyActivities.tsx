@@ -7,6 +7,7 @@ import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 
 const colors: ThemeInput = {
   dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
+  light: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353']
 }
 
 type CalendarData = {
@@ -70,7 +71,7 @@ export default function DailyActivities() {
         <p className="font-semibold text-sm">Daily Activities</p>
       </div>
       <div className="flex h-full items-center justify-center p-4">
-        {data.length > 0 ? (
+        {data && data.length > 0 ? (
           <ActivityCalendar data={data} theme={colors} />
         ) : null}
       </div>

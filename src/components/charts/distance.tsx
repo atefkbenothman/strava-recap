@@ -7,7 +7,6 @@ import {
   Bar,
   XAxis,
   Tooltip,
-  Legend,
 } from "recharts"
 import { Rocket } from 'lucide-react'
 

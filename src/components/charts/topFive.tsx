@@ -20,9 +20,9 @@ type CardData = {
 }
 
 /*
- * Highest records
+ * Top 5 activities (distance) per sport
 */
-export default function Records() {
+export default function TopFive() {
   const { activityData, units } = useStravaActivityContext()
 
   const [data, setData] = useState<CardData>()
@@ -60,8 +60,8 @@ export default function Records() {
   if (data === undefined || !activityData || activityData.all!.length === 0) {
     return (
       <Card
-        title="Records"
-        description="your top stats"
+        title="Top 5"
+        description="top five distances per sport"
         icon={<Award size={16} strokeWidth={2} />}
       >
         <NoData />
@@ -71,8 +71,8 @@ export default function Records() {
 
   return (
     <Card
-      title="Records"
-      description="your top stats"
+      title="Top 5"
+      description="top five distances per sport"
       icon={<Award size={16} strokeWidth={2} />}
     >
       <div className="w-full grid grid-cols-2 p-2 gap-2">

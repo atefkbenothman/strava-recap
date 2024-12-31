@@ -10,7 +10,7 @@ import {
   Tooltip,
   Cell
 } from "recharts"
-import { Zap } from 'lucide-react'
+import { Bike } from "lucide-react"
 import Card from "../common/card"
 import NoData from "../common/noData"
 
@@ -49,7 +49,7 @@ export default function SportTypes() {
       <Card
         title="Sport Types"
         description="number of activities per sport type"
-        icon={<Zap size={16} strokeWidth={2} />}
+        icon={<Bike size={16} strokeWidth={2} />}
       >
         <NoData />
       </Card>
@@ -62,7 +62,7 @@ export default function SportTypes() {
       description="number of activities per sport type"
       total={numSportTypes}
       totalUnits="sports"
-      icon={<Zap size={16} strokeWidth={2} />}
+      icon={<Bike size={16} strokeWidth={2} />}
     >
       <ResponsiveContainer height={350} width="90%">
         <PieChart>

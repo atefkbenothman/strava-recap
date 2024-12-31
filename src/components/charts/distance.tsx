@@ -81,7 +81,6 @@ export default function Distance() {
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
           <Tooltip />
-          <Legend />
           <XAxis
             type="category"
             dataKey="month"

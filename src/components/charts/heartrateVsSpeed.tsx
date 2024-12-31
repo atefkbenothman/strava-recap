@@ -31,6 +31,9 @@ type RegressionCoefficients = {
   intercept: number
 }
 
+const MIN_HEARTRATE = 60
+const MAX_HEARTRATE = 220
+
 /*
  * Heartrate vs perceived exertion
 */
@@ -84,17 +87,22 @@ export default function HeartrateVsSpeed() {
     }
     formatData()
   }, [activityData, colorPalette, units])
+
   const handleDotClick = (data: any) => {
     if (data.url) {
       window.open(data.url, "_blank")
     }
   }
 
-  // calculate regression line endpoints
+  // Calculate regression line endpoints while respecting axis bounds
   const maxSpeed = Math.max(...data.map(d => d.speed))
-  const extendedMaxSpeed = maxSpeed * 1.2
-  const startY = regression.slope * 0 + regression.intercept
-  const endY = regression.slope * extendedMaxSpeed + regression.intercept
+  const minSpeed = 0
+  // Calculate Y values for min and max X points
+  let startY = regression.slope * minSpeed + regression.intercept
+  let endY = regression.slope * maxSpeed + regression.intercept
+  // Clamp Y values to the heart rate bounds
+  startY = Math.max(MIN_HEARTRATE, Math.min(MAX_HEARTRATE, startY))
+  endY = Math.max(MIN_HEARTRATE, Math.min(MAX_HEARTRATE, endY))
 
   if (data.length === 0) {
     return (
@@ -140,7 +148,7 @@ export default function HeartrateVsSpeed() {
             dataKey="heartrate"
             name="heartrate"
             unit="bpm"
-            domain={[90, 210]}
+            domain={[MIN_HEARTRATE, MAX_HEARTRATE]}
             tick={{
               fontSize: 10,
               color: darkMode ? "#c2c2c2" : "#666",
@@ -152,8 +160,8 @@ export default function HeartrateVsSpeed() {
           <ReferenceLine
             ifOverflow="extendDomain"
             segment={[
-              { x: 0, y: startY },
-              { x: extendedMaxSpeed, y: endY }
+              { x: minSpeed, y: startY },
+              { x: maxSpeed, y: endY }
             ]}
             stroke={darkMode ? "#c2c2c2" : "black"}
             strokeDasharray="3 3"
@@ -165,56 +173,3 @@ export default function HeartrateVsSpeed() {
     </Card>
   )
 }
-
-// type RegressionLine = {
-//   slope: number
-//   intercept: number
-// }
-
-// type ChartBounds = {
-//   minX: number
-//   minY: number
-//   maxX: number
-//   maxY: number
-// }
-
-// const xAxisDomain = [0, Math.max(...data.map(d => d.speed))]
-// const minX = xAxisDomain[0]
-// const maxX = xAxisDomain[1]
-
-// const minY = regressionLine ? regressionLine.slope * minX + regressionLine.intercept : 0
-// const maxY = regressionLine ? regressionLine.slope * maxX + regressionLine.intercept : 0
-
-
-// const [regressionLine, setRegressionLine] = useState<RegressionLine | null>()
-// const [bounds, setBounds] = useState<ChartBounds | null>()
-// if (res.length > 1) {
-//   const regression = calculateRegression(res)
-//   setRegressionLine(regression)
-// }
-// console.log(minX, maxX, minY, maxY)
-// setBounds({ minX, minY, maxX, maxY })
-
-// function calculateRegression(d: ScatterChartData[]) {
-//   const n = d.length
-//   const sumX = data.reduce((sum, d) => sum + d.speed, 0)
-//   const sumY = data.reduce((sum, d) => sum + d.heartrate, 0)
-//   const sumXY = data.reduce((sum, d) => sum + d.speed * d.heartrate, 0)
-//   const sumX2 = data.reduce((sum, d) => sum + d.speed ** 2, 0)
-//   const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX ** 2)
-//   const intercept = (sumY - slope * sumX) / n
-//   return { slope, intercept }
-// }
-{/* {regressionLine && (
-            <ReferenceLine
-              ifOverflow="extendDomain"
-              segment={[
-                // { x: bounds.minX, y: bounds.minY },
-                // { x: bounds.maxX, y: bounds.maxY }
-                { x: minX, y: minY },
-                { x: maxX, y: maxY }
-              ]}
-              stroke="black"
-              strokeDasharray="3 3"
-            />
-          )} */}

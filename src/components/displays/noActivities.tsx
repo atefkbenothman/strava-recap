@@ -28,7 +28,7 @@ export default function NoActivities() {
             <>
               <p>No activities from <span className="font-bold text-xl">{currentYear}</span></p>
               <div className="flex gap-6">
-                <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(thisYear)}>/{thisYear}</a>
+                <a className="underline text-left hover:cursor-pointer w-fit text-blue-500" onClick={() => updateYear(2024)}>/{2024}</a>
               </div>
             </>
           )}

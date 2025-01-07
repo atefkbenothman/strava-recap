@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
 import { AboutDialog } from "../common/aboutDialog"
@@ -10,6 +11,36 @@ export default function Unauthenticated() {
   const { currentYear } = useCurrentYearContext()
   const { login } = useStravaAuthContext()
   const { darkMode } = useThemeContext()
+
+  const [showAthleteLimitError, setShowAthleteLimitError] = useState<boolean>(false)
+
+  const handleLogin = () => {
+    setShowAthleteLimitError(true)
+  }
+
+  if (showAthleteLimitError) {
+    return (
+      <div className={darkMode ? "dark" : ""}>
+        <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+          <div className="flex flex-col gap-4 px-8">
+            <div className="flex flex-col gap-2 grow-0">
+              <div className="flex flex-col gap-6">
+                <p className="break-word">Thank you for taking the time to check out Fitness Recap 🙏</p>
+                <p className="break-word">Unfortunately Strava's athlete count limit has been exceeded for this website at the moment.</p>
+                <p className="break-word">I have contacted Strava support and waiting to hear back.</p>
+                <p className="break-word font-semibold">Please check back later today or tomorrow.</p>
+                <p className="break-word">Thank you for your patience and understanding!</p>
+                <div className="flex gap-12">
+                  <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={() => setShowAthleteLimitError(false)}>Back</p>
+                  <p className="text-blue-500 underline hover:cursor-pointer w-fit" onClick={() => login(currentYear)}>Continue</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -38,7 +69,7 @@ export default function Unauthenticated() {
             width={160}
             src={connectWithStravaLogo}
             alt="login with strava"
-            onClick={() => login(currentYear)}
+            onClick={handleLogin}
           />
         </div>
       </div>

@@ -15,7 +15,7 @@ export default function Error({ message, code }: ErrorProps) {
 
   const thisYear = new Date().getFullYear()
 
-  if (code && code === 429) {
+  if (code && (code === 429 || code === 403)) {
     return (
       <div className={darkMode ? "dark" : ""}>
         <div className="w-screen h-screen dark:bg-[#121212] dark:text-white">

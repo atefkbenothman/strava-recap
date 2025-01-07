@@ -36,7 +36,7 @@ export const stravaApi = {
         headers: headers ?? {}
       })
       if (!res.ok) {
-        throw new Error(`Failed api call to ${url}: ${res.status} ${res.statusText}`)
+        throw new Error(`Failed api call to ${url} <${res.status}>`)
       }
       Sentry.captureMessage(url, {
         level: "log",

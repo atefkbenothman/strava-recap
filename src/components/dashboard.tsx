@@ -91,9 +91,10 @@ export default function Dashboard() {
   }
 
   if (error) {
+    const errorCode = parseInt(error.message.slice(error.message.indexOf('<') + 1, error.message.indexOf('>')), 10) || null;
     return (
       <div>
-        <Error message={error.message} />
+        <Error message={error.message} code={errorCode} />
         <Analytics />
       </div>
     )

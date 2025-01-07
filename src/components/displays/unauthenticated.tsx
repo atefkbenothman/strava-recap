@@ -27,7 +27,8 @@ export default function Unauthenticated() {
               <div className="flex flex-col gap-6">
                 <p className="break-word">Thank you for taking the time to check out Fitness Recap 🙏</p>
                 <p className="break-word">Unfortunately Strava's athlete count limit has been exceeded for this website at the moment.</p>
-                <p className="break-word">I have contacted Strava support and waiting to hear back.</p>
+                <p className="break-word">If you are a new user, you may run into a 403 error.</p>
+                <p className="break-word">I have contacted Strava support to increase the limits and waiting to hear back.</p>
                 <p className="break-word font-semibold">Please check back later today or tomorrow.</p>
                 <p className="break-word">Thank you for your patience and understanding!</p>
                 <div className="flex gap-12">

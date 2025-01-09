@@ -7,6 +7,7 @@ import {
   Bar,
   XAxis,
   Tooltip,
+  Legend
 } from "recharts"
 import { Rocket } from 'lucide-react'
 
@@ -106,6 +107,7 @@ export default function Distance() {
               }}
             />
           ))}
+          <Legend />
         </BarChart>
       </ResponsiveContainer>
     </Card>

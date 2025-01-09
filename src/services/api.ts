@@ -94,16 +94,22 @@ export const stravaApi = {
     return data.reverse()
   },
   getAllActivities: async (token: string, year: number): Promise<StravaActivity[]> => {
+    // continuously fetch all activities until we get less than 200 activities (we've reached the last page)
     const perPage = 200
-    const totalPages = 3
-    const allParams = []
-    for (let i = 1; i <= totalPages; i++) {
-      const options = { page: i, perPage: perPage, year: year }
-      allParams.push(options)
-    }
+    let currPage = 1
     const allActivities: StravaActivity[] = []
-    const pageData = await Promise.all(allParams.map(options => stravaApi.getActivities(token, options)))
-    allActivities.push(...pageData.flat())
+    while (true) {
+      const activities = await stravaApi.getActivities(token, {
+        page: currPage,
+        perPage: perPage,
+        year: year
+      })
+      allActivities.push(...activities)
+      if (activities.length < perPage) {
+        break
+      }
+      currPage++
+    }
     return allActivities
   },
   getAthleteZones: async (token: string): Promise<StravaAthleteZones> => {

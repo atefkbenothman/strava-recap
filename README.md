@@ -1,7 +1,9 @@
 # Fitness Recap
+![Vercel](https://vercelbadge.vercel.app/api/atefkbenothman/strava-recap)
+
 Explore yearly recaps of your Strava activities
 
-![Screen Shot 2025-01-05 at 10 55 22 PM](https://github.com/user-attachments/assets/e9ac8068-6d69-4b51-81a4-e1fdb25016a3)
+<img src="https://github.com/user-attachments/assets/e9ac8068-6d69-4b51-81a4-e1fdb25016a3" alt="Screenshot" width="400">
 
 ## Tech Stack
 * React + Vite

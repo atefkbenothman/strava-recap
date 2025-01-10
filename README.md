@@ -12,7 +12,14 @@ Explore yearly recaps of your Strava activities
 * Mapbox
 
 ## Local Development
-1. Create a `.env` file in the root directory with the following key/value pairs:
+1. Create an API application on Strava. Obtain your `Client ID` and `Client Secret`
+
+2. Clone the repo
+```bash
+git clone https://github.com/atefkbenothman/strava-recap.git
+```
+
+3. Create a `.env` file in the root directory with the following key/value pairs:
 ```txt
 VITE_STRAVA_CLIENT_ID=<strava client id>
 VITE_STRAVA_CLIENT_SECRET=<strava client secret>
@@ -20,12 +27,12 @@ VITE_STRAVA_REDIRECT_URI_DEV=<localhost>
 VITE_MAPBOX_ACCESS_TOKEN=<mapbox access token>
 ```
 
-2. Install dependencies
+4. Install dependencies
 ```bash
 npm install
 ```
 
-3. Start dev server
+5. Start dev server
 ```bash
 npm run dev
 ```

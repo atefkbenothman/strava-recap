@@ -1,6 +1,15 @@
 import { useEffect, useState } from "react"
-import { unitConversion } from "../../utils/utils"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext";
+import { useThemeContext } from "../../hooks/useThemeContext";
+import { UnitDefinitions } from "../../types/activity"
 import { SportType } from "../../types/strava"
+import {
+  unitConversion,
+  calculateTrendLine,
+  TrendCoefficients,
+  ReferenceLinePoints,
+  calculateTrendLinePoints
+} from "../../utils/utils"
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -14,9 +23,6 @@ import {
 import Card from "../common/card";
 import NoData from "../common/noData"
 import { HeartPulse } from "lucide-react"
-import { UnitDefinitions } from "../../types/activity"
-import { useStravaActivityContext } from "../../hooks/useStravaActivityContext";
-import { useThemeContext } from "../../hooks/useThemeContext";
 
 
 type ScatterChartData = {
@@ -26,13 +32,8 @@ type ScatterChartData = {
   fill: string
 }
 
-type RegressionCoefficients = {
-  slope: number
-  intercept: number
-}
-
-const MIN_HEARTRATE = 60
-const MAX_HEARTRATE = 220
+const X_OFFSET = 2
+const Y_OFFSET = 25
 
 /*
  * Heartrate vs perceived exertion
@@ -42,26 +43,21 @@ export default function HeartrateVsSpeed() {
   const { darkMode, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  const [regression, setRegression] = useState<RegressionCoefficients>({ slope: 0, intercept: 0 })
+  const [trend, setTrend] = useState<TrendCoefficients>(
+    {
+      slope: 0,
+      intercept: 0,
+      canShowLine: false
+    }
+  )
+  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>(
+    [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 }
+    ]
+  )
 
   useEffect(() => {
-    function calculateLinearRegression(data: ScatterChartData[]): RegressionCoefficients {
-      const n = data.length
-      if (n === 0) return { slope: 0, intercept: 0 }
-      // calculate means
-      const meanX = data.reduce((sum, point) => sum + point.speed, 0) / n
-      const meanY = data.reduce((sum, point) => sum + point.heartrate, 0) / n
-      // calculate slope
-      const numerator = data.reduce((sum, point) => {
-        return sum + (point.speed - meanX) * (point.heartrate - meanY)
-      }, 0)
-      const denominator = data.reduce((sum, point) => {
-        return sum + Math.pow(point.speed - meanX, 2)
-      }, 0)
-      const slope = numerator / denominator
-      const intercept = meanY - slope * meanX
-      return { slope, intercept }
-    }
     function formatData() {
       if (!activityData) return
       try {
@@ -80,7 +76,7 @@ export default function HeartrateVsSpeed() {
           }
         })
         setData(res)
-        setRegression(calculateLinearRegression(res))
+        setTrend(calculateTrendLine(res, "speed", "heartrate"))
       } catch (err) {
         console.warn(err)
       }
@@ -88,21 +84,24 @@ export default function HeartrateVsSpeed() {
     formatData()
   }, [activityData, colorPalette, units])
 
+  useEffect(() => {
+    if (trend.canShowLine) {
+      const xMax = Math.max(...data.map(d => (d["speed"])))
+      const xMin = Math.min(...data.map(d => (d["speed"])))
+      const yMax = Math.max(...data.map(d => (d["heartrate"])))
+      const yMin = Math.min(...data.map(d => (d["heartrate"])))
+      console.log(xMax, xMin, yMax, yMin)
+      setReferenceLinePoints(calculateTrendLinePoints(trend, { xMin: xMin - X_OFFSET, xMax: xMax * 10, yMin: yMin - Y_OFFSET, yMax: yMax * 10 }))
+    } else {
+      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
+    }
+  }, [data, trend])
+
   const handleDotClick = (data: any) => {
     if (data.url) {
       window.open(data.url, "_blank")
     }
   }
-
-  // Calculate regression line endpoints while respecting axis bounds
-  const maxSpeed = Math.max(...data.map(d => d.speed))
-  const minSpeed = 0
-  // Calculate Y values for min and max X points
-  let startY = regression.slope * minSpeed + regression.intercept
-  let endY = regression.slope * maxSpeed + regression.intercept
-  // Clamp Y values to the heart rate bounds
-  startY = Math.max(MIN_HEARTRATE, Math.min(MAX_HEARTRATE, startY))
-  endY = Math.max(MIN_HEARTRATE, Math.min(MAX_HEARTRATE, endY))
 
   if (data.length === 0) {
     return (
@@ -135,20 +134,20 @@ export default function HeartrateVsSpeed() {
             dataKey="speed"
             name="speed"
             unit={UnitDefinitions[units].speed}
-            domain={[0, 'auto']}
             tick={{
               fontSize: 10,
               color: darkMode ? "#c2c2c2" : "#666",
               fill: darkMode ? "#c2c2c2" : "#666",
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
+            domain={[(dataMin: number) => (dataMin - X_OFFSET), (dataMax: number) => (dataMax + X_OFFSET)]}
+            allowDecimals={false}
           />
           <YAxis
             type="number"
             dataKey="heartrate"
             name="heartrate"
             unit="bpm"
-            domain={[MIN_HEARTRATE, MAX_HEARTRATE]}
             tick={{
               fontSize: 10,
               color: darkMode ? "#c2c2c2" : "#666",
@@ -156,16 +155,17 @@ export default function HeartrateVsSpeed() {
             }}
             width={38}
             stroke={darkMode ? "#c2c2c2" : "#666"}
+            allowDecimals={false}
+            domain={[(dataMin: number) => (dataMin - Y_OFFSET), (dataMax: number) => (dataMax + Y_OFFSET)]}
           />
-          <ReferenceLine
-            ifOverflow="extendDomain"
-            segment={[
-              { x: minSpeed, y: startY },
-              { x: maxSpeed, y: endY }
-            ]}
-            stroke={darkMode ? "#c2c2c2" : "black"}
-            strokeDasharray="3 3"
-          />
+          {trend.canShowLine && (
+            <ReferenceLine
+              ifOverflow="extendDomain"
+              segment={referenceLinePoints!}
+              stroke={darkMode ? "#c2c2c2" : "black"}
+              strokeDasharray="3 3"
+            />
+          )}
           <ZAxis range={[30, 40]} />
           <Tooltip />
         </ScatterChart>

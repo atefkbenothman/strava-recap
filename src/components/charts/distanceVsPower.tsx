@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
-import { unitConversion } from "../../utils/utils"
+import {
+  unitConversion,
+  calculateTrendLine,
+  TrendCoefficients,
+  ReferenceLinePoints,
+  calculateTrendLinePoints
+} from "../../utils/utils"
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -25,10 +31,8 @@ type ScatterChartData = {
   fill: string
 }
 
-type RegressionCoefficients = {
-  slope: number
-  intercept: number
-}
+const X_OFFSET = 1
+const Y_OFFSET = 20
 
 /*
  * Distance vs Power output
@@ -38,24 +42,21 @@ export default function DistanceVsPower() {
   const { colorPalette, darkMode } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  const [regression, setRegression] = useState<RegressionCoefficients>({ slope: 0, intercept: 0 })
+  const [trend, setTrend] = useState<TrendCoefficients>(
+    {
+      slope: 0,
+      intercept: 0,
+      canShowLine: false
+    }
+  )
+  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>(
+    [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 }
+    ]
+  )
 
   useEffect(() => {
-    function calculateLinearRegression(data: ScatterChartData[]): RegressionCoefficients {
-      const n = data.length
-      if (n === 0) return { slope: 0, intercept: 0 }
-      const meanX = data.reduce((sum, point) => sum + point.distance, 0) / n
-      const meanY = data.reduce((sum, point) => sum + point.power, 0) / n
-      const numerator = data.reduce((sum, point) => {
-        return sum + (point.distance - meanX) * (point.power - meanY)
-      }, 0)
-      const denominator = data.reduce((sum, point) => {
-        return sum + Math.pow(point.distance - meanX, 2)
-      }, 0)
-      const slope = numerator / denominator
-      const intercept = meanY - slope * meanX
-      return { slope, intercept }
-    }
     function formatData() {
       if (!activityData) return
       const res: ScatterChartData[] = []
@@ -68,16 +69,21 @@ export default function DistanceVsPower() {
         res.push({ distance: distance, power: power, url: `https://www.strava.com/activities/${id}`, fill: colorPalette[sportType]! })
       })
       setData(res)
-      setRegression(calculateLinearRegression(res))
+      setTrend(calculateTrendLine(res, "distance", "power"))
     }
     formatData()
   }, [activityData, colorPalette, units])
 
-  // Calculate regression line endpoints
-  const maxDistance = Math.max(...data.map(d => d.distance))
-  const extendedMaxDistance = maxDistance * 1.2
-  const startY = regression.slope * 0 + regression.intercept
-  const endY = regression.slope * extendedMaxDistance + regression.intercept
+  useEffect(() => {
+    if (trend.canShowLine) {
+      const xMax = Math.max(...data.map(d => (d["distance"])))
+      const yMax = Math.max(...data.map(d => (d["power"])))
+      const yMin = Math.min(...data.map(d => (d["power"])))
+      setReferenceLinePoints(calculateTrendLinePoints(trend, { xMin: 0, xMax: xMax * 10, yMin: yMin - Y_OFFSET, yMax: yMax * 10 }))
+    } else {
+      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
+    }
+  }, [data, trend])
 
   const handleDotClick = (data: any) => {
     if (data.url) {
@@ -121,31 +127,33 @@ export default function DistanceVsPower() {
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
-            domain={[0, 'auto']}
+            domain={[0, (dataMax: number) => (dataMax + X_OFFSET)]}
+            allowDecimals={false}
           />
           <YAxis
             type="number"
             dataKey="power"
             name="power"
             unit="w"
-            domain={["auto", "auto"]}
+            // domain={["auto", "auto"]}
             tick={{
               fontSize: 10,
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
             width={38}
+            allowDecimals={false}
+            domain={[(dataMin: number) => (dataMin - Y_OFFSET), (dataMax: number) => (dataMax + Y_OFFSET)]}
           />
           <Tooltip />
-          <ReferenceLine
-            ifOverflow="extendDomain"
-            segment={[
-              { x: 0, y: startY },
-              { x: extendedMaxDistance, y: endY }
-            ]}
-            stroke={darkMode ? "#c2c2c2" : "black"}
-            strokeDasharray="3 3"
-          />
+          {trend.canShowLine && (
+            <ReferenceLine
+              ifOverflow="extendDomain"
+              segment={referenceLinePoints!}
+              stroke={darkMode ? "#c2c2c2" : "black"}
+              strokeDasharray="3 3"
+            />
+          )}
           <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>

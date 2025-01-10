@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react"
-import { unitConversion } from "../../utils/utils"
+import {
+  ReferenceLinePoints,
+  TrendCoefficients,
+  calculateTrendLine,
+  calculateTrendLinePoints,
+  unitConversion
+} from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
   ResponsiveContainer,
@@ -25,6 +31,9 @@ type ScatterChartData = {
   fill: string
 }
 
+const X_OFFSET = 3
+const Y_OFFSET = 3
+
 /*
  * Elevation gained per distance
  */
@@ -33,7 +42,19 @@ export default function DistanceVsElevation() {
   const { colorPalette, darkMode } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  const [avgElevationPerDistance, setAvgElevationPerDistance] = useState<number>(0)
+  const [trend, setTrend] = useState<TrendCoefficients>(
+    {
+      slope: 0,
+      intercept: 0,
+      canShowLine: false
+    }
+  )
+  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>(
+    [
+      { x: 0, y: 0 },
+      { x: 0, y: 0 }
+    ]
+  )
 
   useEffect(() => {
     function formatData() {
@@ -52,11 +73,20 @@ export default function DistanceVsElevation() {
         totalElevation += elevation
       })
       setData(res)
-      const avg = Math.round(totalElevation / totalDistance)
-      setAvgElevationPerDistance(avg)
+      setTrend(calculateTrendLine(res, "distance", "elevation"))
     }
     formatData()
   }, [activityData, colorPalette, units])
+
+  useEffect(() => {
+    if (trend.canShowLine) {
+      const xMax = Math.max(...data.map(d => (d["distance"])))
+      const yMax = Math.max(...data.map(d => (d["elevation"])))
+      setReferenceLinePoints(calculateTrendLinePoints(trend, { xMin: 0, xMax: xMax * 10, yMin: 0, yMax: yMax * 10 }))
+    } else {
+      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
+    }
+  }, [data, trend])
 
   const handleDotClick = (data: any) => {
     if (data.url) {
@@ -82,7 +112,7 @@ export default function DistanceVsElevation() {
       description="elevation gained per distance"
       icon={<ChartNoAxesCombined size={16} strokeWidth={2} />}
     >
-      <ResponsiveContainer height={350} width="90%">
+      <ResponsiveContainer height={350} width="90%" className="overflow-hidden">
         <ScatterChart>
           <Scatter
             data={data}
@@ -100,7 +130,8 @@ export default function DistanceVsElevation() {
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
-            domain={[0, 'auto']}
+            domain={[0, (dataMax: number) => (dataMax + X_OFFSET)]}
+            allowDecimals={false}
           />
           <YAxis
             type="number"
@@ -113,17 +144,18 @@ export default function DistanceVsElevation() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
             width={38}
+            allowDecimals={false}
+            domain={[0, (dataMax: number) => (dataMax + Y_OFFSET)]}
           />
+          {trend.canShowLine && (
+            <ReferenceLine
+              ifOverflow="extendDomain"
+              segment={referenceLinePoints!}
+              stroke={darkMode ? "#c2c2c2" : "black"}
+              strokeDasharray="3 3"
+            />
+          )}
           <Tooltip />
-          <ReferenceLine
-            ifOverflow="extendDomain"
-            segment={[
-              { x: 0, y: 0 },
-              { x: Math.max(...data.map(d => d.distance)), y: Math.max(...data.map(d => d.distance)) * avgElevationPerDistance }
-            ]}
-            stroke={darkMode ? "#c2c2c2" : "black"}
-            strokeDasharray="3 3"
-          />
           <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>

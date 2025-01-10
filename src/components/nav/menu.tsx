@@ -81,7 +81,7 @@ export default function Menu({ shuffle }: MenuProps) {
           {/* Filter Picker */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Filter</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30">
+            <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30 max-w-[100px]">
               <DropdownMenuItem
                 className={cn(
                   'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
@@ -97,7 +97,7 @@ export default function Menu({ shuffle }: MenuProps) {
                 <div key={idx}>
                   <DropdownMenuItem
                     className={cn(
-                      'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
+                      'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white break-all',
                       sport === filter && `text-white bg-slate-700`
                     )}
                     onClick={() => setFilter(sport)}

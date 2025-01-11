@@ -6,7 +6,10 @@ import {
   calculateTrendLine,
   TrendCoefficients,
   ReferenceLinePoints,
-  calculateTrendLinePoints
+  calculateTrendLinePoints,
+  ChartBounds,
+  getDataBounds,
+  calculateTicks
 } from "../../utils/utils"
 import {
   ResponsiveContainer,
@@ -20,9 +23,10 @@ import {
 } from "recharts"
 import Card from "../common/card"
 import { Zap } from 'lucide-react'
-import { SportType } from "../../types/strava"
+import { SportType, StravaActivity } from "../../types/strava"
 import { UnitDefinitions } from "../../types/activity"
 import NoData from "../common/noData"
+import { ColorPalette } from "../../contexts/themeContext"
 
 type ScatterChartData = {
   distance: number
@@ -33,6 +37,23 @@ type ScatterChartData = {
 
 const X_OFFSET = 1
 const Y_OFFSET = 20
+const TICK_COUNT = 5
+
+const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette) => {
+  if (!data || data.length === 0) {
+    return []
+  }
+  return data
+    .filter(act => act.distance && act.average_watts)
+    .map(act => (
+      {
+        distance: Number(unitConversion.convertDistance(act.distance!, units).toFixed(2)),
+        power: act.average_watts!,
+        url: `https://www.strava.com/activities/${act.id}`,
+        fill: colorPalette[act.sport_type! as SportType]!
+      }
+    ))
+}
 
 /*
  * Distance vs Power output
@@ -42,48 +63,59 @@ export default function DistanceVsPower() {
   const { colorPalette, darkMode } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  const [trend, setTrend] = useState<TrendCoefficients>(
-    {
-      slope: 0,
-      intercept: 0,
-      canShowLine: false
-    }
-  )
-  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>(
-    [
-      { x: 0, y: 0 },
-      { x: 0, y: 0 }
-    ]
-  )
+  const [trend, setTrend] = useState<TrendCoefficients>({
+    slope: 0,
+    intercept: 0,
+    canShowLine: false
+  })
+  const [bounds, setBounds] = useState<ChartBounds>({
+    xMin: 0,
+    xMax: 0,
+    yMin: 0,
+    yMax: 0
+  })
+  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>([
+    { x: 0, y: 0 },
+    { x: 0, y: 0 }
+  ])
+  const [ticks, setTicks] = useState<{ xAxisTicks: number[]; yAxisTicks: number[] }>({
+    xAxisTicks: [],
+    yAxisTicks: []
+  })
 
   useEffect(() => {
-    function formatData() {
-      if (!activityData) return
-      const res: ScatterChartData[] = []
-      activityData.all!.forEach(act => {
-        const id = act.id!
-        const distance = Math.round(unitConversion.convertDistance(act.distance!, units))
-        const power = act.average_watts
-        const sportType = act.sport_type! as SportType
-        if (!distance || !power) return
-        res.push({ distance: distance, power: power, url: `https://www.strava.com/activities/${id}`, fill: colorPalette[sportType]! })
+    if (!activityData) return
+    try {
+      // format data to fit recharts schema
+      const sanitizedData = sanitizeData(activityData.all!, units, colorPalette)
+      setData(sanitizedData)
+      // calculate data bounds
+      const dataBounds = getDataBounds(sanitizedData, "distance", "power")
+      setBounds(dataBounds)
+      setTicks({
+        xAxisTicks: calculateTicks(Math.round(dataBounds.xMin), Math.round(dataBounds.xMax), TICK_COUNT),
+        yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
       })
-      setData(res)
-      setTrend(calculateTrendLine(res, "distance", "power"))
-    }
-    formatData()
-  }, [activityData, colorPalette, units])
-
-  useEffect(() => {
-    if (trend.canShowLine) {
-      const xMax = Math.max(...data.map(d => (d["distance"])))
-      const yMax = Math.max(...data.map(d => (d["power"])))
-      const yMin = Math.min(...data.map(d => (d["power"])))
-      setReferenceLinePoints(calculateTrendLinePoints(trend, { xMin: 0, xMax: xMax * 10, yMin: yMin - Y_OFFSET, yMax: yMax * 10 }))
-    } else {
+      // calculate trend line
+      const trend = calculateTrendLine(sanitizedData, "distance", "power")
+      setTrend(trend)
+      if (trend.canShowLine) {
+        setReferenceLinePoints(calculateTrendLinePoints(trend, {
+          xMin: dataBounds.xMin - X_OFFSET,
+          xMax: dataBounds.xMax * 10,
+          yMin: dataBounds.yMin - Y_OFFSET,
+          yMax: dataBounds.yMax * 10
+        }))
+      }
+    } catch (err) {
+      console.warn(err)
+      setData([])
+      setTrend({ slope: 0, intercept: 0, canShowLine: false })
+      setBounds({ xMin: 0, xMax: 0, yMin: 0, yMax: 0 })
       setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
+      setTicks({ xAxisTicks: [], yAxisTicks: [] })
     }
-  }, [data, trend])
+  }, [activityData, colorPalette, units])
 
   const handleDotClick = (data: any) => {
     if (data.url) {
@@ -124,26 +156,31 @@ export default function DistanceVsPower() {
             unit={UnitDefinitions[units].distance}
             tick={{
               fontSize: 10,
+              color: darkMode ? "#c2c2c2" : "#666",
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
-            domain={[0, (dataMax: number) => (dataMax + X_OFFSET)]}
+            domain={[bounds.xMin - X_OFFSET, bounds.xMax + X_OFFSET]}
             allowDecimals={false}
+            ticks={ticks.xAxisTicks}
+            interval={0}
           />
           <YAxis
             type="number"
             dataKey="power"
             name="power"
             unit="w"
-            // domain={["auto", "auto"]}
             tick={{
               fontSize: 10,
+              color: darkMode ? "#c2c2c2" : "#666",
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
             width={38}
             allowDecimals={false}
-            domain={[(dataMin: number) => (dataMin - Y_OFFSET), (dataMax: number) => (dataMax + Y_OFFSET)]}
+            domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
+            ticks={ticks.yAxisTicks}
+            interval={0}
           />
           <Tooltip />
           {trend.canShowLine && (

@@ -110,6 +110,11 @@ export default function HeartrateVsSpeed() {
       }
     } catch (err) {
       console.warn(err)
+      setData([])
+      setTrend({ slope: 0, intercept: 0, canShowLine: false })
+      setBounds({ xMin: 0, xMax: 0, yMin: 0, yMax: 0 })
+      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
+      setTicks({ xAxisTicks: [], yAxisTicks: [] })
     }
   }, [activityData, colorPalette, units])
 
@@ -159,7 +164,7 @@ export default function HeartrateVsSpeed() {
             domain={[bounds.xMin - X_OFFSET, bounds.xMax + X_OFFSET]}
             allowDecimals={false}
             ticks={ticks.xAxisTicks}
-            interval="preserveStartEnd"
+            interval={0}
           />
           <YAxis
             type="number"
@@ -176,7 +181,7 @@ export default function HeartrateVsSpeed() {
             allowDecimals={false}
             domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
             ticks={ticks.yAxisTicks}
-            interval="preserveStartEnd"
+            interval={0}
           />
           {trend.canShowLine && (
             <ReferenceLine

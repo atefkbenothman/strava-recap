@@ -22,7 +22,7 @@ export default function YearPicker() {
           />
         </PaginationItem>
         <PaginationItem>
-          <PaginationLink className="font-semibold hover:bg-transparent mx-4 dark:hover:text-white">
+          <PaginationLink className="font-bold hover:bg-transparent mx-4 dark:hover:text-white">
             {currentYear}
           </PaginationLink>
         </PaginationItem>

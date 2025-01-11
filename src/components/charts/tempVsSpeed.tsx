@@ -43,16 +43,18 @@ const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colo
   if (!data || data.length === 0) {
     return []
   }
-  return data
-    .filter(act => act.average_speed && act.average_temp)
-    .map(act => (
-      {
+  const chartData: ScatterChartData[] = []
+  for (const act of data) {
+    if (act.average_speed && act.average_temp) {
+      chartData.push({
         temp: act.average_temp!,
         speed: Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2)),
         fill: colorPalette[act.sport_type! as SportType]!,
         url: `https://www.strava.com/activities/${act.id}`
-      }
-    ))
+      })
+    }
+  }
+  return chartData
 }
 
 /*

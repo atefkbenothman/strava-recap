@@ -43,16 +43,18 @@ const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colo
   if (!data || data.length === 0) {
     return []
   }
-  return data
-    .filter(act => act.distance && act.total_elevation_gain)
-    .map(act => (
-      {
+  const chartData: ScatterChartData[] = []
+  for (const act of data) {
+    if (act.distance && act.total_elevation_gain) {
+      chartData.push({
         distance: Number(unitConversion.convertDistance(act.distance!, units).toFixed(2)),
         elevation: Number(unitConversion.convertElevation(act.total_elevation_gain!, units).toFixed(2)),
         fill: colorPalette[act.sport_type! as SportType]!,
         url: `https://www.strava.com/activities/${act.id}`
-      }
-    ))
+      })
+    }
+  }
+  return chartData
 }
 
 /*

@@ -39,20 +39,22 @@ const X_OFFSET = 1
 const Y_OFFSET = 10
 const TICK_COUNT = 5
 
-const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette) => {
+const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette): ScatterChartData[] => {
   if (!data || data.length === 0) {
     return []
   }
-  return data
-    .filter(act => act.distance && act.average_watts)
-    .map(act => (
-      {
+  const chartData: ScatterChartData[] = []
+  for (const act of data) {
+    if (act.distance && act.average_watts) {
+      chartData.push({
         distance: Number(unitConversion.convertDistance(act.distance!, units).toFixed(2)),
         power: act.average_watts!,
         url: `https://www.strava.com/activities/${act.id}`,
         fill: colorPalette[act.sport_type! as SportType]!
-      }
-    ))
+      })
+    }
+  }
+  return chartData
 }
 
 /*

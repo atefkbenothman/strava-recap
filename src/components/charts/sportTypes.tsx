@@ -13,11 +13,27 @@ import {
 import { Bike } from "lucide-react"
 import Card from "../common/card"
 import NoData from "../common/noData"
+import { ColorPalette } from "../../contexts/themeContext"
+import { ActivityData } from "../../types/activity"
 
 type PieChartData = {
   sport: SportType
   activities: number
   color: string
+}
+
+const sanitizeData = (data: ActivityData, colorPalette: ColorPalette): { chartData: PieChartData[], total: number } => {
+  if (!data || !data.bySportType || Object.keys(data.bySportType).length === 0) {
+    return { chartData: [], total: 0 }
+  }
+  const res: PieChartData[] = []
+  const sportActivities = data.bySportType!
+  Object.entries(sportActivities).forEach(([sport, activities]) => {
+    if (!activities) return
+    res.push({ sport: sport as SportType, activities: activities.length, color: colorPalette[sport as SportType]! })
+  })
+  let totalSports = Object.keys(data.bySportType!).length
+  return { chartData: res, total: totalSports }
 }
 
 /*
@@ -31,17 +47,17 @@ export default function SportTypes() {
   const [numSportTypes, setNumSportTypes] = useState<number>(0)
 
   useEffect(() => {
-    function formatData() {
-      if (!activityData) return
-      setNumSportTypes(Object.keys(activityData.bySportType!).length)
-      const res = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
-        const numActs = activityData.bySportType![sport as SportType]!.length
-        acc.push({ sport: sport as SportType, activities: numActs, color: colorPalette[sport as SportType]! })
-        return acc
-      }, [] as PieChartData[])
-      setData(res)
+    if (!activityData) return
+    try {
+      // format data to fit recharts schema
+      const { chartData, total } = sanitizeData(activityData, colorPalette)
+      setData(chartData)
+      setNumSportTypes(total)
+    } catch (err) {
+      console.warn(err)
+      setData([])
+      setNumSportTypes(0)
     }
-    formatData()
   }, [activityData, colorPalette])
 
   if (data.length === 0) {

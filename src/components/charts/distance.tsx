@@ -12,7 +12,7 @@ import {
 import { Rocket } from 'lucide-react'
 
 import Card from "../common/card"
-import { UnitDefinitions } from "../../types/activity"
+import { ActivityData, UnitDefinitions } from "../../types/activity"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
@@ -20,6 +20,35 @@ import { useThemeContext } from "../../hooks/useThemeContext"
 type BarChartData = {
   month: string
   [key: string]: number | string
+}
+
+const sanitizeData = (data: ActivityData, units: "imperial" | "metric"): { chartData: BarChartData[], total: number } => {
+  if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
+    return { chartData: [], total: 0 }
+  }
+  const res: BarChartData[] = []
+  let totalDistance = 0
+  const monthlyActivities = data.monthly!
+  Object.entries(monthlyActivities).forEach(([month, activities]) => {
+    if (!activities) return
+    const distanceBySport: Partial<Record<SportType, number>> = {} // { Run: 99, Ride: 12 }
+    for (const act of activities) {
+      if (act.distance && act.distance > 0) {
+        const sportType = act.sport_type! as SportType
+        const distance = Number(unitConversion.convertDistance(act.distance!, units).toFixed(2))
+        if (distance > 0) {
+          if (!distanceBySport[sportType]) {
+            distanceBySport[sportType] = distance
+          } else {
+            distanceBySport[sportType] += distance
+          }
+          totalDistance += distance
+        }
+      }
+    }
+    res.push({ month, ...distanceBySport })
+  })
+  return { chartData: res, total: totalDistance }
 }
 
 /*
@@ -33,32 +62,19 @@ export default function Distance() {
   const [totalDistance, setTotalDistance] = useState<number>(0)
 
   useEffect(() => {
-    function calculateDistance() {
-      if (!activityData) return
-      let totalDist = 0
-      const res: BarChartData[] = []
-      Object.keys(activityData.monthly!).forEach(month => {
-        const acts = activityData.monthly![month]!
-        const distanceBySport: Record<string, number> = {}
-        acts.forEach(a => {
-          const sportType = a.sport_type! as SportType
-          const distance = Math.round(unitConversion.convertDistance(a.distance!, units))
-          if (distance === 0) return
-          if (!distanceBySport[sportType]) {
-            distanceBySport[sportType] = 0
-          }
-          distanceBySport[sportType] += distance
-          totalDist += distance
-        })
-        res.push({ month: month, ...distanceBySport })
-      })
-      setData(res)
-      setTotalDistance(totalDist)
+    if (!activityData) return
+    try {
+      const { chartData, total } = sanitizeData(activityData, units)
+      setData(chartData)
+      setTotalDistance(total)
+    } catch (err) {
+      console.warn(err)
+      setData([])
+      setTotalDistance(0)
     }
-    calculateDistance()
   }, [activityData, units, colorPalette])
 
-  if (totalDistance === 0) {
+  if (data.length === 0) {
     return (
       <Card
         title="Distance"
@@ -80,7 +96,7 @@ export default function Distance() {
     >
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
-          <Tooltip />
+          <Tooltip formatter={d => Number(d).toFixed(2)} />
           <XAxis
             type="category"
             dataKey="month"
@@ -104,6 +120,7 @@ export default function Distance() {
                 fontSize: 9,
                 color: darkMode ? "#c2c2c2" : "#666",
                 fill: darkMode ? "#c2c2c2" : "#666",
+                formatter: ((d: string) => Number(d).toFixed(0))
               }}
             />
           ))}

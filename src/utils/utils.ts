@@ -16,7 +16,8 @@ export const unitConversion = {
       case "imperial":
         return value * 0.000621371
       default:
-        throw new Error(`Unsupported unit type: ${toUnit}`)
+        console.warn(`Unsupported unit type: ${toUnit}`)
+        return value
     }
   },
   convertElevation: (value: number, toUnit: Units): number => {
@@ -26,7 +27,8 @@ export const unitConversion = {
       case "imperial":
         return value * 3.28084
       default:
-        throw new Error(`Unsupported unit type: ${toUnit}`)
+        console.warn(`Unsupported unit type: ${toUnit}`)
+        return value
     }
   },
   convertTime: (value: number, toUnit: "minutes" | "hours"): number => {
@@ -36,7 +38,8 @@ export const unitConversion = {
       case "hours":
         return value / 3600
       default:
-        throw new Error(`Unsupported unit type: ${toUnit}`)
+        console.warn(`Unsupported unit type: ${toUnit}`)
+        return value
     }
   },
   convertSpeed: (value: number, toUnit: Units): number => {
@@ -46,7 +49,8 @@ export const unitConversion = {
       case "imperial":
         return value * 2.23694
       default:
-        throw new Error(`Unsupported unit type: ${toUnit}`)
+        console.warn(`Unsupported unit type: ${toUnit}`)
+        return value
     }
   }
 }

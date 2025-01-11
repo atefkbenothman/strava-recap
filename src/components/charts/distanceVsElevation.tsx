@@ -35,8 +35,8 @@ type ScatterChartData = {
   fill: string
 }
 
-const X_OFFSET = 3
-const Y_OFFSET = 3
+const X_OFFSET = 1
+const Y_OFFSET = 1
 const TICK_COUNT = 5
 
 const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette): ScatterChartData[] => {
@@ -93,17 +93,17 @@ export default function DistanceVsElevation() {
       const dataBounds = getDataBounds(sanitizedData, "distance", "elevation")
       setBounds(dataBounds)
       setTicks({
-        xAxisTicks: calculateTicks(Math.round(dataBounds.xMin), Math.round(dataBounds.xMax), TICK_COUNT),
-        yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
+        xAxisTicks: calculateTicks(0, Math.round(dataBounds.xMax), TICK_COUNT),
+        yAxisTicks: calculateTicks(0, Math.round(dataBounds.yMax), TICK_COUNT)
       })
       // calculate trend line
       const trend = calculateTrendLine(sanitizedData, "distance", "elevation")
       setTrend(trend)
       if (trend.canShowLine) {
         setReferenceLinePoints(calculateTrendLinePoints(trend, {
-          xMin: dataBounds.xMin - X_OFFSET,
+          xMin: 0,
           xMax: dataBounds.xMax * 10,
-          yMin: dataBounds.yMin - Y_OFFSET,
+          yMin: 0,
           yMax: dataBounds.yMax * 10
         }))
       }

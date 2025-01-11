@@ -36,7 +36,7 @@ type ScatterChartData = {
 }
 
 const X_OFFSET = 1
-const Y_OFFSET = 20
+const Y_OFFSET = 10
 const TICK_COUNT = 5
 
 const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette) => {
@@ -93,7 +93,7 @@ export default function DistanceVsPower() {
       const dataBounds = getDataBounds(sanitizedData, "distance", "power")
       setBounds(dataBounds)
       setTicks({
-        xAxisTicks: calculateTicks(Math.round(dataBounds.xMin), Math.round(dataBounds.xMax), TICK_COUNT),
+        xAxisTicks: calculateTicks(0, Math.round(dataBounds.xMax), TICK_COUNT),
         yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
       })
       // calculate trend line
@@ -101,7 +101,7 @@ export default function DistanceVsPower() {
       setTrend(trend)
       if (trend.canShowLine) {
         setReferenceLinePoints(calculateTrendLinePoints(trend, {
-          xMin: dataBounds.xMin - X_OFFSET,
+          xMin: 0,
           xMax: dataBounds.xMax * 10,
           yMin: dataBounds.yMin - Y_OFFSET,
           yMax: dataBounds.yMax * 10
@@ -163,7 +163,6 @@ export default function DistanceVsPower() {
             domain={[bounds.xMin - X_OFFSET, bounds.xMax + X_OFFSET]}
             allowDecimals={false}
             ticks={ticks.xAxisTicks}
-            interval={0}
           />
           <YAxis
             type="number"
@@ -180,7 +179,6 @@ export default function DistanceVsPower() {
             allowDecimals={false}
             domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
             ticks={ticks.yAxisTicks}
-            interval={0}
           />
           <Tooltip />
           {trend.canShowLine && (

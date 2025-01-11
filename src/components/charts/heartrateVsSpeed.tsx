@@ -94,7 +94,7 @@ export default function HeartrateVsSpeed() {
       const dataBounds = getDataBounds(sanitizedData, "speed", "heartrate")
       setBounds(dataBounds)
       setTicks({
-        xAxisTicks: calculateTicks(Math.round(dataBounds.xMin), Math.round(dataBounds.xMax), TICK_COUNT),
+        xAxisTicks: calculateTicks(0, Math.round(dataBounds.xMax), TICK_COUNT),
         yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
       })
       // calculate trend line
@@ -102,7 +102,7 @@ export default function HeartrateVsSpeed() {
       setTrend(trend)
       if (trend.canShowLine) {
         setReferenceLinePoints(calculateTrendLinePoints(trend, {
-          xMin: dataBounds.xMin - X_OFFSET,
+          xMin: 0,
           xMax: dataBounds.xMax * 10,
           yMin: dataBounds.yMin - Y_OFFSET,
           yMax: dataBounds.yMax * 10

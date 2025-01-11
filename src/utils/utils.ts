@@ -171,6 +171,13 @@ export function calculateTrendLinePoints(trend: TrendCoefficients, bounds: Chart
 }
 
 export function calculateTicks(min: number, max: number, count: number): number[] {
+  if (min === max) return [min]
   const step = Math.round((max - min) / (count - 1))
-  return Array.from({ length: count }, (_, i) => Math.round(min + (step * i)))
+  const ticks: number[] = []
+  for (let i = 0; i < count; i++) {
+    const value = Math.round((min + (step * i)) * 100) / 100
+    ticks.push(value)
+  }
+  // Remove any duplicate values
+  return [...new Set(ticks)]
 }

@@ -2,13 +2,16 @@ import { useEffect, useState } from "react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext";
 import { useThemeContext } from "../../hooks/useThemeContext";
 import { UnitDefinitions } from "../../types/activity"
-import { SportType } from "../../types/strava"
+import { SportType, StravaActivity } from "../../types/strava"
 import {
   unitConversion,
   calculateTrendLine,
   TrendCoefficients,
   ReferenceLinePoints,
-  calculateTrendLinePoints
+  calculateTrendLinePoints,
+  calculateTicks,
+  getDataBounds,
+  ChartBounds,
 } from "../../utils/utils"
 import {
   ResponsiveContainer,
@@ -23,6 +26,7 @@ import {
 import Card from "../common/card";
 import NoData from "../common/noData"
 import { HeartPulse } from "lucide-react"
+import { ColorPalette } from "../../contexts/themeContext";
 
 
 type ScatterChartData = {
@@ -33,7 +37,24 @@ type ScatterChartData = {
 }
 
 const X_OFFSET = 2
-const Y_OFFSET = 25
+const Y_OFFSET = 5
+const TICK_COUNT = 5
+
+const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette): ScatterChartData[] => {
+  if (!data || data.length === 0) {
+    return []
+  }
+  return data
+    .filter(act => act.average_heartrate && act.average_speed)
+    .map(act => (
+      {
+        heartrate: act.average_heartrate!,
+        speed: Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2)),
+        fill: colorPalette[act.sport_type! as SportType]!,
+        url: `https://www.strava.com/activities/${act.id}`
+      }
+    ))
+}
 
 /*
  * Heartrate vs perceived exertion
@@ -43,59 +64,54 @@ export default function HeartrateVsSpeed() {
   const { darkMode, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<ScatterChartData[]>([])
-  const [trend, setTrend] = useState<TrendCoefficients>(
-    {
-      slope: 0,
-      intercept: 0,
-      canShowLine: false
-    }
-  )
-  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>(
-    [
-      { x: 0, y: 0 },
-      { x: 0, y: 0 }
-    ]
-  )
+  const [trend, setTrend] = useState<TrendCoefficients>({
+    slope: 0,
+    intercept: 0,
+    canShowLine: false
+  })
+  const [bounds, setBounds] = useState<ChartBounds>({
+    xMin: 0,
+    xMax: 0,
+    yMin: 0,
+    yMax: 0
+  })
+  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>([
+    { x: 0, y: 0 },
+    { x: 0, y: 0 }
+  ])
+  const [ticks, setTicks] = useState<{ xAxisTicks: number[]; yAxisTicks: number[] }>({
+    xAxisTicks: [],
+    yAxisTicks: [],
+  })
 
   useEffect(() => {
-    function formatData() {
-      if (!activityData) return
-      try {
-        const res: ScatterChartData[] = []
-        let totalRatio = 0
-        let validPoints = 0
-        activityData.all!.forEach(act => {
-          const id = act.id!
-          const hr = act.average_heartrate!
-          const speed = Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2))
-          const sportType = act.sport_type! as SportType
-          if (hr && speed) {
-            res.push({ heartrate: hr, speed: speed, fill: colorPalette[sportType as SportType]!, url: `https://www.strava.com/activities/${id}` })
-            totalRatio += hr / speed
-            validPoints++
-          }
-        })
-        setData(res)
-        setTrend(calculateTrendLine(res, "speed", "heartrate"))
-      } catch (err) {
-        console.warn(err)
+    if (!activityData) return
+    try {
+      // format data to fit recharts schema
+      const sanitizedData = sanitizeData(activityData.all!, units, colorPalette)
+      setData(sanitizedData)
+      // calculate data bounds
+      const dataBounds = getDataBounds(sanitizedData, "speed", "heartrate")
+      setBounds(dataBounds)
+      setTicks({
+        xAxisTicks: calculateTicks(Math.round(dataBounds.xMin), Math.round(dataBounds.xMax), TICK_COUNT),
+        yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
+      })
+      // calculate trend line
+      const trend = calculateTrendLine(sanitizedData, "speed", "heartrate")
+      setTrend(trend)
+      if (trend.canShowLine) {
+        setReferenceLinePoints(calculateTrendLinePoints(trend, {
+          xMin: dataBounds.xMin - X_OFFSET,
+          xMax: dataBounds.xMax * 10,
+          yMin: dataBounds.yMin - Y_OFFSET,
+          yMax: dataBounds.yMax * 10
+        }))
       }
+    } catch (err) {
+      console.warn(err)
     }
-    formatData()
   }, [activityData, colorPalette, units])
-
-  useEffect(() => {
-    if (trend.canShowLine) {
-      const xMax = Math.max(...data.map(d => (d["speed"])))
-      const xMin = Math.min(...data.map(d => (d["speed"])))
-      const yMax = Math.max(...data.map(d => (d["heartrate"])))
-      const yMin = Math.min(...data.map(d => (d["heartrate"])))
-      console.log(xMax, xMin, yMax, yMin)
-      setReferenceLinePoints(calculateTrendLinePoints(trend, { xMin: xMin - X_OFFSET, xMax: xMax * 10, yMin: yMin - Y_OFFSET, yMax: yMax * 10 }))
-    } else {
-      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
-    }
-  }, [data, trend])
 
   const handleDotClick = (data: any) => {
     if (data.url) {
@@ -140,8 +156,10 @@ export default function HeartrateVsSpeed() {
               fill: darkMode ? "#c2c2c2" : "#666",
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
-            domain={[(dataMin: number) => (dataMin - X_OFFSET), (dataMax: number) => (dataMax + X_OFFSET)]}
+            domain={[bounds.xMin - X_OFFSET, bounds.xMax + X_OFFSET]}
             allowDecimals={false}
+            ticks={ticks.xAxisTicks}
+            interval="preserveStartEnd"
           />
           <YAxis
             type="number"
@@ -156,7 +174,9 @@ export default function HeartrateVsSpeed() {
             width={38}
             stroke={darkMode ? "#c2c2c2" : "#666"}
             allowDecimals={false}
-            domain={[(dataMin: number) => (dataMin - Y_OFFSET), (dataMax: number) => (dataMax + Y_OFFSET)]}
+            domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
+            ticks={ticks.yAxisTicks}
+            interval="preserveStartEnd"
           />
           {trend.canShowLine && (
             <ReferenceLine

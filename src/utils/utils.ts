@@ -71,6 +71,12 @@ export function generateColorPalette(
   return updatedColorPalette
 }
 
+export type ChartBounds = {
+  xMin: number
+  xMax: number
+  yMin: number
+  yMax: number
+}
 
 export type TrendCoefficients = {
   slope: number
@@ -82,11 +88,19 @@ type Point = {
   [key: string]: number | string
 }
 
-export function calculateTrendLine<T extends Point>(
-  data: T[],
-  xKey: keyof T,
-  yKey: keyof T
-): TrendCoefficients {
+export function getDataBounds<T extends Point>(data: T[], xKey: keyof T, yKey: keyof T): ChartBounds {
+  if (!data.length) {
+    return { xMin: 0, xMax: 0, yMin: 0, yMax: 0 }
+  }
+  return {
+    xMin: Math.min(...data.map(d => (d[xKey] as number))),
+    xMax: Math.max(...data.map(d => (d[xKey] as number))),
+    yMin: Math.min(...data.map(d => (d[yKey] as number))),
+    yMax: Math.max(...data.map(d => (d[yKey] as number)))
+  }
+}
+
+export function calculateTrendLine<T extends Point>(data: T[], xKey: keyof T, yKey: keyof T): TrendCoefficients {
   const n = data.length
   if (n <= 1) {
     return { slope: 0, intercept: 0, canShowLine: false }
@@ -123,13 +137,6 @@ export type ReferenceLinePoints = [
   }
 ]
 
-export type ChartBounds = {
-  xMin: number
-  xMax: number
-  yMin: number
-  yMax: number
-}
-
 export function calculateTrendLinePoints(trend: TrendCoefficients, bounds: ChartBounds): ReferenceLinePoints {
   // Calculate y values at xMin and xMax
   const yAtXMin = trend.slope * bounds.xMin + trend.intercept
@@ -161,4 +168,9 @@ export function calculateTrendLinePoints(trend: TrendCoefficients, bounds: Chart
     { x: startX, y: startY },
     { x: endX, y: endY }
   ]
+}
+
+export function calculateTicks(min: number, max: number, count: number): number[] {
+  const step = Math.round((max - min) / (count - 1))
+  return Array.from({ length: count }, (_, i) => Math.round(min + (step * i)))
 }

@@ -14,12 +14,38 @@ import NoData from "../common/noData"
 import Card from "../common/card"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import { ColorPalette } from "../../contexts/themeContext"
+import { ActivityData } from "../../types/activity"
 
 
 type PieChartData = {
   sport: SportType
   hours: number
   color: string
+}
+
+const sanitizeData = (data: ActivityData, colorPalette: ColorPalette): { chartData: PieChartData[], total: number } => {
+  if (!data || !data.bySportType || Object.keys(data.bySportType).length === 0) {
+    return { chartData: [], total: 0 }
+  }
+  const res: PieChartData[] = []
+  let totalHours = 0
+  const sportActivities = data.bySportType!
+  Object.entries(sportActivities).forEach(([sport, activities]) => {
+    if (!activities) return
+    let hoursBySport = 0
+    for (const act of activities) {
+      if (act.moving_time) {
+        const movingTime = unitConversion.convertTime(act.moving_time!, "hours")
+        hoursBySport += movingTime
+        totalHours += movingTime
+      }
+    }
+    if (Number(hoursBySport.toFixed(1)) > 0) {
+      res.push({ sport: sport as SportType, hours: Number(hoursBySport.toFixed(1)), color: colorPalette[sport as SportType]! })
+    }
+  })
+  return { chartData: res, total: totalHours }
 }
 
 /*
@@ -33,26 +59,16 @@ export default function TotalHours() {
   const [totalHours, setTotalHours] = useState<number>(0)
 
   useEffect(() => {
-    function calculateTotalHours() {
-      if (!activityData) return
-      let totalHrs = 0
-      const res = Object.keys(activityData.bySportType!).reduce((acc, sport) => {
-        const acts = activityData.bySportType![sport as SportType]!
-        const totalHoursPerSport = acts.reduce((hours, a) => {
-          const movingTime = unitConversion.convertTime(a.moving_time!, "hours")
-          hours += movingTime
-          totalHrs += movingTime
-          return hours
-        }, 0)
-        if (totalHoursPerSport >= 1) {
-          acc.push({ sport: sport as SportType, hours: Math.round(totalHoursPerSport), color: colorPalette[sport as SportType]! })
-        }
-        return acc
-      }, [] as PieChartData[])
-      setData(res)
-      setTotalHours(totalHrs)
+    if (!activityData) return
+    try {
+      const { chartData, total } = sanitizeData(activityData, colorPalette)
+      setData(chartData)
+      setTotalHours(total)
+    } catch (err) {
+      console.warn(err)
+      setData([])
+      setTotalHours(0)
     }
-    calculateTotalHours()
   }, [activityData, colorPalette])
 
   if (data.length === 0) {

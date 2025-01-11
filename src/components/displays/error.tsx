@@ -7,7 +7,7 @@ interface ErrorProps {
   code: number | null
 }
 
-export default function Error({ message, code }: ErrorProps) {
+export default function Error({ code }: ErrorProps) {
   const { logout } = useStravaAuthContext()
   const { darkMode } = useThemeContext()
 

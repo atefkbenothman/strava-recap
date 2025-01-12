@@ -31,7 +31,7 @@ export default function StartTimes() {
   useEffect(() => {
     function calculateStartTimes() {
       if (!activityData) return
-      setChartColor(themeColors[themeColors.length - 1])
+      setChartColor(themeColors[6])
       const res = Array(24).fill(0).map((_, index) => {
         return { hour: index.toString(), activities: 0 } as AreaChartData
       })

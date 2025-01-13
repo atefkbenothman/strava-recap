@@ -14,26 +14,33 @@ import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ActivityData } from "../../types/activity"
+import { SportType } from "../../types/strava"
 
 type AreaChartData = {
   hour: string
-  activities: number
+  [key: string]: number | string
 }
 
 const sanitizeData = (data: ActivityData): AreaChartData[] => {
-  if (!data || !data.all || Object.keys(data.all).length === 0) {
+  if (!data || !data.all || !data.bySportType || Object.keys(data.bySportType).length === 0) {
     return []
   }
-  const hours = Array(24).fill(0)
+  const sportTypes = Object.keys(data.bySportType)
+  const hours: AreaChartData[] = Array(24).fill(0).map((_, idx) => {
+    const hourData: AreaChartData = { hour: idx.toString() }
+    sportTypes.forEach(sport => {
+      hourData[sport] = 0
+    })
+    return hourData
+  })
   data.all.forEach(act => {
-    if (act.start_date) {
-      const startHour = new Date(act.start_date!).getHours()
-      hours[startHour] += 1
+    if (act.start_date && act.sport_type) {
+      const startHour = new Date(act.start_date).getHours()
+      const sportType = act.sport_type as SportType
+      hours[startHour][sportType] = (hours[startHour][sportType] as number) + 1
     }
   })
-  return hours.map((count, idx) => (
-    { hour: idx.toString(), activities: count }
-  ))
+  return hours
 }
 
 /*
@@ -41,10 +48,9 @@ const sanitizeData = (data: ActivityData): AreaChartData[] => {
 */
 export default function StartTimes() {
   const { activityData } = useStravaActivityContext()
-  const { darkMode, themeColors, colorPalette } = useThemeContext()
+  const { darkMode, colorPalette } = useThemeContext()
 
   const [data, setData] = useState<AreaChartData[]>([])
-  const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
     if (!activityData) return
@@ -56,10 +62,6 @@ export default function StartTimes() {
       setData([])
     }
   }, [activityData])
-
-  useEffect(() => {
-    setChartColor(themeColors[Math.floor(themeColors.length / 2)])
-  }, [colorPalette])
 
   if (data.length === 0) {
     return (
@@ -73,6 +75,8 @@ export default function StartTimes() {
     )
   }
 
+  console.log(data)
+
   return (
     <Card
       title="Start Times"
@@ -81,21 +85,26 @@ export default function StartTimes() {
     >
       <ResponsiveContainer height={350} width="90%">
         <AreaChart data={data}>
-          <Area
-            type="monotone"
-            dataKey="activities"
-            stroke={chartColor}
-            strokeWidth={2}
-            fill={chartColor}
-            fillOpacity={100}
-            isAnimationActive={false}
-            label={{
-              position: "top",
-              fontSize: 9,
-              color: darkMode ? "#c2c2c2" : "#666",
-              fill: darkMode ? "#c2c2c2" : "#666"
-            }}
-          />
+          {activityData?.bySportType &&
+            Object.keys(activityData.bySportType).length > 0 &&
+            Object.keys(activityData.bySportType).map(sport => (
+              <Area
+                key={sport}
+                type="monotone"
+                dataKey={sport}
+                stroke={colorPalette[sport as SportType]}
+                strokeWidth={3}
+                fill={colorPalette[sport as SportType]}
+                fillOpacity={0.3}
+                isAnimationActive={false}
+                label={{
+                  position: "top",
+                  fontSize: 9,
+                  fill: darkMode ? "#c2c2c2" : "#666",
+                  formatter: (value: any) => value > 0 ? value : ''
+                }}
+              />
+            ))}
           <XAxis
             dataKey="hour"
             tick={{

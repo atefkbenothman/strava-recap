@@ -118,8 +118,8 @@ export default function Dashboard() {
           <div className="w-full h-full grid grid-cols-2 items-center">
             {/* Left Side */}
             <div className="h-full w-full items-center flex">
-              <div className="font-semibold text-xl w-full brak-words">
-                <p className="break-words">{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
+              <div className="font-semibold text-xl w-full text-balance">
+                <p className="text-balance">{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
               </div>
             </div>
             {/* Right Side */}

@@ -6,7 +6,7 @@ export type ColorPalette = {
 }
 
 export const Themes = {
-  Default: ["#06d6a0", "#20aaa1", "#198190", "#0e5d72", "#073b4c", "#456c78", "#739099", "#96abb2", "#b1c0c5", "#c4d0d3", "#d6dfe1", "ee0e7e8", "#e8edee"],
+  Default: ["#06d6a0", "#20aaa1", "#198190", "#0e5d72", "#073b4c", "#456c78", "#739099", "#96abb2", "#b1c0c5", "#c4d0d3", "#d6dfe1", "#e0e7e8", "#e8edee"],
   Sky: ["#0055ff", "#3399ff", "#66ccff", "#99eeff", "#ccffff", "#ffffcc", "#ffee99", "#ffcc66", "#ff9933", "#ff5500", "#ff7f3f", "#ffa06e", "#ffb892"],
   Crimson: ["#9e0142", "#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#ffffbf", "#e6f598", "#abdda4", "#66c2a5", "#3288bd", "#486cb0", "#5e4fa2", "#867bb9"],
   Lagoon: ["#18404e", "#1d4d5e", "#235d72", "#327181", "#3a7C89", "#559C9e", "#7BBcb0", "#9bd4be", "#a5dbc2", "#d2fbd4", "#e0fbe2", "#eafbeb", "#f1fbf1"],

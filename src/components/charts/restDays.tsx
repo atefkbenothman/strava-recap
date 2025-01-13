@@ -42,7 +42,7 @@ const sanitizeData = (data: ActivityData, currentYear: number, themeColors: read
     {
       kind: "rest",
       days: restDays,
-      color: themeColors[themeColors.length - 1]
+      color: themeColors[Math.floor(themeColors.length / 2)]
     }
   ]
   return { chartData: res, total: Number((restDays / totalDaysInYear).toFixed(2)) }

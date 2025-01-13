@@ -13,11 +13,36 @@ import {
 import { BicepsFlexed } from 'lucide-react';
 import Card from "../common/card"
 import NoData from "../common/noData";
+import { ActivityData } from "../../types/activity";
 
 
 type BarChartData = {
   month: string
   [key: string]: number | string
+}
+
+const sanitizeData = (data: ActivityData): { chartData: BarChartData[], total: number } => {
+  if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
+    return { chartData: [], total: 0 }
+  }
+  const res: BarChartData[] = []
+  let totalActivities = 0
+  const monthlyActivities = data.monthly!
+  Object.entries(monthlyActivities).forEach(([month, activities]) => {
+    if (!activities) return
+    const activitiesBySport: Partial<Record<SportType, number>> = {}
+    for (const act of activities) {
+      const sportType = act.sport_type! as SportType
+      if (!activitiesBySport[sportType]) {
+        activitiesBySport[sportType] = 1
+      } else {
+        activitiesBySport[sportType] += 1
+      }
+      totalActivities += 1
+    }
+    res.push({ month, ...activitiesBySport })
+  })
+  return { chartData: res, total: totalActivities }
 }
 
 /*
@@ -31,27 +56,16 @@ export default function ActivityCount() {
   const [totalActivities, setTotalActivities] = useState<number>(0)
 
   useEffect(() => {
-    function calculateActivityCount() {
-      if (!activityData) return
-      let totalActs = 0
-      const res: BarChartData[] = []
-      Object.keys(activityData.monthly!).forEach(month => {
-        const acts = activityData.monthly![month]!
-        const numActivitiesBySport: Record<string, number> = {}
-        acts.forEach((a) => {
-          const sportType = a.sport_type! as SportType
-          if (!numActivitiesBySport[sportType]) {
-            numActivitiesBySport[sportType] = 0
-          }
-          numActivitiesBySport[sportType] += 1
-        })
-        res.push({ month: month, ...numActivitiesBySport })
-        totalActs += acts.length
-      })
-      setData(res)
-      setTotalActivities(totalActs)
+    if (!activityData) return
+    try {
+      const { chartData, total } = sanitizeData(activityData)
+      setData(chartData)
+      setTotalActivities(total)
+    } catch (err) {
+      console.warn(err)
+      setData([])
+      setTotalActivities(0)
     }
-    calculateActivityCount()
   }, [activityData, colorPalette])
 
   if (data.length === 0) {
@@ -85,23 +99,26 @@ export default function ActivityCount() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          <Tooltip />
-          {activityData && Object.keys(activityData.bySportType!).map(sport => (
-            <Bar
-              key={sport}
-              radius={[4, 4, 4, 4]}
-              stackId="stack"
-              dataKey={sport}
-              isAnimationActive={false}
-              fill={colorPalette[sport as SportType]}
-              label={{
-                position: "top",
-                fontSize: 9,
-                color: darkMode ? "#c2c2c2" : "#666",
-                fill: darkMode ? "#c2c2c2" : "#666",
-              }}
-            />
-          ))}
+          <Tooltip formatter={d => Number(d).toFixed(0)} />
+          {activityData?.bySportType &&
+            Object.keys(activityData.bySportType).length > 0 &&
+            Object.keys(activityData.bySportType).map(sport => (
+              <Bar
+                key={sport}
+                radius={[4, 4, 4, 4]}
+                stackId="stack"
+                dataKey={sport}
+                isAnimationActive={false}
+                fill={colorPalette[sport as SportType]}
+                label={{
+                  position: "top",
+                  fontSize: 9,
+                  color: darkMode ? "#c2c2c2" : "#666",
+                  fill: darkMode ? "#c2c2c2" : "#666",
+                  formatter: ((d: string) => Number(d).toFixed(0))
+                }}
+              />
+            ))}
           <Legend />
         </BarChart>
       </ResponsiveContainer>

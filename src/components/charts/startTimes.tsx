@@ -5,17 +5,35 @@ import {
   XAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend
+  Legend,
+  ReferenceLine
 } from 'recharts'
 import { Clock } from 'lucide-react'
 import Card from "../common/card"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import { ActivityData } from "../../types/activity"
 
 type AreaChartData = {
   hour: string
   activities: number
+}
+
+const sanitizeData = (data: ActivityData): AreaChartData[] => {
+  if (!data || !data.all || Object.keys(data.all).length === 0) {
+    return []
+  }
+  const hours = Array(24).fill(0)
+  data.all.forEach(act => {
+    if (act.start_date) {
+      const startHour = new Date(act.start_date!).getHours()
+      hours[startHour] += 1
+    }
+  })
+  return hours.map((count, idx) => (
+    { hour: idx.toString(), activities: count }
+  ))
 }
 
 /*
@@ -29,24 +47,19 @@ export default function StartTimes() {
   const [chartColor, setChartColor] = useState<string>("")
 
   useEffect(() => {
-    function calculateStartTimes() {
-      if (!activityData) return
-      setChartColor(themeColors[6])
-      const res = Array(24).fill(0).map((_, index) => {
-        return { hour: index.toString(), activities: 0 } as AreaChartData
-      })
-      activityData.all!.forEach(activity => {
-        const startHour = new Date(activity.start_date!).getHours()
-        const existingHour = res.find(item => item.hour === startHour.toString())
-        if (existingHour) {
-          existingHour.activities += 1
-        }
-      })
-      res.sort((a, b) => Number(a.hour) - Number(b.hour))
-      setData(res)
+    if (!activityData) return
+    try {
+      const chartData = sanitizeData(activityData)
+      setData(chartData)
+    } catch (err) {
+      console.warn(err)
+      setData([])
     }
-    calculateStartTimes()
-  }, [activityData, colorPalette])
+  }, [activityData])
+
+  useEffect(() => {
+    setChartColor(themeColors[Math.floor(themeColors.length / 2)])
+  }, [colorPalette])
 
   if (data.length === 0) {
     return (
@@ -90,6 +103,12 @@ export default function StartTimes() {
               fill: darkMode ? "#c2c2c2" : "#666"
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
+          />
+          <ReferenceLine
+            x="12"
+            stroke={darkMode ? "#c2c2c2" : "black"}
+            strokeDasharray="10 10"
+            strokeOpacity={0.6}
           />
           <Tooltip />
           <Legend />

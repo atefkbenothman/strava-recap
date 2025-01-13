@@ -28,8 +28,7 @@ const sanitizeData = (data: ActivityData, units: Units): { chartData: BarChartDa
   }
   const res: BarChartData[] = []
   let totalDistance = 0
-  const monthlyActivities = data.monthly!
-  Object.entries(monthlyActivities).forEach(([month, activities]) => {
+  Object.entries(data.monthly!).forEach(([month, activities]) => {
     if (!activities) return
     const distanceBySport: Partial<Record<SportType, number>> = {} // { Run: 99, Ride: 12 }
     for (const act of activities) {

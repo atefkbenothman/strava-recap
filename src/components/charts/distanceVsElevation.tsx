@@ -189,7 +189,7 @@ export default function DistanceVsElevation() {
               ifOverflow="extendDomain"
               segment={referenceLinePoints!}
               stroke={darkMode ? "#c2c2c2" : "black"}
-              strokeDasharray="3 3"
+              strokeDasharray="5 5"
             />
           )}
           <Tooltip />

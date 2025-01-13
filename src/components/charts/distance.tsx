@@ -12,7 +12,7 @@ import {
 import { Rocket } from 'lucide-react'
 
 import Card from "../common/card"
-import { ActivityData, UnitDefinitions } from "../../types/activity"
+import { ActivityData, UnitDefinitions, Units } from "../../types/activity"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
@@ -22,7 +22,7 @@ type BarChartData = {
   [key: string]: number | string
 }
 
-const sanitizeData = (data: ActivityData, units: "imperial" | "metric"): { chartData: BarChartData[], total: number } => {
+const sanitizeData = (data: ActivityData, units: Units): { chartData: BarChartData[], total: number } => {
   if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
     return { chartData: [], total: 0 }
   }
@@ -107,23 +107,25 @@ export default function Distance() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          {Object.keys(activityData!.bySportType!).map(sport => (
-            <Bar
-              key={sport}
-              radius={[4, 4, 4, 4]}
-              stackId="stack"
-              dataKey={sport}
-              isAnimationActive={false}
-              fill={colorPalette[sport as SportType]}
-              label={{
-                position: "top",
-                fontSize: 9,
-                color: darkMode ? "#c2c2c2" : "#666",
-                fill: darkMode ? "#c2c2c2" : "#666",
-                formatter: ((d: string) => Number(d).toFixed(0))
-              }}
-            />
-          ))}
+          {activityData?.bySportType &&
+            Object.keys(activityData.bySportType).length > 0 &&
+            Object.keys(activityData.bySportType).map(sport => (
+              <Bar
+                key={sport}
+                radius={[4, 4, 4, 4]}
+                stackId="stack"
+                dataKey={sport}
+                isAnimationActive={false}
+                fill={colorPalette[sport as SportType]}
+                label={{
+                  position: "top",
+                  fontSize: 9,
+                  color: darkMode ? "#c2c2c2" : "#666",
+                  fill: darkMode ? "#c2c2c2" : "#666",
+                  formatter: ((d: string) => Number(d).toFixed(0))
+                }}
+              />
+            ))}
           <Legend />
         </BarChart>
       </ResponsiveContainer>

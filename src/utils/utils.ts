@@ -55,21 +55,21 @@ export const unitConversion = {
   }
 }
 
-export function generateColorPalette(
-  sportTypes: SportType[],
-  theme: Theme,
-  colorPalette: ColorPalette,
-  reset: boolean = false
-): ColorPalette {
-  let updatedColorPalette: ColorPalette = { ...colorPalette }
-  if (reset) { updatedColorPalette = {} }
+export function getRandomColor(colors: readonly string[]): string {
+  return colors[Math.floor(Math.random() * colors.length)]
+}
+
+export function generateColorPalette(sportTypes: SportType[], theme: Theme, colorPalette: ColorPalette, reset: boolean = false): ColorPalette {
+  let updatedColorPalette: ColorPalette = reset ? {} : { ...colorPalette }
   const colors = Themes[theme]
   sportTypes.forEach(sport => {
-    if (updatedColorPalette[sport as SportType]) { return } // skip sports that have already been assigned a color
-    const usedColors = new Set(Object.values(updatedColorPalette))
-    const availableColor = colors.find(color => !usedColors.has(color))
+    if (updatedColorPalette[sport]) return
+    const alreadyUsedColors = new Set(Object.values(updatedColorPalette))
+    const availableColor = colors.find(color => !alreadyUsedColors.has(color))
     if (availableColor) {
       updatedColorPalette[sport] = availableColor
+    } else {
+      updatedColorPalette[sport] = getRandomColor(colors)
     }
   })
   return updatedColorPalette

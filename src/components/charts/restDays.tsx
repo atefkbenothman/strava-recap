@@ -13,11 +13,39 @@ import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
+import { ActivityData } from "../../types/activity"
 
 type PieChartData = {
   kind: string
   days: number
   color: string
+}
+
+const sanitizeData = (data: ActivityData, currentYear: number, themeColors: readonly string[]): { chartData: PieChartData[], total: number } => {
+  if (!data || !data.all || data.all.length === 0) {
+    return { chartData: [], total: 0 }
+  }
+  const activeDays = new Set<string>()
+  for (const act of data.all) {
+    if (act.start_date_local) {
+      activeDays.add(new Date(act.start_date_local!).toISOString().split("T")[0])
+    }
+  }
+  const totalDaysInYear = new Date(currentYear, 1, 29).getDate() === 29 ? 366 : 365
+  const restDays = totalDaysInYear - activeDays.size
+  const res: PieChartData[] = [
+    {
+      kind: "active",
+      days: activeDays.size,
+      color: themeColors[0]
+    },
+    {
+      kind: "rest",
+      days: restDays,
+      color: themeColors[themeColors.length - 1]
+    }
+  ]
+  return { chartData: res, total: Number((restDays / totalDaysInYear).toFixed(2)) }
 }
 
 /*
@@ -32,44 +60,17 @@ export default function RestDays() {
   const [restPerentage, setRestPercentage] = useState<number>(0)
 
   useEffect(() => {
-    function formatData() {
-      if (!activityData) return
-      const activeDays = new Set(
-        activityData.all!
-          .filter(activity => activity.start_date_local!)
-          .map(activity => new Date(activity.start_date_local!).toISOString().split('T')[0])
-      )
-      const startDate = `${currentYear}-01-01`
-      const endDate = `${currentYear}-12-31`
-
-      const allDays = [];
-      let currentDate = new Date(startDate);
-      const lastDate = new Date(endDate);
-
-      while (currentDate <= lastDate) {
-        allDays.push(currentDate.toISOString().split('T')[0])
-        currentDate.setDate(currentDate.getDate() + 1)
-      }
-
-      const restDays = allDays.filter(day => !activeDays.has(day)).length;
-
-      const pieChartData = [
-        {
-          kind: "active",
-          days: activeDays.size,
-          color: themeColors[0],
-        } as PieChartData,
-        {
-          kind: "rest",
-          days: restDays,
-          color: themeColors[themeColors.length - 1]
-        } as PieChartData,
-      ]
-
-      setData(pieChartData)
-      setRestPercentage(Number((restDays / allDays.length).toFixed(2)))
+    if (!activityData) return
+    try {
+      // call sanitize function
+      const { chartData, total } = sanitizeData(activityData, currentYear, themeColors)
+      setData(chartData)
+      setRestPercentage(total)
+    } catch (err) {
+      console.warn(err)
+      setData([])
+      setRestPercentage(0)
     }
-    formatData()
   }, [activityData, colorPalette])
 
   if (data.length === 0) {

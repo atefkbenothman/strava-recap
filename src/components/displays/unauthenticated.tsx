@@ -80,15 +80,16 @@ export default function Unauthenticated() {
     <div className={darkMode ? "dark" : ""}>
       <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
         <div className="flex flex-col gap-4 px-8">
-          <div className="flex flex-col gap-2 grow-0">
+          <div className="flex flex-col gap-1 grow-0">
             <p className="text-2xl font-semibold text-balance">{currentYear} Fitness Recap {icon}</p>
             <div>
               <p className="text-sm text-gray-500 dark:text-white/80">Explore yearly recaps of your Strava activities</p>
             </div>
           </div>
           <img
-            className="hover:cursor-pointer relative -translate-x-0.5"
+            className="hover:cursor-pointer relative"
             width={160}
+            style={{ transform: "translateX(-3px)" }}
             src={connectWithStravaLogo}
             alt="login with strava"
             onClick={handleLogin}

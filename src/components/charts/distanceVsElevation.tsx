@@ -27,8 +27,10 @@ import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ColorPalette } from "../../contexts/themeContext"
+import { CustomScatterTooltip } from "../common/customScatterToolTip"
 
 type ScatterChartData = {
+  name: string
   distance: number
   elevation: number
   url: string
@@ -50,7 +52,8 @@ const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colo
         distance: Number(unitConversion.convertDistance(act.distance!, units).toFixed(2)),
         elevation: Number(unitConversion.convertElevation(act.total_elevation_gain!, units).toFixed(2)),
         fill: colorPalette[act.sport_type! as SportType]!,
-        url: `https://www.strava.com/activities/${act.id}`
+        url: `https://www.strava.com/activities/${act.id}`,
+        name: act.name ?? ""
       })
     }
   }
@@ -192,7 +195,7 @@ export default function DistanceVsElevation() {
               strokeDasharray="5 5"
             />
           )}
-          <Tooltip />
+          <Tooltip content={(props) => <CustomScatterTooltip {...props} />} />
           <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>

@@ -27,8 +27,10 @@ import { SportType, StravaActivity } from "../../types/strava"
 import { UnitDefinitions } from "../../types/activity"
 import NoData from "../common/noData"
 import { ColorPalette } from "../../contexts/themeContext"
+import { CustomScatterTooltip } from "../common/customScatterToolTip"
 
 type ScatterChartData = {
+  name: string
   distance: number
   power: number
   url: string
@@ -50,7 +52,8 @@ const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colo
         distance: Number(unitConversion.convertDistance(act.distance!, units).toFixed(2)),
         power: act.average_watts!,
         url: `https://www.strava.com/activities/${act.id}`,
-        fill: colorPalette[act.sport_type! as SportType]!
+        fill: colorPalette[act.sport_type! as SportType]!,
+        name: act.name ?? ""
       })
     }
   }
@@ -182,7 +185,6 @@ export default function DistanceVsPower() {
             domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
             ticks={ticks.yAxisTicks}
           />
-          <Tooltip />
           {trend.canShowLine && (
             <ReferenceLine
               ifOverflow="extendDomain"
@@ -191,6 +193,7 @@ export default function DistanceVsPower() {
               strokeDasharray="5 5"
             />
           )}
+          <Tooltip content={(props) => <CustomScatterTooltip {...props} />} />
           <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>

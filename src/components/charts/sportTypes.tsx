@@ -15,6 +15,7 @@ import Card from "../common/card"
 import NoData from "../common/noData"
 import { ColorPalette } from "../../contexts/themeContext"
 import { ActivityData } from "../../types/activity"
+import { CustomPieTooltip } from "../common/customPieTooltip"
 
 type PieChartData = {
   sport: SportType
@@ -41,7 +42,7 @@ const sanitizeData = (data: ActivityData, colorPalette: ColorPalette): { chartDa
 */
 export default function SportTypes() {
   const { activityData } = useStravaActivityContext()
-  const { colorPalette } = useThemeContext()
+  const { colorPalette, darkMode } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [numSportTypes, setNumSportTypes] = useState<number>(0)
@@ -91,13 +92,16 @@ export default function SportTypes() {
             outerRadius={80}
             cornerRadius={4}
             isAnimationActive={false}
-            paddingAngle={3}
+            paddingAngle={5}
           >
             {data.map((e, idx) => (
-              <Cell key={idx} fill={e.color} />
+              <Cell key={idx} fill={e.color} stroke={e.color} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip
+            content={(props) => <CustomPieTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
           <Legend verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>

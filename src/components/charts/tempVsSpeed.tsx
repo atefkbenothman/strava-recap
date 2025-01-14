@@ -27,8 +27,10 @@ import {
 import NoData from "../common/noData"
 import { UnitDefinitions } from "../../types/activity"
 import { ColorPalette } from "../../contexts/themeContext"
+import { CustomScatterTooltip } from "../common/customScatterToolTip"
 
 type ScatterChartData = {
+  name: string
   speed: number
   temp: number
   url: string
@@ -50,7 +52,8 @@ const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colo
         temp: act.average_temp!,
         speed: Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2)),
         fill: colorPalette[act.sport_type! as SportType]!,
-        url: `https://www.strava.com/activities/${act.id}`
+        url: `https://www.strava.com/activities/${act.id}`,
+        name: act.name ?? ""
       })
     }
   }
@@ -192,7 +195,7 @@ export default function TemperatureVsSpeed() {
               strokeDasharray="5 5"
             />
           )}
-          <Tooltip />
+          <Tooltip content={(props) => <CustomScatterTooltip {...props} />} />
           <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>

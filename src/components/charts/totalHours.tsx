@@ -16,6 +16,7 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ColorPalette } from "../../contexts/themeContext"
 import { ActivityData } from "../../types/activity"
+import { CustomPieTooltip } from "../common/customPieTooltip"
 
 
 type PieChartData = {
@@ -53,7 +54,7 @@ const sanitizeData = (data: ActivityData, colorPalette: ColorPalette): { chartDa
 */
 export default function TotalHours() {
   const { activityData } = useStravaActivityContext()
-  const { colorPalette } = useThemeContext()
+  const { colorPalette, darkMode } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [totalHours, setTotalHours] = useState<number>(0)
@@ -102,14 +103,17 @@ export default function TotalHours() {
             outerRadius={80}
             cornerRadius={4}
             isAnimationActive={false}
-            paddingAngle={3}
+            paddingAngle={5}
           >
             {data.map((d, idx) => (
-              <Cell key={idx} fill={d.color} />
+              <Cell key={idx} fill={d.color} stroke={d.color} />
             ))}
           </Pie>
           <Legend verticalAlign="bottom" align="center" />
-          <Tooltip />
+          <Tooltip
+            content={(props) => <CustomPieTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </Card>

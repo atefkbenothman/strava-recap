@@ -16,6 +16,7 @@ import { ActivityData, UnitDefinitions, Units } from "../../types/activity"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import { CustomBarTooltip } from "../common/customBarTooltip"
 
 type BarChartData = {
   month: string
@@ -95,7 +96,10 @@ export default function Distance() {
     >
       <ResponsiveContainer height={350} width="90%">
         <BarChart data={data}>
-          <Tooltip formatter={d => Number(d).toFixed(2)} />
+          <Tooltip
+            content={(props) => <CustomBarTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
           <XAxis
             type="category"
             dataKey="month"
@@ -121,7 +125,7 @@ export default function Distance() {
                   fontSize: 9,
                   color: darkMode ? "#c2c2c2" : "#666",
                   fill: darkMode ? "#c2c2c2" : "#666",
-                  formatter: ((d: string) => Number(d).toFixed(0))
+                  formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
                 }}
               />
             ))}

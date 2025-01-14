@@ -26,7 +26,8 @@ import {
 import Card from "../common/card";
 import NoData from "../common/noData"
 import { HeartPulse } from "lucide-react"
-import { ColorPalette } from "../../contexts/themeContext";
+import { ColorPalette } from "../../contexts/themeContext"
+import { CustomScatterTooltip } from "../common/customScatterToolTip"
 
 
 type ScatterChartData = {
@@ -34,6 +35,7 @@ type ScatterChartData = {
   speed: number
   url: string
   fill: string
+  name: string
 }
 
 const X_OFFSET = 2
@@ -51,7 +53,8 @@ const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colo
         heartrate: act.average_heartrate!,
         speed: Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2)),
         fill: colorPalette[act.sport_type! as SportType]!,
-        url: `https://www.strava.com/activities/${act.id}`
+        url: `https://www.strava.com/activities/${act.id}`,
+        name: act.name ?? ""
       })
     }
   }
@@ -194,7 +197,7 @@ export default function HeartrateVsSpeed() {
             />
           )}
           <ZAxis range={[30, 40]} />
-          <Tooltip />
+          <Tooltip content={(props) => <CustomScatterTooltip {...props} />} />
         </ScatterChart>
       </ResponsiveContainer>
     </Card>

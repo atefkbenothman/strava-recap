@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { SportType } from "../../types/strava"
-import { useStravaActivityContext } from "../../hooks/useStravaActivityContext";
-import { useThemeContext } from "../../hooks/useThemeContext";
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,10 +10,11 @@ import {
   Tooltip,
   Legend
 } from "recharts"
-import { BicepsFlexed } from 'lucide-react';
+import { BicepsFlexed } from 'lucide-react'
 import Card from "../common/card"
-import NoData from "../common/noData";
-import { ActivityData } from "../../types/activity";
+import NoData from "../common/noData"
+import { ActivityData } from "../../types/activity"
+import { CustomBarTooltip } from "../common/customBarTooltip"
 
 
 type BarChartData = {
@@ -99,7 +100,10 @@ export default function ActivityCount() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          <Tooltip formatter={d => Number(d).toFixed(0)} />
+          <Tooltip
+            content={(props) => <CustomBarTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
           {activityData?.bySportType &&
             Object.keys(activityData.bySportType).length > 0 &&
             Object.keys(activityData.bySportType).map(sport => (
@@ -115,7 +119,7 @@ export default function ActivityCount() {
                   fontSize: 9,
                   color: darkMode ? "#c2c2c2" : "#666",
                   fill: darkMode ? "#c2c2c2" : "#666",
-                  formatter: ((d: string) => Number(d).toFixed(0))
+                  formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
                 }}
               />
             ))}

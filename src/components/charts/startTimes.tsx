@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { act, useEffect, useState } from "react"
 import {
   AreaChart,
   Area,
@@ -6,7 +6,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  ReferenceLine
 } from 'recharts'
 import { Clock } from 'lucide-react'
 import Card from "../common/card"
@@ -43,6 +42,28 @@ const sanitizeData = (data: ActivityData): AreaChartData[] => {
   return hours
 }
 
+const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (!active || !payload || !label) {
+    return null
+  }
+  return (
+    <div className="bg-white dark:bg-black bg-opacity-90 p-2 rounded flex-col space-y-2">
+      <p className="font-bold">{label}:00</p>
+      <div className="flex flex-col gap-1">
+        {payload.map((p: any, idx: number) => {
+          const dataKey = p.dataKey
+          if (p.payload[dataKey] !== 0) {
+            return (
+              <p key={idx} style={{ color: p.color }}>{p.dataKey}: <span className="font-semibold">{p.payload[dataKey]}</span></p>
+            )
+          }
+          return null
+        })}
+      </div>
+    </div>
+  )
+}
+
 /*
  * Activity start times
 */
@@ -74,8 +95,6 @@ export default function StartTimes() {
       </Card>
     )
   }
-
-  console.log(data)
 
   return (
     <Card
@@ -113,13 +132,7 @@ export default function StartTimes() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          <ReferenceLine
-            x="12"
-            stroke={darkMode ? "#c2c2c2" : "black"}
-            strokeDasharray="10 10"
-            strokeOpacity={0.6}
-          />
-          <Tooltip />
+          <Tooltip content={(props) => <CustomTooltip {...props} />} />
           <Legend />
         </AreaChart>
       </ResponsiveContainer>

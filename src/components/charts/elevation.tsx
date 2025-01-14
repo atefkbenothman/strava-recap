@@ -15,6 +15,7 @@ import { ActivityData, UnitDefinitions, Units } from "../../types/activity"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import { CustomBarTooltip } from "../common/customBarTooltip"
 
 
 type BarChartData = {
@@ -106,7 +107,10 @@ export default function Elevation() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          <Tooltip formatter={d => Number(d).toFixed(2)} />
+          <Tooltip
+            content={(props) => <CustomBarTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
           {activityData?.bySportType &&
             Object.keys(activityData.bySportType).length > 0 &&
             Object.keys(activityData.bySportType).map(sport => (
@@ -122,7 +126,7 @@ export default function Elevation() {
                   fontSize: 9,
                   color: darkMode ? "#c2c2c2" : "#666",
                   fill: darkMode ? "#c2c2c2" : "#666",
-                  formatter: ((d: string) => Number(d).toFixed(0))
+                  formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
                 }}
               />
             ))}

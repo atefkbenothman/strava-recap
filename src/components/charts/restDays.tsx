@@ -14,6 +14,7 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 import { ActivityData } from "../../types/activity"
+import { CustomPieTooltip } from "../common/customPieTooltip"
 
 type PieChartData = {
   kind: string
@@ -35,12 +36,12 @@ const sanitizeData = (data: ActivityData, currentYear: number, themeColors: read
   const restDays = totalDaysInYear - activeDays.size
   const res: PieChartData[] = [
     {
-      kind: "active",
+      kind: "Active",
       days: activeDays.size,
       color: themeColors[0]
     },
     {
-      kind: "rest",
+      kind: "Rest",
       days: restDays,
       color: themeColors[Math.floor(themeColors.length / 2)]
     }
@@ -54,7 +55,7 @@ const sanitizeData = (data: ActivityData, currentYear: number, themeColors: read
 export default function RestDays() {
   const { currentYear } = useCurrentYearContext()
   const { activityData } = useStravaActivityContext()
-  const { colorPalette, themeColors } = useThemeContext()
+  const { colorPalette, themeColors, darkMode } = useThemeContext()
 
   const [data, setData] = useState<PieChartData[]>([])
   const [restPerentage, setRestPercentage] = useState<number>(0)
@@ -104,13 +105,16 @@ export default function RestDays() {
             outerRadius={80}
             cornerRadius={4}
             isAnimationActive={false}
-            paddingAngle={3}
+            paddingAngle={5}
           >
             {data.map((e, idx) => (
-              <Cell key={idx} fill={e.color} />
+              <Cell key={idx} fill={e.color} stroke={e.color} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip
+            content={(props) => <CustomPieTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
           <Legend verticalAlign="bottom" align="center" />
         </PieChart>
       </ResponsiveContainer>

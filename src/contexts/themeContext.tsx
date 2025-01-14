@@ -12,7 +12,8 @@ export const Themes = {
   Lagoon: ["#18404e", "#1d4d5e", "#235d72", "#327181", "#3a7C89", "#559C9e", "#7BBcb0", "#9bd4be", "#a5dbc2", "#d2fbd4", "#e0fbe2", "#eafbeb", "#f1fbf1"],
   Ember: ["#690000", "#990000", "#b81810", "#d7301f", "#ef6548", "#bd6943", "#dd7b4e", "#fc8d59", "#fdbb84", "#fdd49e", "#fde2bd", "#fdebd2", "#fdf1e0"],
   Forest: ["#08302e", "#06413a", "#03594a", "#007b5e", "#03a071", "#15c182", "#28f699", "#65ffab", "#9effc5", "#cafcdc"],
-  Lilac: ["#1e1c4a", "#24216b", "#35319d", "#4e49e2", "#666cee", "#8391f6", "#a7b7fa", "#c8d4fd", "#e1e8fe", "#eef2ff"]
+  Lilac: ["#1e1c4a", "#24216b", "#35319d", "#4e49e2", "#666cee", "#8391f6", "#a7b7fa", "#c8d4fd", "#e1e8fe", "#eef2ff"],
+  Amber: ["#fc6d11", "#f45616", "#eb3f1b", "#bc3b25", "#2d2e40", "#3d3144", "#4c3348", "#69223b", "#771a35", "#85112e"]
 } as const
 
 export type Theme = keyof typeof Themes

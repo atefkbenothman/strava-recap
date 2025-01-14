@@ -73,3 +73,30 @@ html.dark {
 video::-webkit-media-controls-panel {
   background-image: linear-gradient(transparent, transparent) !important;
 }
+
+.loading-dots {
+  animation: loadingDots 1s steps(4, end) infinite;
+}
+
+.loading-dots::after {
+  content: ".";
+  animation: dots 2s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0% {
+    content: ".";
+  }
+
+  25% {
+    content: "..";
+  }
+
+  50% {
+    content: "...";
+  }
+
+  75% {
+    content: "";
+  }
+}

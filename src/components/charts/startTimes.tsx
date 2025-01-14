@@ -109,18 +109,18 @@ export default function StartTimes() {
             Object.keys(activityData.bySportType).map(sport => (
               <Area
                 key={sport}
-                type="monotone"
+                type="step"
                 dataKey={sport}
                 stroke={colorPalette[sport as SportType]}
                 strokeWidth={3}
                 fill={colorPalette[sport as SportType]}
                 fillOpacity={0.3}
-                isAnimationActive={false}
                 label={{
                   position: "top",
                   fontSize: 9,
                   fill: darkMode ? "#c2c2c2" : "#666",
-                  formatter: (value: any) => value > 0 ? value : ''
+                  color: darkMode ? "#c2c2c2" : "#666",
+                  formatter: (value: any) => value > 0 ? value : ""
                 }}
               />
             ))}

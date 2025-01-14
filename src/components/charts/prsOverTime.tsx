@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   Tooltip,
   ResponsiveContainer,
@@ -14,6 +14,7 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ActivityData } from "../../types/activity"
 import { SportType } from "../../types/strava"
+import { Months } from "../../types/activity"
 
 type AreaChartData = {
   month: string
@@ -21,18 +22,23 @@ type AreaChartData = {
 }
 
 const sanitizeData = (data: ActivityData): { chartData: AreaChartData[], total: number } => {
-  if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
+  if (!data || !data.monthly || !data.bySportType || Object.keys(data.monthly).length === 0) {
     return { chartData: [], total: 0 }
   }
-  const res: AreaChartData[] = []
+  const sportTypes = Object.keys(data.bySportType)
+  const res: AreaChartData[] = Months.map(m => {
+    const monthData: AreaChartData = { month: m }
+    sportTypes.forEach(sport => {
+      monthData[sport] = 0
+    })
+    return monthData
+  })
   let totalPrs = 0
-  let hasPrs = false
   Object.entries(data.monthly!).forEach(([month, activities]) => {
     if (!activities) return
     const prsBySport: Partial<Record<SportType, number>> = {}
     for (const act of activities) {
       if (act.pr_count && act.pr_count > 0) {
-        hasPrs = true
         const sportType = act.sport_type! as SportType
         const prs = act.pr_count
         if (!prsBySport[sportType]) {
@@ -43,12 +49,35 @@ const sanitizeData = (data: ActivityData): { chartData: AreaChartData[], total: 
         totalPrs += prs
       }
     }
-    res.push({ month, ...prsBySport })
+    Object.entries(prsBySport).forEach(([sport, totalPrs]) => {
+      const existingMonth = res.find(item => item.month === month)
+      if (!existingMonth) return
+      existingMonth[sport] = totalPrs
+    })
   })
-  if (hasPrs) {
-    return { chartData: res, total: totalPrs }
+  return totalPrs > 0 ? { chartData: res, total: totalPrs } : { chartData: [], total: 0 }
+}
+
+const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
+  if (!active || !payload || !label) {
+    return null
   }
-  return { chartData: [], total: 0 }
+  return (
+    <div className="bg-white dark:bg-black bg-opacity-90 p-2 rounded flex-col space-y-2">
+      <p className="font-bold">{label}</p>
+      <div className="flex flex-col gap-1">
+        {payload.map((p: any, idx: number) => {
+          const dataKey = p.dataKey
+          if (p.payload[dataKey] !== 0) {
+            return (
+              <p key={idx} style={{ color: p.color }}>{p.dataKey}: <span className="font-semibold">{p.payload[dataKey]}</span></p>
+            )
+          }
+          return null
+        })}
+      </div>
+    </div>
+  )
 }
 
 /*
@@ -95,22 +124,24 @@ export default function PrsOverTime() {
       icon={<Medal size={16} strokeWidth={2.5} />}
     >
       <ResponsiveContainer height={350} width="90%">
-        <LineChart data={data}>
+        <AreaChart data={data}>
           {activityData?.bySportType &&
             Object.keys(activityData.bySportType).length > 0 &&
             Object.keys(activityData.bySportType).map(sport => (
-              <Line
+              <Area
                 key={sport}
+                type="step"
                 dataKey={sport}
                 stroke={colorPalette[sport as SportType]}
-                strokeWidth={2.5}
-                type="step"
-                isAnimationActive={false}
+                strokeWidth={3}
+                fill={colorPalette[sport as SportType]}
+                fillOpacity={0.3}
                 label={{
                   position: "top",
                   fontSize: 9,
                   color: darkMode ? "#c2c2c2" : "#666",
                   fill: darkMode ? "#c2c2c2" : "#666",
+                  formatter: (value: any) => value > 0 ? value : ""
                 }}
               />
             ))}
@@ -122,9 +153,9 @@ export default function PrsOverTime() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          <Tooltip />
+          <Tooltip content={(props) => <CustomTooltip {...props} />} />
           <Legend />
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </Card>
   )

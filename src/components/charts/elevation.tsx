@@ -49,7 +49,7 @@ const sanitizeData = (data: ActivityData, units: Units): { chartData: BarChartDa
     }
     res.push({ month, ...elevationBySport })
   })
-  return { chartData: res, total: totalElevation }
+  return totalElevation > 0 ? { chartData: res, total: totalElevation } : { chartData: [], total: 0 }
 }
 
 /*
@@ -119,7 +119,6 @@ export default function Elevation() {
                 radius={[4, 4, 4, 4]}
                 stackId="stack"
                 dataKey={sport}
-                isAnimationActive={false}
                 fill={colorPalette[sport as SportType]}
                 label={{
                   position: "top",

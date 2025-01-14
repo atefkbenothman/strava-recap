@@ -112,7 +112,6 @@ export default function ActivityCount() {
                 radius={[4, 4, 4, 4]}
                 stackId="stack"
                 dataKey={sport}
-                isAnimationActive={false}
                 fill={colorPalette[sport as SportType]}
                 label={{
                   position: "top",

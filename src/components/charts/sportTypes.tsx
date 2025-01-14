@@ -91,7 +91,6 @@ export default function SportTypes() {
             innerRadius={50}
             outerRadius={80}
             cornerRadius={4}
-            isAnimationActive={false}
             paddingAngle={5}
           >
             {data.map((e, idx) => (

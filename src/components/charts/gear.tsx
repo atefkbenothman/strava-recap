@@ -43,7 +43,6 @@ const sanitizeData = (data: ActivityData, athlete: StravaAthlete, themeColors: r
         if (existingGear) {
           existingGear.hours += movingTime
         } else {
-          console.log(themeColors, colorIdx)
           res.push({ gearId: act.gear_id, gearName: gear.name, hours: movingTime, fill: themeColors[colorIdx % themeColors.length] })
           colorIdx += 1
         }
@@ -97,7 +96,6 @@ export default function Gear() {
         <BarChart data={data} layout="vertical">
           <Bar
             dataKey="hours"
-            isAnimationActive={false}
             label={{
               position: "right",
               fontSize: 10,

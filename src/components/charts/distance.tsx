@@ -48,7 +48,7 @@ const sanitizeData = (data: ActivityData, units: Units): { chartData: BarChartDa
     }
     res.push({ month, ...distanceBySport })
   })
-  return { chartData: res, total: totalDistance }
+  return totalDistance > 0 ? { chartData: res, total: totalDistance } : { chartData: [], total: 0 }
 }
 
 /*
@@ -118,7 +118,6 @@ export default function Distance() {
                 radius={[4, 4, 4, 4]}
                 stackId="stack"
                 dataKey={sport}
-                isAnimationActive={false}
                 fill={colorPalette[sport as SportType]}
                 label={{
                   position: "top",

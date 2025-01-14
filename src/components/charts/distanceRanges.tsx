@@ -12,6 +12,7 @@ import Card from "../common/card"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import { ActivityData, Units } from "../../types/activity"
 
 
 type RadialBarChartData = {
@@ -20,24 +21,59 @@ type RadialBarChartData = {
   fill: string
 }
 
-const getDistanceRanges = (units: string) => {
-  if (units === "imperial") {
-    return [
-      { name: "1-20", min: 1, max: 20 },
-      { name: "21-40", min: 21, max: 40 },
-      { name: "41-70", min: 41, max: 70 },
-      { name: "70-100", min: 70, max: 100 },
-      { name: "100+", min: 100, max: Infinity },
-    ]
-  } else {
-    return [
-      { name: "1-32", min: 1, max: 32 },
-      { name: "33-64", min: 33, max: 64 },
-      { name: "65-112", min: 65, max: 112 },
-      { name: "113-160", min: 113, max: 160 },
-      { name: "160+", min: 160, max: Infinity },
-    ]
+const distanceRanges = [
+  { name: "0-4", min: 0, max: 5 },
+  { name: "5-9", min: 5, max: 10 },
+  { name: "10-19", min: 10, max: 20 },
+  { name: "20-39", min: 20, max: 40 },
+  { name: "40-69", min: 40, max: 70 },
+  { name: "70-99", min: 40, max: 100 },
+  { name: "100+", min: 100, max: Infinity },
+]
+
+const sanitizeData = (data: ActivityData, units: Units, themeColors: readonly string[]): RadialBarChartData[] => {
+  if (!data || !data.all || data.all.length === 0) {
+    return []
   }
+  const res = distanceRanges.map((dr, idx) => {
+    return { name: dr.name, activities: 0, fill: themeColors[idx] }
+  })
+  let hasData = false
+  data.all.forEach(act => {
+    if (act.distance) {
+      const distance = Number(unitConversion.convertDistance(act.distance!, units).toFixed(2))
+      const existingDistanceRange = distanceRanges.find(item => distance >= item.min && distance < item.max)
+      if (!existingDistanceRange) return
+      const existingData = res.find(item => item.name === existingDistanceRange.name)
+      if (!existingData) return
+      existingData.activities += 1
+      hasData = true
+    }
+  })
+  return hasData ? res : []
+}
+
+export const CustomRadialTooltip: React.FC<any> = ({ active, payload }) => {
+  if (!active || !payload) {
+    return null
+  }
+  const payloadName = payload[0].payload.name ?? ""
+  return (
+    <div className="bg-white dark:bg-black bg-opacity-90 p-2 rounded flex-col space-y-2">
+      <p className="font-bold">{payloadName}</p>
+      <div className="flex flex-col gap-1">
+        {payload.map((p: any, idx: number) => {
+          const dataKey = p.dataKey
+          if (p.payload[dataKey] !== 0) {
+            return (
+              <p key={idx} style={{ color: p.payload.fill }}>{p.name}: <span className="font-semibold">{Number(p.payload[dataKey].toFixed(2))}</span></p>
+            )
+          }
+          return null
+        })}
+      </div>
+    </div>
+  )
 }
 
 /*
@@ -50,20 +86,14 @@ export default function DistanceRanges() {
   const [data, setData] = useState<RadialBarChartData[]>([])
 
   useEffect(() => {
-    function formatData() {
-      if (!activityData) return
-      const currentRanges = getDistanceRanges(units)
-      const res = currentRanges.map((range, idx) => {
-        const activitiesInRange = activityData.all!.filter(activity => {
-          const distance = unitConversion.convertDistance(activity.distance!, units)
-          return distance >= range.min && distance < range.max
-        })
-        const color = themeColors[idx]
-        return { name: range.name, activities: activitiesInRange.length, fill: color } as RadialBarChartData
-      })
-      setData(res)
+    if (!activityData) return
+    try {
+      const chartData = sanitizeData(activityData, units, themeColors)
+      setData(chartData)
+    } catch (err) {
+      console.warn(err)
+      setData([])
     }
-    formatData()
   }, [activityData, themeColors, units])
 
   if (data.length === 0) {
@@ -104,7 +134,10 @@ export default function DistanceRanges() {
             layout="horizontal"
             align="center"
           />
-          <Tooltip />
+          <Tooltip
+            content={(props) => <CustomRadialTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
         </RadialBarChart>
       </ResponsiveContainer>
     </Card>

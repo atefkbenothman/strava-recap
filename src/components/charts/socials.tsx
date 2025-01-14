@@ -1,10 +1,24 @@
 import { useEffect, useState } from "react"
 import { ThumbsUp } from 'lucide-react'
-
 import Card from "../common/card"
 import Stat from "../common/stat"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { ActivityData } from "../../types/activity"
 
+const sanitizeData = (data: ActivityData): { kudosCount: number, commentCount: 0 } => {
+  if (!data || !data.all || data.all.length === 0) {
+    return { kudosCount: 0, commentCount: 0 }
+  }
+  return data.all.reduce((acc, act) => {
+    if (act.kudos_count) {
+      acc.kudosCount += act.kudos_count
+    }
+    if (act.comment_count) {
+      acc.commentCount += act.comment_count
+    }
+    return acc
+  }, { kudosCount: 0, commentCount: 0 })
+}
 
 /*
  * Social stats
@@ -17,14 +31,15 @@ export default function Socials() {
 
   useEffect(() => {
     if (!activityData) return
-    let kCount = 0
-    let cCount = 0
-    activityData.all!.forEach(activity => {
-      kCount += activity.kudos_count ?? 0
-      cCount += activity.comment_count ?? 0
-    })
-    setKudosCount(kCount)
-    setCommentCount(cCount)
+    try {
+      const { kudosCount, commentCount } = sanitizeData(activityData)
+      setKudosCount(kudosCount)
+      setCommentCount(commentCount)
+    } catch (err) {
+      console.warn(err)
+      setKudosCount(0)
+      setCommentCount(0)
+    }
   }, [activityData])
 
   return (
@@ -35,12 +50,10 @@ export default function Socials() {
     >
       <div className="w-full grid grid-rows-2 p-2 gap-2">
         <Stat
-          label="Kudos Count"
           value={String(kudosCount)}
           unit="kudos"
         />
         <Stat
-          label="Comment Count"
           value={String(commentCount)}
           unit="comments"
         />

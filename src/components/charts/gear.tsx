@@ -15,6 +15,9 @@ import NoData from "../common/noData"
 import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import { ActivityData } from "../../types/activity"
+import { StravaAthlete } from "../../types/strava"
+import { CustomBarTooltip } from "../common/customBarTooltip"
 
 
 type BarChartData = {
@@ -22,6 +25,32 @@ type BarChartData = {
   gearName: string
   hours: number
   fill: string
+}
+
+const sanitizeData = (data: ActivityData, athlete: StravaAthlete, themeColors: readonly string[]): BarChartData[] => {
+  if (!data || !data.all || data.all.length === 0) {
+    return []
+  }
+  let colorIdx = 1
+  const res: BarChartData[] = []
+  const athleteGear = [...(athlete?.bikes ?? []), ...(athlete?.shoes ?? [])]
+  data.all.forEach(act => {
+    if (act.gear_id && act.moving_time) {
+      const gear = athleteGear.find(item => item.id === act.gear_id)
+      const existingGear = res.find(item => item.gearId === act.gear_id)
+      if (gear) {
+        const movingTime = Number(unitConversion.convertTime(act.moving_time!, "hours").toFixed(2))
+        if (existingGear) {
+          existingGear.hours += movingTime
+        } else {
+          console.log(themeColors, colorIdx)
+          res.push({ gearId: act.gear_id, gearName: gear.name, hours: movingTime, fill: themeColors[colorIdx % themeColors.length] })
+          colorIdx += 1
+        }
+      }
+    }
+  })
+  return res
 }
 
 /*
@@ -35,34 +64,15 @@ export default function Gear() {
   const [data, setData] = useState<BarChartData[]>([])
 
   useEffect(() => {
-    function getGear() {
-      if (!activityData || !athlete) return
-      try {
-        const res: BarChartData[] = []
-        let idx = 1
-        const athleteGear = [...(athlete?.bikes ?? []), ...(athlete?.shoes ?? [])];
-        activityData.all!.forEach((act) => {
-          if (!act.gear_id) return
-          const gearId = act.gear_id!
-          const movingTime = Math.round(unitConversion.convertTime(act.moving_time!, "hours"))
-          const existingGear = res.find(item => item.gearId === gearId)
-          const gear = athleteGear.find(item => item.id === gearId);
-          if (!gear) { return }
-          if (existingGear) {
-            existingGear.hours += movingTime
-          } else {
-            const color = themeColors[(themeColors.length - idx) % themeColors.length]
-            res.push({ gearId: gearId, gearName: gear!.name, hours: movingTime, fill: color })
-            idx += 1
-          }
-        })
-        res.sort((a, b) => b.hours - a.hours)
-        setData(res)
-      } catch (err) {
-        console.warn(err)
-      }
+    if (!activityData || !athlete) return
+    try {
+      const gearData = sanitizeData(activityData, athlete, themeColors)
+      gearData.sort((a, b) => b.hours - a.hours)
+      setData(gearData)
+    } catch (err) {
+      console.warn(err)
+      setData([])
     }
-    getGear()
   }, [activityData, theme])
 
   if (data.length === 0) {
@@ -91,7 +101,9 @@ export default function Gear() {
             label={{
               position: "right",
               fontSize: 10,
-              fill: darkMode ? "#c2c2c2" : ""
+              fill: darkMode ? "#c2c2c2" : "",
+              color: darkMode ? "#c2c2c2" : "#666",
+              formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
             }}
             radius={[4, 4, 4, 4]}
           >
@@ -112,7 +124,10 @@ export default function Gear() {
             type="number"
             hide={true}
           />
-          <Tooltip />
+          <Tooltip
+            content={(props) => <CustomBarTooltip {...props} />}
+            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+          />
         </BarChart>
       </ResponsiveContainer>
     </Card >

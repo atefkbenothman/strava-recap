@@ -23,8 +23,8 @@ git clone https://github.com/atefkbenothman/strava-recap.git
 ```txt
 VITE_STRAVA_CLIENT_ID=<strava client id>
 VITE_STRAVA_CLIENT_SECRET=<strava client secret>
-VITE_STRAVA_REDIRECT_URI_DEV=http://localhost:5173
-VITE_MAPBOX_ACCESS_TOKEN=<mapbox access token>
+VITE_STRAVA_REDIRECT_URI_DEV=http://localhost:5173  (set to url outputted by command `npm run dev`)
+VITE_MAPBOX_ACCESS_TOKEN=<mapbox access token>      (optional)
 ```
 
 4. Install dependencies

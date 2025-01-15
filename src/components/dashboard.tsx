@@ -34,7 +34,7 @@ import HeartrateZones from "./charts/heartrateZones"
 import Photo from "./charts/photo"
 import DistanceVsPower from "./charts/distanceVsPower"
 import TemperatureVsSpeed from "./charts/tempVsSpeed"
-// import TopFive from "./charts/topFive"
+import DistanceVsSpeed from "./charts/distanceVsSpeed"
 
 const GRAPH_COMPONENTS = [
   <SportTypes />,
@@ -57,7 +57,7 @@ const GRAPH_COMPONENTS = [
   <Photo />,
   <DistanceVsPower />,
   <TemperatureVsSpeed />,
-  // <TopFive />
+  <DistanceVsSpeed />
 ]
 
 

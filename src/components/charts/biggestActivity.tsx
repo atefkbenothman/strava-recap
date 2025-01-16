@@ -9,7 +9,7 @@ import { UnitDefinitions } from "../../types/activity"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
 
-const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
+const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ?? null
 
 type MetricProps = {
   label: string
@@ -87,8 +87,8 @@ export default function BiggestActivity() {
     >
       <div className="w-full h-full grid grid-rows-12 max-h-[400px]">
         <div className="row-span-8 w-full h-full flex items-center-justify-center">
-          <div className="flex w-fit h-full p-2 rounded">
-            {route ? (
+          {/* <div className="flex w-fit h-full p-2 rounded">
+            {route && token ? (
               <a
                 href={`https://www.strava.com/activities/${biggestActivity?.id}`}
                 target="_blank"
@@ -105,7 +105,7 @@ export default function BiggestActivity() {
                 />
               </a>
             ) : null}
-          </div>
+          </div> */}
         </div>
         <div className="row-span-1 w-full flex justify-center items-center overflow-hidden pt-2">
           <p className="text-base font-medium break-all line-clamp-1 px-10 dark:text-white/95">{biggestActivity.name}</p>

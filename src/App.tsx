@@ -20,8 +20,12 @@ const Content = () => {
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark")
+      document.documentElement.style.backgroundColor = "#121212"
+      document.body.style.backgroundColor = "#121212"
     } else {
       document.documentElement.classList.remove("dark")
+      document.documentElement.style.backgroundColor = "white"
+      document.body.style.backgroundColor = "white"
     }
   }, [darkMode])
 

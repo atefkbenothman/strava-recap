@@ -9,8 +9,6 @@ import { UnitDefinitions } from "../../types/activity"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
 
-// const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ?? null
-
 type MetricProps = {
   label: string
   value: string
@@ -35,6 +33,8 @@ function Metric({ label, value, unit }: MetricProps) {
  * Biggest Activity by distance
 */
 export default function BiggestActivity() {
+  const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ?? null
+
   const { activityData, units } = useStravaActivityContext()
 
   const [biggestActivity, setBiggestActivity] = useState<StravaActivity | null>()
@@ -88,9 +88,9 @@ export default function BiggestActivity() {
       icon={<Trophy size={16} strokeWidth={2} />}
     >
       <div className="w-full h-full grid grid-rows-12 max-h-[400px]">
-        <div className="row-span-8 w-full h-full flex items-center-justify-center">
-          {/* <div className="flex w-fit h-full p-2 rounded">
-            {route && token ? (
+        {route && token ? (
+          <div className="row-span-8 w-full h-full flex items-center justify-center bg-blue-500">
+            <div className="flex w-fit h-full p-2 rounded">
               <a
                 href={`https://www.strava.com/activities/${biggestActivity?.id}`}
                 target="_blank"
@@ -106,9 +106,9 @@ export default function BiggestActivity() {
                   className="w-fit h-full object-contain rounded hover:cursor-pointer shadow"
                 />
               </a>
-            ) : null}
-          </div> */}
-        </div>
+            </div>
+          </div>
+        ) : null}
         <div className="row-span-1 w-full flex justify-center items-center overflow-hidden pt-2">
           <p className="text-base font-medium break-all line-clamp-1 px-10 dark:text-white/95">{biggestActivity.name}</p>
         </div>

@@ -48,7 +48,7 @@ export default function Menu({ shuffle }: MenuProps) {
 
   return (
     <div >
-      <DropdownMenu>
+      <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
           <div className="flex items-center gap-2 hover:cursor-pointer">
             <img

@@ -11,7 +11,7 @@ export default function NoActivities() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="w-screen h-screen flex flex-col items-center justify-center dark:text-white dark:bg-[#121212]">
+      <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:text-white dark:bg-[#121212]">
         <div className="flex flex-col gap-4 text-lg">
           {filter !== "All" ? (
             <>

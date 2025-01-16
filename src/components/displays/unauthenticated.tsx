@@ -54,7 +54,7 @@ export default function Unauthenticated() {
   if (showAthleteLimitError) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+        <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
           <div className="flex flex-col gap-4 px-8">
             <div className="flex flex-col gap-2 grow-0">
               <div className="flex flex-col gap-6">
@@ -78,7 +78,7 @@ export default function Unauthenticated() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+      <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
         <div className="flex flex-col gap-4 px-8">
           <div className="flex flex-col gap-1 grow-0">
             <p className="text-2xl font-semibold text-balance">{currentYear} Fitness Recap {icon}</p>

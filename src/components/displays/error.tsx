@@ -14,7 +14,7 @@ export default function Error({ code }: ErrorProps) {
   if (code && code === 401) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+        <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
           <div className="flex flex-col gap-4 px-8">
             <div className="flex flex-col gap-2 grow-0">
               <div className="flex flex-col gap-6">
@@ -36,7 +36,7 @@ export default function Error({ code }: ErrorProps) {
   if (code && code === 403) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+        <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
           <div className="flex flex-col gap-4 px-8">
             <div className="flex flex-col gap-2 grow-0">
               <div className="flex flex-col gap-6">
@@ -59,7 +59,7 @@ export default function Error({ code }: ErrorProps) {
   if (code && code === 404) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+        <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
           <div className="flex flex-col gap-4 px-8">
             <div className="flex flex-col gap-2 grow-0">
               <div className="flex flex-col gap-6">
@@ -81,7 +81,7 @@ export default function Error({ code }: ErrorProps) {
   if (code && code === 429) {
     return (
       <div className={darkMode ? "dark" : ""}>
-        <div className="w-screen h-screen dark:bg-[#121212] dark:text-white">
+        <div className="w-dvw h-dvh dark:bg-[#121212] dark:text-white">
           <div className="w-full h-full flex items-center justify-center">
             <div className="flex-col p-2 space-y-6">
               <p className="break-word">Thank you for taking the time to check out Fitness Recap 🙏</p>
@@ -98,7 +98,7 @@ export default function Error({ code }: ErrorProps) {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="w-screen h-screen flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
+      <div className="w-dvw h-dvh flex flex-col items-center justify-center dark:bg-[#121212] dark:text-white">
         <div className="flex flex-col gap-4 px-8">
           <div className="flex flex-col gap-2 grow-0">
             <div className="flex flex-col gap-6">

@@ -87,24 +87,22 @@ export default function BiggestActivity() {
     >
       <div className="w-full h-full grid grid-rows-12 max-h-[400px]">
         <div className="row-span-8 w-full h-full flex items-center-justify-center">
-          <div className="flex items-center justify-center w-full h-full p-2 rounded">
+          <div className="flex w-fit h-full p-2 rounded">
             {route ? (
               <a
                 href={`https://www.strava.com/activities/${biggestActivity?.id}`}
                 target="_blank"
                 className="block w-fit h-full"
               >
-                <div className="w-fit h-full rounded">
-                  <img
-                    src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]
-                      },${biggestActivity.start_latlng![0]}),pin-s-b+000(${biggestActivity.end_latlng![1]
-                      },${biggestActivity.end_latlng![0]}),path-5+f44-0.5(${encodeURIComponent(
-                        polyline.encode(route)
-                      )})/auto/400x400?access_token=${token}&zoom=14`}
-                    alt="map"
-                    className="w-fit h-full object-contain rounded hover:cursor-pointer shadow"
-                  />
-                </div>
+                <img
+                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]
+                    },${biggestActivity.start_latlng![0]}),pin-s-b+000(${biggestActivity.end_latlng![1]
+                    },${biggestActivity.end_latlng![0]}),path-5+f44-0.5(${encodeURIComponent(
+                      polyline.encode(route)
+                    )})/auto/400x400?access_token=${token}&zoom=14`}
+                  alt="map"
+                  className="w-fit h-full object-contain rounded hover:cursor-pointer shadow"
+                />
               </a>
             ) : null}
           </div>

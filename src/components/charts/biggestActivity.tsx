@@ -9,7 +9,7 @@ import { UnitDefinitions } from "../../types/activity"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
 
-const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ?? null
+// const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ?? null
 
 type MetricProps = {
   label: string
@@ -74,6 +74,8 @@ export default function BiggestActivity() {
       </Card>
     )
   }
+
+  console.log(route)
 
   return (
     <Card

@@ -58,7 +58,8 @@ video {
   }
 }
 
-body, html {
+body,
+html {
   background-color: white;
   font-family: SFMono-Regular, ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   font-feature-settings: normal;

@@ -89,7 +89,7 @@ export default function BiggestActivity() {
     >
       <div className="w-full h-full grid grid-rows-12 max-h-[400px]">
         {route && token ? (
-          <div className="row-span-8 w-full h-full flex items-center justify-center bg-blue-500">
+          <div className="row-span-8 w-full h-full flex items-center justify-center">
             <div className="flex w-fit h-full p-2 rounded">
               <a
                 href={`https://www.strava.com/activities/${biggestActivity?.id}`}
@@ -103,7 +103,7 @@ export default function BiggestActivity() {
                       polyline.encode(route)
                     )})/auto/400x400?access_token=${token}&zoom=14`}
                   alt="map"
-                  className="h-full rounded hover:cursor-pointer shadow bg-orange-400"
+                  className="h-full rounded hover:cursor-pointer shadow"
                 />
               </a>
             </div>

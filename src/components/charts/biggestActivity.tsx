@@ -103,7 +103,7 @@ export default function BiggestActivity() {
                       polyline.encode(route)
                     )})/auto/400x400?access_token=${token}&zoom=14`}
                   alt="map"
-                  className="w-fit h-full object-contain rounded hover:cursor-pointer shadow"
+                  className="h-full rounded hover:cursor-pointer shadow bg-orange-400"
                 />
               </a>
             </div>

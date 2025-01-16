@@ -86,7 +86,7 @@ export default function BiggestActivity() {
       icon={<Trophy size={16} strokeWidth={2} />}
     >
       <div className="w-full h-full grid grid-rows-12 max-h-[400px]">
-        <div className="row-span-8 w-full h-full">
+        <div className="row-span-8 w-full h-full flex items-center-justify-center">
           <div className="flex items-center justify-center w-full h-full p-2 rounded">
             {route ? (
               <a
@@ -102,7 +102,7 @@ export default function BiggestActivity() {
                         polyline.encode(route)
                       )})/auto/400x400?access_token=${token}&zoom=14`}
                     alt="map"
-                    className="w-fit h-full object-contain rounded hover:cursor-pointer shadow bg-blue-600"
+                    className="w-fit h-full object-contain rounded hover:cursor-pointer shadow"
                   />
                 </div>
               </a>

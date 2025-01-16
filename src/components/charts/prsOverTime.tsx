@@ -106,7 +106,7 @@ export default function PrsOverTime() {
   if (data.length === 0) {
     return (
       <Card
-        title="PRs"
+        title="Personal Records"
         description="prs achieved per month"
         icon={<Medal size={16} strokeWidth={2.5} />}
       >
@@ -117,7 +117,7 @@ export default function PrsOverTime() {
 
   return (
     <Card
-      title="PRs"
+      title="Personal Records"
       description="prs achieved per month"
       total={totalPrs}
       totalUnits="prs"

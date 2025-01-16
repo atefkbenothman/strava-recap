@@ -109,7 +109,7 @@ export default function HeartrateZones() {
 
   return (
     <Card
-      title="Heartrate Zones (avg)"
+      title="Heartrate Zones"
       description="total minutes spent in each zone"
       icon={<Activity size={16} strokeWidth={2} />}
     >

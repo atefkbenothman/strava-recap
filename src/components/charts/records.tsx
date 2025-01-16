@@ -36,7 +36,7 @@ const sanitizeData = (data: ActivityData): CardData => {
         acc.maxHeartrate = act
       }
       if (act.pr_count) {
-        acc.prCount = (acc.prCount || 0) + (act.pr_count - 1)
+        acc.prCount = (acc.prCount || 0) + act.pr_count
       }
       if (act.athlete_count) {
         acc.athleteCount = (acc.athleteCount || 0) + (act.athlete_count - 1)

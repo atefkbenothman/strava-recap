@@ -115,7 +115,7 @@ export default function Dashboard() {
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col p-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
           {/* Top Bar */}
-          <div className="w-full h-full grid grid-cols-2 items-center">
+          <div className="w-full h-full grid grid-cols-2 items-center gap-2">
             {/* Left Side */}
             <div className="h-full w-full items-center flex">
               <div className="font-semibold text-xl w-full text-balance">

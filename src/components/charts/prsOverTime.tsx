@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import {
   AreaChart,
   Area,
@@ -12,68 +12,66 @@ import Card from "../common/card"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
-import { ActivityData } from "../../types/activity"
 import { SportType } from "../../types/strava"
-import { Months } from "../../types/activity"
+import { ActivityData, MONTHS } from "../../types/activity"
 
 type AreaChartData = {
   month: string
   [key: string]: number | string
 }
 
-const sanitizeData = (data: ActivityData): { chartData: AreaChartData[], total: number } => {
-  if (!data || !data.monthly || !data.bySportType || Object.keys(data.monthly).length === 0) {
-    return { chartData: [], total: 0 }
-  }
-  const sportTypes = Object.keys(data.bySportType)
-  const res: AreaChartData[] = Months.map(m => {
-    const monthData: AreaChartData = { month: m }
-    sportTypes.forEach(sport => {
-      monthData[sport] = 0
-    })
-    return monthData
-  })
-  let totalPrs = 0
-  Object.entries(data.monthly!).forEach(([month, activities]) => {
-    if (!activities) return
-    const prsBySport: Partial<Record<SportType, number>> = {}
-    for (const act of activities) {
-      if (act.pr_count && act.pr_count > 0) {
-        const sportType = act.sport_type! as SportType
-        const prs = act.pr_count
-        if (!prsBySport[sportType]) {
-          prsBySport[sportType] = prs
-        } else {
-          prsBySport[sportType] += prs
-        }
-        totalPrs += prs
-      }
-    }
-    Object.entries(prsBySport).forEach(([sport, totalPrs]) => {
-      const existingMonth = res.find(item => item.month === month)
-      if (!existingMonth) return
-      existingMonth[sport] = totalPrs
-    })
-  })
-  return totalPrs > 0 ? { chartData: res, total: totalPrs } : { chartData: [], total: 0 }
+type TooltipProps = {
+  active?: boolean
+  payload?: any[]
+  label?: string
 }
 
-const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
-  if (!active || !payload || !label) {
-    return null
+export const calculatePRsOverTime = (data: ActivityData): { chartData: AreaChartData[], total: number } => {
+  if (!data?.byMonth) {
+    return { chartData: [], total: 0 }
   }
+
+  const sportTypes = Object.keys(data.byType)
+  const monthsData: AreaChartData[] = MONTHS.map(month => ({
+    month,
+    ...Object.fromEntries(sportTypes.map(sport => [sport, 0]))
+  }))
+
+  const { chartData, totalPrs } = Object.entries(data.byMonth).reduce((acc, [month, activities]) => {
+    if (!activities) return acc
+
+    activities.forEach(act => {
+      if (act.pr_count && act.pr_count > 0 && act.sport_type) {
+        const monthData = acc.chartData.find(item => item.month === month)
+        if (monthData) {
+          monthData[act.sport_type] = (monthData[act.sport_type] as number || 0) + act.pr_count
+          acc.totalPrs += act.pr_count
+        }
+      }
+    })
+
+    return acc
+  }, { chartData: monthsData, totalPrs: 0 })
+
+  return totalPrs > 0 ? { chartData, total: totalPrs } : { chartData: [], total: 0 }
+}
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
+  if (!active || !payload || !label) return null
+
   return (
     <div className="bg-white dark:bg-black bg-opacity-90 p-2 rounded flex-col space-y-2">
       <p className="font-bold">{label}</p>
       <div className="flex flex-col gap-1">
         {payload.map((p: any, idx: number) => {
-          const dataKey = p.dataKey
-          if (p.payload[dataKey] !== 0) {
-            return (
-              <p key={idx} style={{ color: p.color }}>{p.dataKey}: <span className="font-semibold">{p.payload[dataKey]}</span></p>
-            )
-          }
-          return null
+          const value = p.payload[p.dataKey]
+          if (value === 0) return null
+
+          return (
+            <p key={idx} style={{ color: p.color }}>
+              {p.dataKey}: <span className="font-semibold">{value}</span>
+            </p>
+          )
         })}
       </div>
     </div>
@@ -84,24 +82,22 @@ const CustomTooltip: React.FC<any> = ({ active, payload, label }) => {
  * PRs achieved per month
  */
 export default function PrsOverTime() {
-  const { activityData } = useStravaActivityContext()
+  const { activitiesData } = useStravaActivityContext()
   const { darkMode, colorPalette } = useThemeContext()
 
-  const [data, setData] = useState<AreaChartData[]>([])
-  const [totalPrs, setTotalPrs] = useState<number>(0)
+  const { data, totalPrs } = useMemo(() => {
+    if (!activitiesData) {
+      return { data: [], totalPrs: 0 }
+    }
 
-  useEffect(() => {
-    if (!activityData) return
     try {
-      const { chartData, total } = sanitizeData(activityData)
-      setData(chartData)
-      setTotalPrs(total)
+      const { chartData, total } = calculatePRsOverTime(activitiesData)
+      return { data: chartData, totalPrs: total }
     } catch (err) {
       console.warn(err)
-      setData([])
-      setTotalPrs(0)
+      return { data: [], totalPrs: 0 }
     }
-  }, [activityData, colorPalette])
+  }, [activitiesData])
 
   if (data.length === 0) {
     return (
@@ -125,9 +121,8 @@ export default function PrsOverTime() {
     >
       <ResponsiveContainer height={350} width="90%">
         <AreaChart data={data}>
-          {activityData?.bySportType &&
-            Object.keys(activityData.bySportType).length > 0 &&
-            Object.keys(activityData.bySportType).map(sport => (
+          {activitiesData?.byType &&
+            Object.keys(activitiesData.byType).map(sport => (
               <Area
                 key={sport}
                 type="step"
@@ -143,17 +138,21 @@ export default function PrsOverTime() {
                   fill: darkMode ? "#c2c2c2" : "#666",
                   formatter: (value: any) => value > 0 ? value : ""
                 }}
+                isAnimationActive={false}
               />
             ))}
           <XAxis
+            type="category"
             dataKey="month"
+            interval="equidistantPreserveStart"
             tick={{
               fontSize: 12,
-              fill: darkMode ? "#c2c2c2" : "#666"
+              color: darkMode ? "#c2c2c2" : "#666",
+              fill: darkMode ? "#c2c2c2" : "#666",
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          <Tooltip content={(props) => <CustomTooltip {...props} />} />
+          <Tooltip content={CustomTooltip} />
           <Legend />
         </AreaChart>
       </ResponsiveContainer>

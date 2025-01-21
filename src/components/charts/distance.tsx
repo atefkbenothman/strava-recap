@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { SportType } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import {
@@ -10,71 +10,68 @@ import {
   Legend
 } from "recharts"
 import { Rocket } from 'lucide-react'
-
 import Card from "../common/card"
-import { ActivityData, UnitDefinitions, Units } from "../../types/activity"
+import { ActivitiesByMonth, UnitDefinitions } from "../../types/activity"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { CustomBarTooltip } from "../common/customBarTooltip"
+import { BarChartData, convertMonthlyChartDataUnits } from "../../utils/utils"
 
-type BarChartData = {
-  month: string
-  [key: string]: number | string
-}
 
-const sanitizeData = (data: ActivityData, units: Units): { chartData: BarChartData[], total: number } => {
-  if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
-    return { chartData: [], total: 0 }
-  }
-  const res: BarChartData[] = []
-  let totalDistance = 0
-  Object.entries(data.monthly!).forEach(([month, activities]) => {
-    if (!activities) return
-    const distanceBySport: Partial<Record<SportType, number>> = {} // { Run: 99, Ride: 12 }
-    for (const act of activities) {
-      if (act.distance && act.distance > 0) {
-        const sportType = act.sport_type! as SportType
-        const distance = Number(unitConversion.convertDistance(act.distance!, units).toFixed(2))
-        if (distance > 0) {
-          if (!distanceBySport[sportType]) {
-            distanceBySport[sportType] = distance
-          } else {
-            distanceBySport[sportType] += distance
-          }
-          totalDistance += distance
-        }
+export const calculateMonthlyDistances = (monthlyData: ActivitiesByMonth): { chartData: BarChartData[], total: number } => {
+  const res = Object.entries(monthlyData).reduce((acc, [month, acts]) => {
+    let totalDistanceBySport = 0
+    const distanceBySport = acts.reduce((acc, act) => {
+      if (!act.distance || act.distance < 10) return acc
+      const sportType = act.sport_type! as SportType
+      const distance = Number(act.distance.toFixed(2))
+      if (!acc[sportType]) {
+        acc[sportType] = distance
+      } else {
+        acc[sportType] = Number((distance + acc[sportType]).toFixed(2))
       }
-    }
-    res.push({ month, ...distanceBySport })
-  })
-  return totalDistance > 0 ? { chartData: res, total: totalDistance } : { chartData: [], total: 0 }
+      totalDistanceBySport = Number((distance + totalDistanceBySport).toFixed(2))
+      return acc
+    }, {} as Partial<Record<SportType, number>>)
+    acc.chartData.push({ month, ...distanceBySport })
+    acc.total = Number((acc.total + totalDistanceBySport).toFixed(2))
+    return acc
+  }, { chartData: [] as BarChartData[], total: 0 })
+  return res.total > 0 ? res : { chartData: [], total: 0 }
 }
+
 
 /*
  * Total distance per month
 */
 export default function Distance() {
-  const { activityData, units } = useStravaActivityContext()
+  const { activitiesData, units } = useStravaActivityContext()
   const { darkMode, colorPalette } = useThemeContext()
 
-  const [data, setData] = useState<BarChartData[]>([])
-  const [totalDistance, setTotalDistance] = useState<number>(0)
-
-  useEffect(() => {
-    if (!activityData) return
+  const rawData = useMemo(() => {
+    if (!activitiesData.byMonth) {
+      return { data: [], totalDistance: 0 }
+    }
     try {
-      const { chartData, total } = sanitizeData(activityData, units)
-      setData(chartData)
-      setTotalDistance(total)
+      const { chartData, total } = calculateMonthlyDistances(activitiesData.byMonth)
+      return { data: chartData, totalDistance: total }
     } catch (err) {
       console.warn(err)
-      setData([])
-      setTotalDistance(0)
+      return { data: [], totalDistance: 0 }
     }
-  }, [activityData, units, colorPalette])
+  }, [activitiesData])
 
-  if (data.length === 0) {
+  const { data, totalDistance } = useMemo(() => {
+    const convertedChartData = convertMonthlyChartDataUnits(rawData.data, units, unitConversion.convertDistance)
+    const convertedTotal = Number(unitConversion.convertDistance(rawData.totalDistance, units).toFixed(2))
+    return {
+      data: convertedChartData,
+      totalDistance: convertedTotal
+    }
+  }, [rawData, units])
+
+  if (totalDistance === 0) {
     return (
       <Card
         title="Distance"
@@ -94,7 +91,10 @@ export default function Distance() {
       totalUnits={UnitDefinitions[units].distance}
       icon={<Rocket size={16} strokeWidth={2} />}
     >
-      <ResponsiveContainer height={350} width="90%">
+      <ResponsiveContainer
+        height={350}
+        width="90%"
+      >
         <BarChart data={data}>
           <Tooltip
             content={(props) => <CustomBarTooltip {...props} />}
@@ -110,9 +110,9 @@ export default function Distance() {
             }}
             stroke={darkMode ? "#c2c2c2" : "#666"}
           />
-          {activityData?.bySportType &&
-            Object.keys(activityData.bySportType).length > 0 &&
-            Object.keys(activityData.bySportType).map(sport => (
+          {activitiesData?.byType &&
+            Object.keys(activitiesData.byType).length > 0 &&
+            Object.keys(activitiesData.byType).map(sport => (
               <Bar
                 key={sport}
                 radius={[4, 4, 4, 4]}
@@ -126,6 +126,7 @@ export default function Distance() {
                   fill: darkMode ? "#c2c2c2" : "#666",
                   formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
                 }}
+                isAnimationActive={false}
               />
             ))}
           <Legend />

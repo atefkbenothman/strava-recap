@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { unitConversion } from "../../utils/utils"
 import { SportType } from "../../types/strava"
 import {
@@ -11,71 +11,67 @@ import {
 } from "recharts"
 import { Mountain } from "lucide-react"
 import Card from "../common/card"
-import { ActivityData, UnitDefinitions, Units } from "../../types/activity"
+import { UnitDefinitions, ActivitiesByMonth } from "../../types/activity"
 import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { CustomBarTooltip } from "../common/customBarTooltip"
+import { BarChartData, convertMonthlyChartDataUnits } from "../../utils/utils"
 
 
-type BarChartData = {
-  month: string
-  [key: string]: number | string
-}
-
-const sanitizeData = (data: ActivityData, units: Units): { chartData: BarChartData[], total: number } => {
-  if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
-    return { chartData: [], total: 0 }
-  }
-  const res: BarChartData[] = []
-  let totalElevation = 0
-  const monthlyActivities = data.monthly!
-  Object.entries(monthlyActivities).forEach(([month, activities]) => {
-    if (!activities) return
-    const elevationBySport: Partial<Record<SportType, number>> = {} // { Run: 99, Ride: 12 }
-    for (const act of activities) {
-      if (act.total_elevation_gain && act.total_elevation_gain > 0) {
-        const sportType = act.sport_type! as SportType
-        const elevation = Number(unitConversion.convertElevation(act.total_elevation_gain!, units).toFixed(2))
-        if (elevation > 0) {
-          if (!elevationBySport[sportType]) {
-            elevationBySport[sportType] = elevation
-          } else {
-            elevationBySport[sportType] += elevation
-          }
-          totalElevation += elevation
-        }
+export const calculateMonthlyElevation = (monthlyData: ActivitiesByMonth): { chartData: BarChartData[], total: number } => {
+  const res = Object.entries(monthlyData).reduce((acc, [month, acts]) => {
+    let totalElevationBySport = 0
+    const elevationBySport = acts.reduce((acc, act) => {
+      if (!act.total_elevation_gain || act.total_elevation_gain <= 0) return acc
+      const sportType = act.sport_type! as SportType
+      const elevation = Number(act.total_elevation_gain.toFixed(2))
+      if (elevation === 0) return acc
+      if (!acc[sportType]) {
+        acc[sportType] = elevation
+      } else {
+        acc[sportType] = Number((elevation + acc[sportType]).toFixed(2))
       }
-    }
-    res.push({ month, ...elevationBySport })
-  })
-  return totalElevation > 0 ? { chartData: res, total: totalElevation } : { chartData: [], total: 0 }
+      totalElevationBySport = Number((elevation + totalElevationBySport).toFixed(2))
+      return acc
+    }, {} as Partial<Record<SportType, number>>)
+    acc.chartData.push({ month, ...elevationBySport })
+    acc.total = Number((acc.total + totalElevationBySport).toFixed(2))
+    return acc
+  }, { chartData: [] as BarChartData[], total: 0 })
+  return res.total > 0 ? res : { chartData: [], total: 0 }
 }
 
 /*
  * Monthly Elevation
 */
 export default function Elevation() {
-  const { activityData, units } = useStravaActivityContext()
+  const { activitiesData, units } = useStravaActivityContext()
   const { darkMode, colorPalette } = useThemeContext()
 
-  const [data, setData] = useState<BarChartData[]>([])
-  const [totalElevation, setTotalElevation] = useState<number>(0)
-
-  useEffect(() => {
-    if (!activityData) return
+  const rawData = useMemo(() => {
+    if (!activitiesData.byMonth) {
+      return { data: [], totalElevation: 0 }
+    }
     try {
-      const { chartData, total } = sanitizeData(activityData, units)
-      setData(chartData)
-      setTotalElevation(total)
+      const { chartData, total } = calculateMonthlyElevation(activitiesData.byMonth)
+      return { data: chartData, totalElevation: total }
     } catch (err) {
       console.warn(err)
-      setData([])
-      setTotalElevation(0)
+      return { data: [], totalElevation: 0 }
     }
-  }, [activityData, units, colorPalette])
+  }, [activitiesData])
 
-  if (data.length === 0) {
+  const { data, totalElevation } = useMemo(() => {
+    const convertedChartData = convertMonthlyChartDataUnits(rawData.data, units, unitConversion.convertElevation)
+    const convertedTotal = Number(unitConversion.convertElevation(rawData.totalElevation, units).toFixed(2))
+    return {
+      data: convertedChartData,
+      totalElevation: convertedTotal
+    }
+  }, [rawData, units])
+
+  if (totalElevation === 0) {
     return (
       <Card
         title="Elevation"
@@ -100,6 +96,7 @@ export default function Elevation() {
           <XAxis
             type="category"
             dataKey="month"
+            interval="equidistantPreserveStart"
             tick={{
               fontSize: 12,
               color: darkMode ? "#c2c2c2" : "#666",
@@ -111,9 +108,9 @@ export default function Elevation() {
             content={(props) => <CustomBarTooltip {...props} />}
             cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
           />
-          {activityData?.bySportType &&
-            Object.keys(activityData.bySportType).length > 0 &&
-            Object.keys(activityData.bySportType).map(sport => (
+          {activitiesData?.byType &&
+            Object.keys(activitiesData.byType).length > 0 &&
+            Object.keys(activitiesData.byType).map(sport => (
               <Bar
                 key={sport}
                 radius={[4, 4, 4, 4]}
@@ -127,6 +124,7 @@ export default function Elevation() {
                   fill: darkMode ? "#c2c2c2" : "#666",
                   formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
                 }}
+                isAnimationActive={false}
               />
             ))}
           <Legend />

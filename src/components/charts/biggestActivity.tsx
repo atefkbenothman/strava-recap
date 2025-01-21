@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { StravaActivity } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import { Trophy } from 'lucide-react'
@@ -7,7 +7,6 @@ import NoData from "../common/noData"
 import polyline from "@mapbox/polyline"
 import { UnitDefinitions } from "../../types/activity"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
-
 
 type MetricProps = {
   label: string
@@ -20,13 +19,23 @@ function Metric({ label, value, unit }: MetricProps) {
     <div className="flex flex-col rounded p-2 w-full bg-gray-200 dark:bg-[#222628]">
       <p className="text-[10px] flex justify-center text-black/75 dark:text-white/75">{label}</p>
       <div className="flex flex-col w-full h-full items-center justify-center">
-        <p className="font-semibold text-lg">
-          {value}
-        </p>
-        <p className="text-xs"> {unit}</p>
+        <p className="font-semibold text-lg">{value}</p>
+        <p className="text-xs">{unit}</p>
       </div>
     </div>
   )
+}
+
+export const findBiggestActivity = (activities: StravaActivity[]) => {
+  if (!activities || activities.length === 0) return null
+
+  return activities.reduce((acc: StravaActivity | null, act) => {
+    if (act.distance) {
+      if (!acc) return act
+      return act.distance > acc.distance! ? act : acc
+    }
+    return acc
+  }, null)
 }
 
 /*
@@ -34,36 +43,27 @@ function Metric({ label, value, unit }: MetricProps) {
 */
 export default function BiggestActivity() {
   const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN ?? null
+  const { activitiesData, units } = useStravaActivityContext()
 
-  const { activityData, units } = useStravaActivityContext()
+  const { activity, route } = useMemo(() => {
+    if (!activitiesData?.all?.length) {
+      return { activity: null, route: null }
+    }
 
-  const [biggestActivity, setBiggestActivity] = useState<StravaActivity | null>()
-  const [route, setRoute] = useState<[number, number][] | null>()
-
-  useEffect(() => {
-    if (!activityData || !activityData.all || activityData.all.length === 0) return
     try {
-      const longestAct = activityData.all.reduce((acc: StravaActivity | null, act) => {
-        if (act.distance) {
-          if (!acc) return act
-          return act.distance > acc.distance! ? act : acc
-        }
-        return acc
-      }, null)
-      setBiggestActivity(longestAct)
-      if (longestAct) {
-        if (longestAct.map && longestAct.map.summary_polyline) {
-          setRoute(polyline.decode(longestAct.map.summary_polyline))
-        }
-      }
+      const biggestActivity = findBiggestActivity(activitiesData.all)
+      const decodedRoute = biggestActivity?.map?.summary_polyline
+        ? polyline.decode(biggestActivity.map.summary_polyline)
+        : null
+
+      return { activity: biggestActivity, route: decodedRoute }
     } catch (err) {
       console.warn(err)
-      setBiggestActivity(null)
-      setRoute(null)
+      return { activity: null, route: null }
     }
-  }, [activityData])
+  }, [activitiesData])
 
-  if (!biggestActivity) {
+  if (!activity) {
     return (
       <Card
         title="Biggest Activity"
@@ -75,67 +75,75 @@ export default function BiggestActivity() {
     )
   }
 
-  console.log(route)
+  const formattedDate = activity.start_date
+    ? new Date(activity.start_date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric"
+    })
+    : "Date not available"
+
+  const metrics = [
+    {
+      label: "Distance",
+      value: unitConversion.convertDistance(activity.distance!, units).toFixed(1),
+      unit: UnitDefinitions[units].distance
+    },
+    {
+      label: "Elevation",
+      value: unitConversion.convertElevation(activity.total_elevation_gain!, units).toFixed(0),
+      unit: UnitDefinitions[units].elevation
+    },
+    {
+      label: "Time",
+      value: unitConversion.convertTime(activity.moving_time!, "hours").toFixed(1),
+      unit: "hrs"
+    }
+  ]
 
   return (
     <Card
       title="Biggest Activity"
-      description={
-        biggestActivity.start_date
-          ? new Date(biggestActivity.start_date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-          : "Date not available"
-      }
+      description={formattedDate}
       icon={<Trophy size={16} strokeWidth={2} />}
     >
       <div className="w-full h-full grid grid-rows-12 max-h-[400px]">
-        {route && token ? (
+        {route && token && (
           <div className="row-span-8 w-full h-full flex items-center justify-center">
             <div className="flex w-fit h-full p-2 rounded">
               <a
-                href={`https://www.strava.com/activities/${biggestActivity?.id}`}
+                href={`https://www.strava.com/activities/${activity.id}`}
                 target="_blank"
                 className="block w-fit h-full"
               >
                 <img
-                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${biggestActivity.start_latlng![1]
-                    },${biggestActivity.start_latlng![0]}),pin-s-b+000(${biggestActivity.end_latlng![1]
-                    },${biggestActivity.end_latlng![0]}),path-5+f44-0.5(${encodeURIComponent(
-                      polyline.encode(route)
-                    )})/auto/400x400?access_token=${token}&zoom=14`}
+                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/static/pin-s-a+9ed4bd(${activity.start_latlng![1]
+                    },${activity.start_latlng![0]
+                    }),pin-s-b+000(${activity.end_latlng![1]
+                    },${activity.end_latlng![0]
+                    }),path-5+f44-0.5(${encodeURIComponent(polyline.encode(route))
+                    })/auto/400x400?access_token=${token}&zoom=14`}
                   alt="map"
                   className="h-full rounded hover:cursor-pointer shadow"
+                  loading="lazy"
                 />
               </a>
             </div>
           </div>
-        ) : null}
+        )}
         <div className="row-span-1 w-full flex justify-center items-center overflow-hidden pt-2">
-          <p className="text-base font-medium break-all line-clamp-1 px-10 dark:text-white/95">{biggestActivity.name}</p>
+          <p className="text-base font-medium break-all line-clamp-1 px-10 dark:text-white/95">
+            {activity.name}
+          </p>
         </div>
         <div className="row-span-3 w-full grid grid-cols-3 px-4">
-          <div className="p-2 flex items-center justify-center">
-            <Metric
-              label="Distance"
-              value={unitConversion.convertDistance(biggestActivity.distance!, units).toFixed(1)}
-              unit={UnitDefinitions[units].distance}
-            />
-          </div>
-          <div className="p-2 flex items-center justify-center">
-            <Metric
-              label="Elevation"
-              value={unitConversion.convertElevation(biggestActivity.total_elevation_gain!, units).toFixed(0)}
-              unit={UnitDefinitions[units].elevation}
-            />
-          </div>
-          <div className="p-2 flex items-center justify-center">
-            <Metric
-              label="Time"
-              value={unitConversion.convertTime(biggestActivity.moving_time!, "hours").toFixed(1)}
-              unit="hrs"
-            />
-          </div>
+          {metrics.map(metric => (
+            <div key={metric.label} className="p-2 flex items-center justify-center">
+              <Metric {...metric} />
+            </div>
+          ))}
         </div>
       </div>
-    </Card >
+    </Card>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { Image } from "lucide-react"
 import Card from "../common/card"
@@ -11,14 +11,91 @@ import {
 import ReactPlayer from "react-player"
 import Autoplay from "embla-carousel-autoplay"
 import NoData from "../common/noData"
+import { StravaPhoto } from "../../types/strava"
 
+type MediaItemProps = {
+  item: StravaPhoto
+  index: number
+}
+
+const MediaItem = ({ item, index }: MediaItemProps) => {
+  if (item.video_url) {
+    return (
+      <CarouselItem key={index} className="flex items-center justify-center overflow-hidden pl-2">
+        <ReactPlayer
+          url={item.video_url.split("?")[0]}
+          loop
+          muted
+          playsinline
+          controls
+        />
+      </CarouselItem>
+    )
+  }
+
+  return (
+    <CarouselItem key={index} className="flex items-center justify-center pl-2">
+      <img
+        src={item.urls[2000]}
+        className="rounded h-[350px]"
+        alt={`Photo ${index + 1}`}
+        loading="lazy"
+      />
+    </CarouselItem>
+  )
+}
+
+const NavigationButtons = ({ api }: { api: CarouselApi | undefined }) => (
+  <div className="flex items-center">
+    <button
+      className="absolute left-4 text-lg"
+      onClick={() => api?.scrollPrev()}
+      aria-label="Previous slide"
+    >
+      {"<"}
+    </button>
+    <button
+      className="absolute right-4 text-lg"
+      onClick={() => api?.scrollNext()}
+      aria-label="Next slide"
+    >
+      {">"}
+    </button>
+  </div>
+)
 
 export default function Photo() {
-  const { photo, photoLoading } = useStravaActivityContext()
+  const { photosData, photosLoading } = useStravaActivityContext()
 
   const [api, setApi] = useState<CarouselApi>()
 
-  if (!photo) {
+  const { description, showNavigation } = useMemo(() => {
+    if (!photosData?.length) {
+      return { description: "", showNavigation: false }
+    }
+
+    return {
+      description: new Date(photosData[0].created_at_local).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      }),
+      showNavigation: photosData.length > 1
+    }
+  }, [photosData])
+
+  if (photosLoading) {
+    return (
+      <Card
+        title="Photo"
+        icon={<Image size={17} strokeWidth={2} />}
+      >
+        <p className="font-semibold p-6 text-slate-500 dark:text-slate-400">loading...</p>
+      </Card>
+    )
+  }
+
+  if (!photosData) {
     return (
       <Card
         title="Photo"
@@ -29,26 +106,15 @@ export default function Photo() {
     )
   }
 
-  if (photoLoading) {
-    return (
-      <Card
-        title="Photo"
-        icon={<Image size={17} strokeWidth={2} />}
-      >
-        <p>loading...</p>
-      </Card>
-    )
-  }
-
   return (
     <Card
       title="Photo"
-      description={new Date(photo[0].created_at_local).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
-      icon={< Image size={17} strokeWidth={2} />}
+      description={description}
+      icon={<Image size={17} strokeWidth={2} />}
     >
-      <div className="h-full w-full items-center justify-center flex px-2 py-1">
+      <div className="h-full w-full items-center justify-center flex p-6 py-8">
         <Carousel
-          className="min-h-[350px] h-[350px] w-full flex items-center justify-center p-2"
+          className="min-h-[300px] h-[300px] w-full flex items-center justify-center"
           plugins={[
             Autoplay({
               delay: 10000
@@ -57,38 +123,18 @@ export default function Photo() {
           setApi={setApi}
           opts={{ loop: true }}
         >
-          <CarouselContent className="-ml-6">
-            {photo && photo.map((p, idx) => {
-              if (p.video_url) {
-                return (
-                  <CarouselItem key={idx} className="flex items-center justify-center overflow-hidden pl-6">
-                    <ReactPlayer
-                      url={p.video_url.split("?")[0]}
-                      loop
-                      muted
-                      playsinline
-                      // playing
-                      controls
-                    />
-                  </CarouselItem>
-                )
-              } else {
-                return (
-                  <CarouselItem key={idx} className="flex items-center justify-center pl-6">
-                    <img src={p.urls[2000]} className="rounded h-[350px]" />
-                  </CarouselItem>
-                )
-              }
-            })}
+          <CarouselContent className="-ml-2">
+            {photosData.map((item, index) => (
+              <MediaItem
+                key={`${item.created_at_local}-${index}`}
+                item={item}
+                index={index}
+              />
+            ))}
           </CarouselContent>
+          {showNavigation && <NavigationButtons api={api} />}
         </Carousel>
-        {photo && photo.length > 1 ? (
-          <div className="flex items-center">
-            <button className="absolute left-7 text-lg" onClick={() => api?.scrollPrev()}>{"<"}</button>
-            <button className="absolute right-7 text-lg" onClick={() => api?.scrollNext()}>{">"}</button>
-          </div>
-        ) : null}
-      </div >
-    </Card >
+      </div>
+    </Card>
   )
 }

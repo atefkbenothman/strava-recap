@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { ThermometerSun } from "lucide-react"
 import {
   ResponsiveContainer,
@@ -17,16 +17,12 @@ import { SportType, StravaActivity } from "../../types/strava"
 import {
   unitConversion,
   calculateTrendLine,
-  TrendCoefficients,
   calculateTrendLinePoints,
-  ReferenceLinePoints,
-  ChartBounds,
   getDataBounds,
   calculateTicks
 } from "../../utils/utils"
 import NoData from "../common/noData"
 import { UnitDefinitions } from "../../types/activity"
-import { ColorPalette } from "../../contexts/themeContext"
 import { CustomScatterTooltip } from "../common/customScatterToolTip"
 
 type ScatterChartData = {
@@ -35,92 +31,101 @@ type ScatterChartData = {
   temp: number
   url: string
   fill: string
+  sport_type?: SportType
 }
 
 const X_OFFSET = 5
 const Y_OFFSET = 1
 const TICK_COUNT = 5
 
-const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette): ScatterChartData[] => {
-  if (!data || data.length === 0) {
-    return []
-  }
-  const chartData: ScatterChartData[] = []
-  for (const act of data) {
-    if (act.average_speed && act.average_temp) {
-      chartData.push({
-        temp: act.average_temp!,
-        speed: Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2)),
-        fill: colorPalette[act.sport_type! as SportType]!,
-        url: `https://www.strava.com/activities/${act.id}`,
-        name: act.name ?? ""
-      })
-    }
-  }
-  return chartData
+export const calculateTemperatureData = (activities: StravaActivity[]): ScatterChartData[] => {
+  if (!activities?.length) return []
+
+  return activities.reduce((acc, act) => {
+    if (!act.average_speed || !act.average_temp || !act.sport_type) return acc
+    acc.push({
+      temp: act.average_temp,
+      speed: act.average_speed,
+      fill: "#ffffff", // placeholder color
+      url: `https://www.strava.com/activities/${act.id}`,
+      name: act.name ?? "",
+      sport_type: act.sport_type as SportType
+    })
+    return acc
+  }, [] as ScatterChartData[])
 }
 
-/*
- * Temperature vs Speed
- */
 export default function TemperatureVsSpeed() {
-  const { activityData, units } = useStravaActivityContext()
+  const { activitiesData, units } = useStravaActivityContext()
   const { colorPalette, darkMode } = useThemeContext()
 
-  const [data, setData] = useState<ScatterChartData[]>([])
-  const [trend, setTrend] = useState<TrendCoefficients>({
-    slope: 0,
-    intercept: 0,
-    canShowLine: false
-  })
-  const [bounds, setBounds] = useState<ChartBounds>({
-    xMin: 0,
-    xMax: 0,
-    yMin: 0,
-    yMax: 0
-  })
-  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>([
-    { x: 0, y: 0 },
-    { x: 0, y: 0 }
-  ])
-  const [ticks, setTicks] = useState<{ xAxisTicks: number[]; yAxisTicks: number[] }>({
-    xAxisTicks: [],
-    yAxisTicks: [],
-  })
+  const rawData = useMemo(() => {
+    if (!activitiesData?.all) return []
 
-  useEffect(() => {
-    if (!activityData) return
     try {
-      // format data to fit recharts schema
-      const sanitizedData = sanitizeData(activityData.all!, units, colorPalette)
-      setData(sanitizedData)
-      // calculate data bounds
-      const dataBounds = getDataBounds(sanitizedData, "temp", "speed")
-      setBounds(dataBounds)
-      setTicks({
-        xAxisTicks: calculateTicks(Math.round(dataBounds.xMin), Math.round(dataBounds.xMax), TICK_COUNT),
-        yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
-      })
-      // calculate trend line
-      const trend = calculateTrendLine(sanitizedData, "temp", "speed")
-      setTrend(trend)
-      if (trend.canShowLine) {
-        setReferenceLinePoints(calculateTrendLinePoints(trend, {
-          xMin: dataBounds.xMin - X_OFFSET,
-          xMax: dataBounds.xMax * 10,
-          yMin: dataBounds.yMin - Y_OFFSET,
-          yMax: dataBounds.yMax * 10
-        }))
-      }
+      return calculateTemperatureData(activitiesData.all)
     } catch (err) {
       console.warn(err)
-      setData([])
-      setTrend({ slope: 0, intercept: 0, canShowLine: false })
-      setBounds({ xMin: 0, xMax: 0, yMin: 0, yMax: 0 })
-      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
-      setTicks({ xAxisTicks: [], yAxisTicks: [] })
+      return []
     }
-  }, [activityData, units, colorPalette])
+  }, [activitiesData])
+
+  const dataWithUnits = useMemo(() =>
+    rawData.map(item => ({
+      ...item,
+      speed: Number(unitConversion.convertSpeed(item.speed, units).toFixed(2))
+    }))
+    , [rawData, units])
+
+  const data = useMemo(() =>
+    dataWithUnits.map(item => ({
+      ...item,
+      fill: colorPalette[item.sport_type as SportType] || "#ffffff"
+    }))
+    , [dataWithUnits, colorPalette])
+
+  const chartData = useMemo(() => {
+    if (data.length === 0) {
+      return {
+        bounds: { xMin: 0, xMax: 0, yMin: 0, yMax: 0 },
+        ticks: { xAxisTicks: [], yAxisTicks: [] },
+        trend: { slope: 0, intercept: 0, canShowLine: false },
+        referenceLinePoints: [{ x: 0, y: 0 }, { x: 0, y: 0 }]
+      }
+    }
+
+    const bounds = getDataBounds(data, "temp", "speed")
+    const ticks = {
+      xAxisTicks: calculateTicks(Math.round(bounds.xMin), Math.round(bounds.xMax), TICK_COUNT),
+      yAxisTicks: calculateTicks(Math.round(bounds.yMin), Math.round(bounds.yMax), TICK_COUNT)
+    }
+    const trend = calculateTrendLine(data, "temp", "speed")
+    const referenceLinePoints = trend.canShowLine
+      ? calculateTrendLinePoints(trend, {
+        xMin: bounds.xMin - X_OFFSET,
+        xMax: bounds.xMax * 10,
+        yMin: bounds.yMin - Y_OFFSET,
+        yMax: bounds.yMax * 10
+      })
+      : [{ x: 0, y: 0 }, { x: 0, y: 0 }]
+
+    return { bounds, ticks, trend, referenceLinePoints }
+  }, [data])
+
+  const chartConfig = useMemo(() => ({
+    tickStyle: {
+      fontSize: 10,
+      color: darkMode ? "#c2c2c2" : "#666",
+      fill: darkMode ? "#c2c2c2" : "#666"
+    },
+    axisStyle: {
+      stroke: darkMode ? "#c2c2c2" : "#666"
+    },
+    referenceLineStyle: {
+      stroke: darkMode ? "#c2c2c2" : "black",
+      strokeDasharray: "5 5"
+    }
+  }), [darkMode])
 
   const handleDotClick = (data: any) => {
     if (data.url) {
@@ -159,15 +164,11 @@ export default function TemperatureVsSpeed() {
             dataKey="temp"
             name="temp"
             unit="°C"
-            tick={{
-              fontSize: 10,
-              color: darkMode ? "#c2c2c2" : "#666",
-              fill: darkMode ? "#c2c2c2" : "#666"
-            }}
-            stroke={darkMode ? "#c2c2c2" : "#666"}
-            domain={[bounds.xMin - X_OFFSET, bounds.xMax + X_OFFSET]}
+            tick={chartConfig.tickStyle}
+            stroke={chartConfig.axisStyle.stroke}
+            domain={[chartData.bounds.xMin - X_OFFSET, chartData.bounds.xMax + X_OFFSET]}
             allowDecimals={false}
-            ticks={ticks.xAxisTicks}
+            ticks={chartData.ticks.xAxisTicks}
             interval={0}
           />
           <YAxis
@@ -175,27 +176,22 @@ export default function TemperatureVsSpeed() {
             dataKey="speed"
             name="speed"
             unit={UnitDefinitions[units].speed}
-            tick={{
-              fontSize: 10,
-              color: darkMode ? "#c2c2c2" : "#666",
-              fill: darkMode ? "#c2c2c2" : "#666"
-            }}
-            stroke={darkMode ? "#c2c2c2" : "#666"}
+            tick={chartConfig.tickStyle}
+            stroke={chartConfig.axisStyle.stroke}
             width={38}
             allowDecimals={false}
-            domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
-            ticks={ticks.yAxisTicks}
+            domain={[chartData.bounds.yMin - Y_OFFSET, chartData.bounds.yMax + Y_OFFSET]}
+            ticks={chartData.ticks.yAxisTicks}
             interval={0}
           />
-          {trend.canShowLine && (
+          {chartData.trend.canShowLine && (
             <ReferenceLine
               ifOverflow="extendDomain"
-              segment={referenceLinePoints!}
-              stroke={darkMode ? "#c2c2c2" : "black"}
-              strokeDasharray="5 5"
+              segment={chartData.referenceLinePoints}
+              {...chartConfig.referenceLineStyle}
             />
           )}
-          <Tooltip content={(props) => <CustomScatterTooltip {...props} />} />
+          <Tooltip content={CustomScatterTooltip} />
           <ZAxis range={[30, 40]} />
         </ScatterChart>
       </ResponsiveContainer>

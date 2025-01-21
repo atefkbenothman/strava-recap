@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { unitConversion } from "../../utils/utils"
 import { StravaActivity } from "../../types/strava"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
@@ -7,20 +7,23 @@ import Stat from "../common/stat"
 import { ActivityData, UnitDefinitions } from "../../types/activity"
 import { Award } from "lucide-react"
 
-
 type CardData = {
   topSpeed?: StravaActivity
   highestElevation?: StravaActivity
   maxWatts?: StravaActivity
   maxHeartrate?: StravaActivity
-  prCount?: number
-  athleteCount?: number
+  prCount: number
+  athleteCount: number
 }
 
-const sanitizeData = (data: ActivityData): CardData => {
+export const calculateRecords = (data: ActivityData): CardData => {
   if (!data || !data.all || data.all.length === 0) {
-    return {}
+    return {
+      prCount: 0,
+      athleteCount: 0
+    }
   }
+
   return data.all.reduce(
     (acc, act) => {
       if (act.max_speed && (!acc.topSpeed || act.max_speed > acc.topSpeed.max_speed!)) {
@@ -36,10 +39,10 @@ const sanitizeData = (data: ActivityData): CardData => {
         acc.maxHeartrate = act
       }
       if (act.pr_count) {
-        acc.prCount = (acc.prCount || 0) + act.pr_count
+        acc.prCount += act.pr_count
       }
       if (act.athlete_count) {
-        acc.athleteCount = (acc.athleteCount || 0) + (act.athlete_count - 1)
+        acc.athleteCount += (act.athlete_count - 1)
       }
       return acc
     },
@@ -58,20 +61,62 @@ const sanitizeData = (data: ActivityData): CardData => {
  * Highest records
 */
 export default function Records() {
-  const { activityData, units } = useStravaActivityContext()
+  const { activitiesData, units } = useStravaActivityContext()
 
-  const [data, setData] = useState<CardData>()
-
-  useEffect(() => {
-    if (!activityData || activityData.all!.length < 0) return
+  const data = useMemo(() => {
+    if (!activitiesData || activitiesData.all.length < 0) {
+      return {
+        prCount: 0,
+        athleteCount: 0
+      }
+    }
     try {
-      const cardData = sanitizeData(activityData)
-      setData(cardData)
+      return calculateRecords(activitiesData)
     } catch (err) {
       console.warn(err)
-      setData({})
+      return {
+        prCount: 0,
+        athleteCount: 0
+      }
     }
-  }, [activityData, units])
+  }, [activitiesData])
+
+  const stats = useMemo(() => [
+    {
+      label: "Top Speed",
+      value: data.topSpeed
+        ? String(unitConversion.convertSpeed(data.topSpeed.max_speed!, units).toFixed(2))
+        : "-",
+      unit: UnitDefinitions[units].speed
+    },
+    {
+      label: "Max Watts",
+      value: data.maxWatts ? String(data.maxWatts.max_watts!) : "-",
+      unit: "W"
+    },
+    {
+      label: "Highest Heartrate",
+      value: data.maxHeartrate ? String(data.maxHeartrate.max_heartrate!) : "-",
+      unit: "bpm"
+    },
+    {
+      label: "Most Elevation Gain",
+      value: data.highestElevation
+        ? String(unitConversion.convertElevation(data.highestElevation.total_elevation_gain!, units).toFixed(0))
+        : "-",
+      unit: UnitDefinitions[units].elevation
+    },
+    {
+      label: "PRs",
+      value: data.prCount ? String(data.prCount) : "-",
+      unit: "prs"
+    },
+    {
+      label: "Athletes",
+      value: data.athleteCount ? String(data.athleteCount) : "-",
+      unit: "people"
+    }
+  ], [data, units])
 
   return (
     <Card
@@ -80,37 +125,15 @@ export default function Records() {
       icon={<Award size={16} strokeWidth={2} />}
     >
       <div className="w-full grid grid-cols-2 p-2 gap-2">
-        <Stat
-          label="Top Speed"
-          value={(data && data.topSpeed) ? String(unitConversion.convertSpeed(data.topSpeed.max_speed!, units).toFixed(2)) : "-"}
-          unit={UnitDefinitions[units].speed}
-        />
-        <Stat
-          label="Max Watts"
-          value={(data && data.maxWatts) ? String(data.maxWatts.max_watts!) : "-"}
-          unit="W"
-        />
-        <Stat
-          label="Highest Heartrate"
-          value={(data && data.maxHeartrate) ? String(data.maxHeartrate.max_heartrate!) : "-"}
-          unit="bpm"
-        />
-        <Stat
-          label="Most Elevation Gain"
-          value={(data && data.highestElevation) ? String(unitConversion.convertElevation(data.highestElevation.total_elevation_gain!, units).toFixed(0)) : "-"}
-          unit={UnitDefinitions[units].elevation}
-        />
-        <Stat
-          label="PRs"
-          value={(data && data.prCount) ? String(data.prCount) : "-"}
-          unit="prs"
-        />
-        <Stat
-          label="Athletes"
-          value={(data && data.athleteCount) ? String(data.athleteCount) : "-"}
-          unit="people"
-        />
+        {stats.map((stat, index) => (
+          <Stat
+            key={`stat-${index}`}
+            label={stat.label}
+            value={stat.value}
+            unit={stat.unit}
+          />
+        ))}
       </div>
-    </Card >
+    </Card>
   )
 }

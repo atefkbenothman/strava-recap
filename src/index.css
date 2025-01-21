@@ -10,6 +10,10 @@
   font-size: 12px;
 }
 
+.react-activity-calendar {
+  font-size: 2px;
+}
+
 video {
   overflow: hidden;
   border-radius: 0.25rem;

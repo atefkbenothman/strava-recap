@@ -1,5 +1,6 @@
 import { createContext, useState } from "react"
 import { SportType } from "../types/strava"
+import { storage } from "../utils/utils"
 
 export type ColorPalette = {
   [key in SportType]?: string
@@ -43,24 +44,23 @@ type ThemeContextProviderProps = {
 }
 
 export default function ThemeContextProvider({ children }: ThemeContextProviderProps) {
-  const storedTheme = localStorage.getItem("theme")
-
+  const storedTheme = storage.get("theme", "Default" as Theme)
   const [theme, setTheme] = useState<Theme>(
     Object.keys(Themes).includes(storedTheme as string)
       ? storedTheme as Theme
       : "Default"
   )
-  const [darkMode, setDarkMode] = useState<boolean>(JSON.parse(localStorage.getItem("dark") || "true"))
+  const [darkMode, setDarkMode] = useState<boolean>(storage.get("dark", "true") === "true")
   const [colorPalette, setColorPalette] = useState<ColorPalette>({})
 
   const toggleDarkMode = (mode: boolean) => {
-    localStorage.setItem("dark", JSON.stringify(mode))
     setDarkMode(mode)
+    storage.set<string>("dark", String(mode))
   }
 
   const updateTheme = (newTheme: Theme) => {
-    localStorage.setItem("theme", newTheme)
     setTheme(newTheme)
+    storage.set<string>("theme", newTheme)
   }
 
   return (

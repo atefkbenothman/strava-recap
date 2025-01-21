@@ -36,40 +36,44 @@ import DistanceVsPower from "./charts/distanceVsPower"
 import TemperatureVsSpeed from "./charts/tempVsSpeed"
 import DistanceVsSpeed from "./charts/distanceVsSpeed"
 
-const GRAPH_COMPONENTS = [
-  <SportTypes />,
-  <TotalHours />,
-  <Distance />,
-  <Records />,
-  <DistanceRanges />,
-  <ActivityCount />,
-  <Socials />,
-  <StartTimes />,
-  <Streaks />,
-  <Elevation />,
-  <Gear />,
-  <BiggestActivity />,
-  <DistanceVsElevation />,
-  <HeartrateVsSpeed />,
-  <PrsOverTime />,
-  <RestDays />,
-  <HeartrateZones />,
-  <Photo />,
-  <DistanceVsPower />,
-  <TemperatureVsSpeed />,
-  <DistanceVsSpeed />
+
+const GRAPH_COMPONENTS: { id: string, component: React.ReactNode }[] = [
+  { id: "distance", component: <Distance /> },
+  { id: "elevation", component: <Elevation /> },
+  { id: "activityCount", component: <ActivityCount /> },
+  { id: "restDays", component: <RestDays /> },
+  { id: "sportTypes", component: <SportTypes /> },
+  { id: "totalHours", component: <TotalHours /> },
+  { id: "records", component: <Records /> },
+  { id: "streaks", component: <Streaks /> },
+  { id: "socials", component: <Socials /> },
+  { id: "biggestActivity", component: <BiggestActivity /> },
+  { id: "photo", component: <Photo /> },
+  { id: "startTimes", component: <StartTimes /> },
+  { id: "prsOverTime", component: <PrsOverTime /> },
+  { id: "distanceRanges", component: <DistanceRanges /> },
+  { id: "gear", component: <Gear /> },
+  { id: "distanceVsElevation", component: <DistanceVsElevation /> },
+  { id: "heartrateVsSpeed", component: <HeartrateVsSpeed /> },
+  { id: "distanceVsPower", component: <DistanceVsPower /> },
+  { id: "tempVsSpeed", component: <TemperatureVsSpeed /> },
+  { id: "distanceVsSpeed", component: <DistanceVsSpeed /> },
+  { id: "heartrateZones", component: <HeartrateZones /> },
 ]
 
 
 export default function Dashboard() {
   const { athlete } = useStravaAuthContext()
-  const { isLoading, error, activityData } = useStravaActivityContext()
+  const {
+    activitiesData,
+    activitiesLoading,
+    activitiesError
+  } = useStravaActivityContext()
   const { currentYear } = useCurrentYearContext()
   const { darkMode } = useThemeContext()
 
   const [shuffle, setShuffle] = useState<boolean>(false)
 
-  // shuffle graphs
   const shuffleGraphComponents = useMemo(() => {
     return GRAPH_COMPONENTS
       .map(value => ({ value, sort: Math.random() }))
@@ -81,7 +85,7 @@ export default function Dashboard() {
     setShuffle(prevState => !prevState)
   }
 
-  if (isLoading) {
+  if (activitiesLoading) {
     return (
       <div>
         <Loading />
@@ -90,18 +94,18 @@ export default function Dashboard() {
     )
   }
 
-  if (error) {
-    const errorCode = parseInt(error.message.slice(error.message.indexOf('<') + 1, error.message.indexOf('>')), 10) || null;
+  if (activitiesError) {
+    const errorCode = parseInt(activitiesError.message.slice(activitiesError.message.indexOf('<') + 1, activitiesError.message.indexOf('>')), 10) || null
     return (
       <div>
-        <Error message={error.message} code={errorCode} />
+        <Error message={activitiesError.message} code={errorCode} />
         <Analytics />
       </div>
     )
   }
 
   // succesfully authenticated but user has no activities
-  if (!activityData || Object.keys(activityData).length === 0 || Object.keys(activityData.all!).length === 0) {
+  if (!activitiesData || activitiesData.all.length === 0) {
     return (
       <div>
         <NoActivities />
@@ -151,9 +155,9 @@ export default function Dashboard() {
               <div className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 sm:col-span-2 rounded">
                 <DailyActivities />
               </div>
-              {shuffleGraphComponents.map((graph, index) => (
-                <div key={index} className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 rounded">
-                  {graph}
+              {shuffleGraphComponents.map(({ id, component }) => (
+                <div key={id} className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 rounded">
+                  {component}
                 </div>
               ))}
             </div>

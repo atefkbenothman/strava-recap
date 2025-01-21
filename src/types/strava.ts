@@ -98,7 +98,7 @@ export type StravaActivity = {
   type?: string
   sport_type?: string
   workout_type?: number
-  id?: number
+  id: number
   start_date?: string
   start_date_local?: string
   timezone?: string
@@ -151,53 +151,51 @@ export type StravaActivity = {
   suffer_score?: number
 }
 
-export const SportTypes = [
-  "Run",
-  "TrailRun",
-  "Walk",
-  "Hike",
-  "VirtualRun",
-  "Ride",
-  "MountainBikeRide",
-  "GravelRide",
-  "E-BikeRide",
-  "E-MountainBikeRide",
-  "Velomobile",
-  "VirtualRide",
-  "Canoe",
-  "Kayak",
-  "Kitesurf",
-  "Rowing",
-  "StandUpPaddling",
-  "Surf",
-  "Swim",
-  "Windsurf",
-  "IceSkate",
-  "AlpineSki",
-  "BackcountrySki",
-  "NordicSki",
-  "Snowboard",
-  "Snowshoe",
-  "Handcycle",
-  "InlineSkate",
-  "RockClimb",
-  "RollerSki",
-  "Golf",
-  "Skateboard",
-  "Wheelchair",
-  "Badminton",
-  "Tennis",
-  "Pickleball",
-  "Crossfit",
-  "Elliptical",
-  "StairStepper",
-  "WeightTraining",
-  "Yoga",
-  "Workout",
-  "HIIT",
-  "Pilates",
-  "TableTennis",
-  "Squash",
-  "Racquetball"
-] as const
-export type SportType = typeof SportTypes[number]
+export type SportType =
+  | "Run"
+  | "TrailRun"
+  | "Walk"
+  | "Hike"
+  | "VirtualRun"
+  | "Ride"
+  | "MountainBikeRide"
+  | "GravelRide"
+  | "EBikeRide"
+  | "EMountainBikeRide"
+  | "Velomobile"
+  | "VirtualRide"
+  | "Canoe"
+  | "Kayak"
+  | "Kitesurf"
+  | "Rowing"
+  | "StandUpPaddling"
+  | "Surf"
+  | "Swim"
+  | "Windsurf"
+  | "IceSkate"
+  | "AlpineSki"
+  | "BackcountrySki"
+  | "NordicSki"
+  | "Snowboard"
+  | "Snowshoe"
+  | "Handcycle"
+  | "InlineSkate"
+  | "RockClimb"
+  | "RollerSki"
+  | "Golf"
+  | "Skateboard"
+  | "Wheelchair"
+  | "Badminton"
+  | "Tennis"
+  | "Pickleball"
+  | "Crossfit"
+  | "Elliptical"
+  | "StairStepper"
+  | "WeightTraining"
+  | "Yoga"
+  | "Workout"
+  | "HighIntensityIntervalTraining"
+  | "Pilates"
+  | "TableTennis"
+  | "Squash"
+  | "Racquetball"

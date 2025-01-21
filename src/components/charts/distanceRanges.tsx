@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import {
   ResponsiveContainer,
   RadialBarChart,
@@ -14,14 +14,18 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ActivityData, Units } from "../../types/activity"
 
-
 type RadialBarChartData = {
   name: string
   activities: number
   fill: string
 }
 
-const distanceRanges = [
+type TooltipProps = {
+  active?: boolean
+  payload?: any[]
+}
+
+const DISTANCE_RANGES = [
   { name: "0-4", min: 0, max: 5 },
   { name: "5-9", min: 5, max: 10 },
   { name: "10-19", min: 10, max: 20 },
@@ -29,49 +33,48 @@ const distanceRanges = [
   { name: "40-69", min: 40, max: 70 },
   { name: "70-99", min: 40, max: 100 },
   { name: "100+", min: 100, max: Infinity },
-]
+] as const
 
-const sanitizeData = (data: ActivityData, units: Units, themeColors: readonly string[]): RadialBarChartData[] => {
-  if (!data || !data.all || data.all.length === 0) {
-    return []
-  }
-  const res = distanceRanges.map((dr, idx) => {
-    return { name: dr.name, activities: 0, fill: themeColors[idx] }
-  })
-  let hasData = false
-  data.all.forEach(act => {
-    if (act.distance) {
-      const distance = Number(unitConversion.convertDistance(act.distance!, units).toFixed(2))
-      const existingDistanceRange = distanceRanges.find(item => distance >= item.min && distance < item.max)
-      if (!existingDistanceRange) return
-      const existingData = res.find(item => item.name === existingDistanceRange.name)
-      if (!existingData) return
-      existingData.activities += 1
-      hasData = true
+export const calculateDistanceRanges = (data: ActivityData, units: Units): RadialBarChartData[] => {
+  if (!data?.all?.length) return []
+
+  const ranges = DISTANCE_RANGES.map(dr => ({
+    name: dr.name,
+    activities: 0,
+    fill: "#ffffff" // placeholder color
+  }))
+
+  const hasActivities = data.all.reduce((hasData, act) => {
+    if (!act.distance) return hasData
+
+    const distance = Number(unitConversion.convertDistance(act.distance, units).toFixed(2))
+    const range = DISTANCE_RANGES.find(r => distance >= r.min && distance < r.max)
+
+    if (range) {
+      const rangeData = ranges.find(r => r.name === range.name)
+      if (rangeData) {
+        rangeData.activities += 1
+        return true
+      }
     }
-  })
-  return hasData ? res : []
+
+    return hasData
+  }, false)
+
+  return hasActivities ? ranges : []
 }
 
-export const CustomRadialTooltip: React.FC<any> = ({ active, payload }) => {
-  if (!active || !payload) {
-    return null
-  }
-  const payloadName = payload[0].payload.name ?? ""
+const CustomRadialTooltip = ({ active, payload }: TooltipProps) => {
+  if (!active || !payload) return null
+
+  const { name, fill, activities } = payload[0].payload
+
   return (
     <div className="bg-white dark:bg-black bg-opacity-90 p-2 rounded flex-col space-y-2">
-      <p className="font-bold">{payloadName}</p>
-      <div className="flex flex-col gap-1">
-        {payload.map((p: any, idx: number) => {
-          const dataKey = p.dataKey
-          if (p.payload[dataKey] !== 0) {
-            return (
-              <p key={idx} style={{ color: p.payload.fill }}>{p.name}: <span className="font-semibold">{Number(p.payload[dataKey].toFixed(2))}</span></p>
-            )
-          }
-          return null
-        })}
-      </div>
+      <p className="font-bold">{name}</p>
+      <p style={{ color: fill }}>
+        Activities: <span className="font-semibold">{activities}</span>
+      </p>
     </div>
   )
 }
@@ -80,21 +83,26 @@ export const CustomRadialTooltip: React.FC<any> = ({ active, payload }) => {
  * Number of activities that are within a certain distance range
 */
 export default function DistanceRanges() {
-  const { activityData, units } = useStravaActivityContext()
+  const { activitiesData, units } = useStravaActivityContext()
   const { themeColors, darkMode } = useThemeContext()
 
-  const [data, setData] = useState<RadialBarChartData[]>([])
+  const rawData = useMemo(() => {
+    if (!activitiesData) return []
 
-  useEffect(() => {
-    if (!activityData) return
     try {
-      const chartData = sanitizeData(activityData, units, themeColors)
-      setData(chartData)
+      return calculateDistanceRanges(activitiesData, units)
     } catch (err) {
       console.warn(err)
-      setData([])
+      return []
     }
-  }, [activityData, themeColors, units])
+  }, [activitiesData, units])
+
+  const data = useMemo(() =>
+    rawData.map((item, index) => ({
+      ...item,
+      fill: themeColors[index]
+    }))
+    , [rawData, themeColors])
 
   if (data.length === 0) {
     return (
@@ -128,6 +136,7 @@ export default function DistanceRanges() {
             background={{ fill: darkMode ? "#232527" : "#e5e7eb" }}
             dataKey="activities"
             cornerRadius={4}
+            isAnimationActive={false}
           />
           <Legend
             verticalAlign="bottom"
@@ -135,7 +144,7 @@ export default function DistanceRanges() {
             align="center"
           />
           <Tooltip
-            content={(props) => <CustomRadialTooltip {...props} />}
+            content={CustomRadialTooltip}
             cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
           />
         </RadialBarChart>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { UnitDefinitions } from "../../types/activity"
@@ -30,21 +30,10 @@ type MenuProps = {
 }
 
 export default function Menu({ shuffle }: MenuProps) {
-  const { activityData, filter, units, setUnits, setFilter } = useStravaActivityContext()
+  const { activitiesData, filter, units, setUnits, setFilter } = useStravaActivityContext()
   const { athlete, logout } = useStravaAuthContext()
   const { theme, updateTheme, darkMode, setDarkMode } = useThemeContext()
-
-  const [sportTypes, setSportTypes] = useState<SportType[]>([])
   const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false)
-
-  useEffect(() => {
-    function getSportTypes() {
-      if (!activityData) return
-      const sports = Object.keys(activityData.bySportType!) as SportType[]
-      setSportTypes(sports)
-    }
-    getSportTypes()
-  }, [activityData])
 
   return (
     <div >
@@ -93,19 +82,19 @@ export default function Menu({ shuffle }: MenuProps) {
                 All
               </DropdownMenuItem>
               <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
-              {sportTypes.map((sport, idx) => (
+              {Object.keys(activitiesData.byType).map((sport, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
                     className={cn(
                       'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white break-all',
                       sport === filter && `text-white bg-slate-700`
                     )}
-                    onClick={() => setFilter(sport)}
+                    onClick={() => setFilter(sport as SportType ?? null)}
                     onSelect={(e) => e.preventDefault()}
                   >
                     {sport}
                   </DropdownMenuItem>
-                  {idx !== sportTypes.length - 1 ? (
+                  {idx !== Object.keys(activitiesData.byType).length - 1 ? (
                     <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
                   ) : null}
                 </div>
@@ -244,7 +233,6 @@ export default function Menu({ shuffle }: MenuProps) {
 
         </DropdownMenuContent >
       </DropdownMenu >
-      {/* <InfoDialog /> */}
     </div >
   )
 }

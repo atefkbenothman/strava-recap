@@ -1,17 +1,14 @@
-import { useEffect, useState } from "react"
-import { useStravaActivityContext } from "../../hooks/useStravaActivityContext";
-import { useThemeContext } from "../../hooks/useThemeContext";
+import { useMemo } from "react"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 import { UnitDefinitions } from "../../types/activity"
 import { SportType, StravaActivity } from "../../types/strava"
 import {
   unitConversion,
   calculateTrendLine,
-  TrendCoefficients,
-  ReferenceLinePoints,
   calculateTrendLinePoints,
   calculateTicks,
   getDataBounds,
-  ChartBounds,
 } from "../../utils/utils"
 import {
   ResponsiveContainer,
@@ -23,12 +20,10 @@ import {
   ZAxis,
   ReferenceLine,
 } from "recharts"
-import Card from "../common/card";
+import Card from "../common/card"
 import NoData from "../common/noData"
 import { HeartPulse } from "lucide-react"
-import { ColorPalette } from "../../contexts/themeContext"
 import { CustomScatterTooltip } from "../common/customScatterToolTip"
-
 
 type ScatterChartData = {
   heartrate: number
@@ -36,92 +31,102 @@ type ScatterChartData = {
   url: string
   fill: string
   name: string
+  sport_type: string
 }
 
 const X_OFFSET = 2
 const Y_OFFSET = 5
 const TICK_COUNT = 5
 
-const sanitizeData = (data: StravaActivity[], units: "imperial" | "metric", colorPalette: ColorPalette): ScatterChartData[] => {
-  if (!data || data.length === 0) {
-    return []
-  }
-  const chartData: ScatterChartData[] = []
-  for (const act of data) {
-    if (act.average_heartrate && act.average_speed) {
-      chartData.push({
-        heartrate: act.average_heartrate!,
-        speed: Number(unitConversion.convertSpeed(act.average_speed!, units).toFixed(2)),
-        fill: colorPalette[act.sport_type! as SportType]!,
-        url: `https://www.strava.com/activities/${act.id}`,
-        name: act.name ?? ""
-      })
-    }
-  }
-  return chartData
+export const calculateHeartRateData = (activities: StravaActivity[]): ScatterChartData[] => {
+  if (!activities?.length) return []
+
+  return activities.reduce((acc, act) => {
+    if (!act.average_heartrate || !act.average_speed || !act.sport_type) return acc
+
+    acc.push({
+      heartrate: act.average_heartrate,
+      speed: act.average_speed,
+      fill: "#ffffff", // placeholder color
+      url: `https://www.strava.com/activities/${act.id}`,
+      name: act.name ?? "",
+      sport_type: act.sport_type
+    })
+    return acc
+  }, [] as ScatterChartData[])
 }
 
-/*
- * Heartrate vs perceived exertion
-*/
 export default function HeartrateVsSpeed() {
-  const { activityData, units } = useStravaActivityContext()
-  const { darkMode, colorPalette } = useThemeContext()
+  const { activitiesData, units } = useStravaActivityContext()
+  const { colorPalette, darkMode } = useThemeContext()
 
-  const [data, setData] = useState<ScatterChartData[]>([])
-  const [trend, setTrend] = useState<TrendCoefficients>({
-    slope: 0,
-    intercept: 0,
-    canShowLine: false
-  })
-  const [bounds, setBounds] = useState<ChartBounds>({
-    xMin: 0,
-    xMax: 0,
-    yMin: 0,
-    yMax: 0
-  })
-  const [referenceLinePoints, setReferenceLinePoints] = useState<ReferenceLinePoints>([
-    { x: 0, y: 0 },
-    { x: 0, y: 0 }
-  ])
-  const [ticks, setTicks] = useState<{ xAxisTicks: number[]; yAxisTicks: number[] }>({
-    xAxisTicks: [],
-    yAxisTicks: [],
-  })
+  const rawData = useMemo(() => {
+    if (!activitiesData?.all) return []
 
-  useEffect(() => {
-    if (!activityData) return
     try {
-      // format data to fit recharts schema
-      const sanitizedData = sanitizeData(activityData.all!, units, colorPalette)
-      setData(sanitizedData)
-      // calculate data bounds
-      const dataBounds = getDataBounds(sanitizedData, "speed", "heartrate")
-      setBounds(dataBounds)
-      setTicks({
-        xAxisTicks: calculateTicks(0, Math.round(dataBounds.xMax), TICK_COUNT),
-        yAxisTicks: calculateTicks(Math.round(dataBounds.yMin), Math.round(dataBounds.yMax), TICK_COUNT)
-      })
-      // calculate trend line
-      const trend = calculateTrendLine(sanitizedData, "speed", "heartrate")
-      setTrend(trend)
-      if (trend.canShowLine) {
-        setReferenceLinePoints(calculateTrendLinePoints(trend, {
-          xMin: 0,
-          xMax: dataBounds.xMax * 10,
-          yMin: dataBounds.yMin - Y_OFFSET,
-          yMax: dataBounds.yMax * 10
-        }))
-      }
+      return calculateHeartRateData(activitiesData.all)
     } catch (err) {
       console.warn(err)
-      setData([])
-      setTrend({ slope: 0, intercept: 0, canShowLine: false })
-      setBounds({ xMin: 0, xMax: 0, yMin: 0, yMax: 0 })
-      setReferenceLinePoints([{ x: 0, y: 0 }, { x: 0, y: 0 }])
-      setTicks({ xAxisTicks: [], yAxisTicks: [] })
+      return []
     }
-  }, [activityData, colorPalette, units])
+  }, [activitiesData])
+
+  const dataWithUnits = useMemo(() =>
+    rawData.map(item => ({
+      ...item,
+      speed: Number(unitConversion.convertSpeed(item.speed, units).toFixed(2))
+    }))
+    , [rawData, units])
+
+  const data = useMemo(() =>
+    dataWithUnits.map(item => ({
+      ...item,
+      fill: colorPalette[item.sport_type as SportType] || "#ffffff"
+    }))
+    , [dataWithUnits, colorPalette])
+
+  const chartData = useMemo(() => {
+    if (data.length === 0) {
+      return {
+        bounds: { xMin: 0, xMax: 0, yMin: 0, yMax: 0 },
+        ticks: { xAxisTicks: [], yAxisTicks: [] },
+        trend: { slope: 0, intercept: 0, canShowLine: false },
+        referenceLinePoints: [{ x: 0, y: 0 }, { x: 0, y: 0 }]
+      }
+    }
+
+    const bounds = getDataBounds(data, "speed", "heartrate")
+    const ticks = {
+      xAxisTicks: calculateTicks(0, Math.round(bounds.xMax), TICK_COUNT),
+      yAxisTicks: calculateTicks(Math.round(bounds.yMin), Math.round(bounds.yMax), TICK_COUNT)
+    }
+    const trend = calculateTrendLine(data, "speed", "heartrate")
+    const referenceLinePoints = trend.canShowLine
+      ? calculateTrendLinePoints(trend, {
+        xMin: 0,
+        xMax: bounds.xMax * 10,
+        yMin: bounds.yMin - Y_OFFSET,
+        yMax: bounds.yMax * 10
+      })
+      : [{ x: 0, y: 0 }, { x: 0, y: 0 }]
+
+    return { bounds, ticks, trend, referenceLinePoints }
+  }, [data])
+
+  const chartConfig = useMemo(() => ({
+    tickStyle: {
+      fontSize: 10,
+      color: darkMode ? "#c2c2c2" : "#666",
+      fill: darkMode ? "#c2c2c2" : "#666"
+    },
+    axisStyle: {
+      stroke: darkMode ? "#c2c2c2" : "#666"
+    },
+    referenceLineStyle: {
+      stroke: darkMode ? "#c2c2c2" : "black",
+      strokeDasharray: "5 5"
+    }
+  }), [darkMode])
 
   const handleDotClick = (data: any) => {
     if (data.url) {
@@ -160,15 +165,11 @@ export default function HeartrateVsSpeed() {
             dataKey="speed"
             name="speed"
             unit={UnitDefinitions[units].speed}
-            tick={{
-              fontSize: 10,
-              color: darkMode ? "#c2c2c2" : "#666",
-              fill: darkMode ? "#c2c2c2" : "#666",
-            }}
-            stroke={darkMode ? "#c2c2c2" : "#666"}
-            domain={[bounds.xMin - X_OFFSET, bounds.xMax + X_OFFSET]}
+            tick={chartConfig.tickStyle}
+            stroke={chartConfig.axisStyle.stroke}
+            domain={[chartData.bounds.xMin - X_OFFSET, chartData.bounds.xMax + X_OFFSET]}
             allowDecimals={false}
-            ticks={ticks.xAxisTicks}
+            ticks={chartData.ticks.xAxisTicks}
             interval={0}
           />
           <YAxis
@@ -176,28 +177,23 @@ export default function HeartrateVsSpeed() {
             dataKey="heartrate"
             name="heartrate"
             unit="bpm"
-            tick={{
-              fontSize: 10,
-              color: darkMode ? "#c2c2c2" : "#666",
-              fill: darkMode ? "#c2c2c2" : "#666",
-            }}
+            tick={chartConfig.tickStyle}
             width={38}
-            stroke={darkMode ? "#c2c2c2" : "#666"}
+            stroke={chartConfig.axisStyle.stroke}
             allowDecimals={false}
-            domain={[bounds.yMin - Y_OFFSET, bounds.yMax + Y_OFFSET]}
-            ticks={ticks.yAxisTicks}
+            domain={[chartData.bounds.yMin - Y_OFFSET, chartData.bounds.yMax + Y_OFFSET]}
+            ticks={chartData.ticks.yAxisTicks}
             interval={0}
           />
-          {trend.canShowLine && (
+          {chartData.trend.canShowLine && (
             <ReferenceLine
               ifOverflow="extendDomain"
-              segment={referenceLinePoints!}
-              stroke={darkMode ? "#c2c2c2" : "black"}
-              strokeDasharray="5 5"
+              segment={chartData.referenceLinePoints}
+              {...chartConfig.referenceLineStyle}
             />
           )}
           <ZAxis range={[30, 40]} />
-          <Tooltip content={(props) => <CustomScatterTooltip {...props} />} />
+          <Tooltip content={CustomScatterTooltip} />
         </ScatterChart>
       </ResponsiveContainer>
     </Card>

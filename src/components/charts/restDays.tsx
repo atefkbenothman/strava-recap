@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import {
   ResponsiveContainer,
   PieChart,
@@ -22,31 +22,41 @@ type PieChartData = {
   color: string
 }
 
-const sanitizeData = (data: ActivityData, currentYear: number, themeColors: readonly string[]): { chartData: PieChartData[], total: number } => {
+export const calculateRestDays = (
+  data: ActivityData,
+  currentYear: number
+): { chartData: PieChartData[], total: number } => {
   if (!data || !data.all || data.all.length === 0) {
     return { chartData: [], total: 0 }
   }
+
   const activeDays = new Set<string>()
   for (const act of data.all) {
     if (act.start_date_local) {
       activeDays.add(new Date(act.start_date_local!).toISOString().split("T")[0])
     }
   }
+
   const totalDaysInYear = new Date(currentYear, 1, 29).getDate() === 29 ? 366 : 365
   const restDays = totalDaysInYear - activeDays.size
+
   const res: PieChartData[] = [
     {
       kind: "Active",
       days: activeDays.size,
-      color: themeColors[0]
+      color: "#ffffff" // placeholder color
     },
     {
       kind: "Rest",
       days: restDays,
-      color: themeColors[Math.floor(themeColors.length / 2)]
+      color: "#ffffff" // placeholder color
     }
   ]
-  return { chartData: res, total: Number((restDays / totalDaysInYear).toFixed(2)) }
+
+  return {
+    chartData: res,
+    total: Number((restDays / totalDaysInYear).toFixed(2))
+  }
 }
 
 /*
@@ -54,25 +64,28 @@ const sanitizeData = (data: ActivityData, currentYear: number, themeColors: read
  */
 export default function RestDays() {
   const { currentYear } = useCurrentYearContext()
-  const { activityData } = useStravaActivityContext()
-  const { colorPalette, themeColors, darkMode } = useThemeContext()
+  const { activitiesData } = useStravaActivityContext()
+  const { themeColors, darkMode } = useThemeContext()
 
-  const [data, setData] = useState<PieChartData[]>([])
-  const [restPerentage, setRestPercentage] = useState<number>(0)
-
-  useEffect(() => {
-    if (!activityData) return
+  const { rawData, restPercentage } = useMemo(() => {
+    if (!activitiesData) {
+      return { rawData: [], restPercentage: 0 }
+    }
     try {
-      // call sanitize function
-      const { chartData, total } = sanitizeData(activityData, currentYear, themeColors)
-      setData(chartData)
-      setRestPercentage(total)
+      const { chartData, total } = calculateRestDays(activitiesData, currentYear)
+      return { rawData: chartData, restPercentage: total }
     } catch (err) {
       console.warn(err)
-      setData([])
-      setRestPercentage(0)
+      return { rawData: [], restPercentage: 0 }
     }
-  }, [activityData, colorPalette])
+  }, [activitiesData, currentYear])
+
+  const { data } = useMemo(() => ({
+    data: rawData.map((d, index) => ({
+      ...d,
+      color: index === 0 ? themeColors[0] : themeColors[Math.floor(themeColors.length / 2)]
+    })),
+  }), [rawData, themeColors])
 
   if (data.length === 0) {
     return (
@@ -90,7 +103,7 @@ export default function RestDays() {
     <Card
       title="Rest Days"
       description="rest days vs. active days"
-      total={restPerentage * 100}
+      total={restPercentage * 100}
       totalUnits="%"
       icon={<Bed size={16} strokeWidth={2.5} />}
     >
@@ -105,9 +118,14 @@ export default function RestDays() {
             outerRadius={80}
             cornerRadius={4}
             paddingAngle={5}
+            isAnimationActive={false}
           >
-            {data.map((e, idx) => (
-              <Cell key={idx} fill={e.color} stroke={e.color} />
+            {data.map((entry, idx) => (
+              <Cell
+                key={`cell-${idx}`}
+                fill={entry.color}
+                stroke={entry.color}
+              />
             ))}
           </Pie>
           <Tooltip

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { SportType } from "../../types/strava"
 import { useThemeContext } from "../../hooks/useThemeContext"
@@ -13,7 +13,6 @@ import {
 import { Bike } from "lucide-react"
 import Card from "../common/card"
 import NoData from "../common/noData"
-import { ColorPalette } from "../../contexts/themeContext"
 import { ActivityData } from "../../types/activity"
 import { CustomPieTooltip } from "../common/customPieTooltip"
 
@@ -23,43 +22,52 @@ type PieChartData = {
   color: string
 }
 
-const sanitizeData = (data: ActivityData, colorPalette: ColorPalette): { chartData: PieChartData[], total: number } => {
-  if (!data || !data.bySportType || Object.keys(data.bySportType).length === 0) {
+export const calculateSportTypeDistribution = (data: ActivityData): { chartData: PieChartData[], total: number } => {
+  if (Object.keys(data.byType).length === 0) {
     return { chartData: [], total: 0 }
   }
-  const res: PieChartData[] = []
-  const sportActivities = data.bySportType!
-  Object.entries(sportActivities).forEach(([sport, activities]) => {
-    if (!activities) return
-    res.push({ sport: sport as SportType, activities: activities.length, color: colorPalette[sport as SportType]! })
-  })
-  let totalSports = Object.keys(data.bySportType!).length
-  return { chartData: res, total: totalSports }
+
+  const res = Object.entries(data.byType).reduce((acc, [sport, activities]) => {
+    if (!activities) return acc
+
+    acc.chartData.push({
+      sport: sport as SportType,
+      activities: activities.length,
+      color: "#ffffff" // placeholder color, will be updated with colorPalette
+    })
+    acc.total += 1
+    return acc
+  }, { chartData: [] as PieChartData[], total: 0 })
+
+  return res.total > 0 ? res : { chartData: [], total: 0 }
 }
 
 /*
  * All sport types
 */
 export default function SportTypes() {
-  const { activityData } = useStravaActivityContext()
+  const { activitiesData } = useStravaActivityContext()
   const { colorPalette, darkMode } = useThemeContext()
 
-  const [data, setData] = useState<PieChartData[]>([])
-  const [numSportTypes, setNumSportTypes] = useState<number>(0)
-
-  useEffect(() => {
-    if (!activityData) return
+  const { rawData, numSportTypes } = useMemo(() => {
+    if (Object.keys(activitiesData.byType).length === 0) {
+      return { rawData: [], numSportTypes: 0 }
+    }
     try {
-      // format data to fit recharts schema
-      const { chartData, total } = sanitizeData(activityData, colorPalette)
-      setData(chartData)
-      setNumSportTypes(total)
+      const { chartData, total } = calculateSportTypeDistribution(activitiesData)
+      return { rawData: chartData, numSportTypes: total }
     } catch (err) {
       console.warn(err)
-      setData([])
-      setNumSportTypes(0)
+      return { rawData: [], numSportTypes: 0 }
     }
-  }, [activityData, colorPalette])
+  }, [activitiesData])
+
+  const { data } = useMemo(() => ({
+    data: rawData.map(d => ({
+      ...d,
+      color: colorPalette[d.sport as SportType]!
+    })),
+  }), [rawData, colorPalette])
 
   if (data.length === 0) {
     return (
@@ -92,16 +100,24 @@ export default function SportTypes() {
             outerRadius={80}
             cornerRadius={4}
             paddingAngle={5}
+            isAnimationActive={false}
           >
-            {data.map((e, idx) => (
-              <Cell key={idx} fill={e.color} stroke={e.color} />
+            {data.map((entry, idx) => (
+              <Cell
+                key={`cell-${idx}`}
+                fill={entry.color}
+                stroke={entry.color}
+              />
             ))}
           </Pie>
           <Tooltip
             content={(props) => <CustomPieTooltip {...props} />}
             cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
           />
-          <Legend verticalAlign="bottom" align="center" />
+          <Legend
+            verticalAlign="bottom"
+            align="center"
+          />
         </PieChart>
       </ResponsiveContainer>
     </Card>

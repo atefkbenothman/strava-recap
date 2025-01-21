@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react"
+// import * as Sentry from "@sentry/react"
 import { StravaActivity, StravaAthlete, StravaAthleteZones, StravaGear, StravaPhoto } from "../types/strava"
 
 
@@ -38,19 +38,19 @@ export const stravaApi = {
       if (!res.ok) {
         throw new Error(`Failed api call to ${url} <${res.status}>`)
       }
-      Sentry.captureMessage(url, {
-        level: "log",
-        extra: {
-          method: method,
-          params: params ?? "",
-          status: res.status,
-          statusText: res.statusText
-        }
-      })
+      // Sentry.captureMessage(url, {
+      //   level: "log",
+      //   extra: {
+      //     method: method,
+      //     params: params ?? "",
+      //     status: res.status,
+      //     statusText: res.statusText
+      //   }
+      // })
       const data = await res.json()
       return data
     } catch (err) {
-      Sentry.captureException(err)
+      // Sentry.captureException(err)
       throw err
     }
   },

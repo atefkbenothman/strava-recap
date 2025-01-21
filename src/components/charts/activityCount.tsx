@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { SportType } from "../../types/strava"
-import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
-import { useThemeContext } from "../../hooks/useThemeContext"
 import {
   ResponsiveContainer,
   BarChart,
@@ -12,64 +10,54 @@ import {
 } from "recharts"
 import { BicepsFlexed } from 'lucide-react'
 import Card from "../common/card"
+import { ActivitiesByMonth } from "../../types/activity"
 import NoData from "../common/noData"
-import { ActivityData } from "../../types/activity"
+import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import { useThemeContext } from "../../hooks/useThemeContext"
 import { CustomBarTooltip } from "../common/customBarTooltip"
+import { BarChartData } from "../../utils/utils"
 
-
-type BarChartData = {
-  month: string
-  [key: string]: number | string
-}
-
-const sanitizeData = (data: ActivityData): { chartData: BarChartData[], total: number } => {
-  if (!data || !data.monthly || Object.keys(data.monthly).length === 0) {
-    return { chartData: [], total: 0 }
-  }
-  const res: BarChartData[] = []
-  let totalActivities = 0
-  const monthlyActivities = data.monthly!
-  Object.entries(monthlyActivities).forEach(([month, activities]) => {
-    if (!activities) return
-    const activitiesBySport: Partial<Record<SportType, number>> = {}
-    for (const act of activities) {
+export const calculateMonthlyActivities = (monthlyData: ActivitiesByMonth): { chartData: BarChartData[], total: number } => {
+  const res = Object.entries(monthlyData).reduce((acc, [month, acts]) => {
+    let totalActivitiesBySport = 0
+    const activitiesBySport = acts.reduce((acc, act) => {
       const sportType = act.sport_type! as SportType
-      if (!activitiesBySport[sportType]) {
-        activitiesBySport[sportType] = 1
+      if (!acc[sportType]) {
+        acc[sportType] = 1
       } else {
-        activitiesBySport[sportType] += 1
+        acc[sportType] += 1
       }
-      totalActivities += 1
-    }
-    res.push({ month, ...activitiesBySport })
-  })
-  return { chartData: res, total: totalActivities }
+      totalActivitiesBySport += 1
+      return acc
+    }, {} as Partial<Record<SportType, number>>)
+    acc.chartData.push({ month, ...activitiesBySport })
+    acc.total = acc.total + totalActivitiesBySport
+    return acc
+  }, { chartData: [] as BarChartData[], total: 0 })
+  return res.total > 0 ? res : { chartData: [], total: 0 }
 }
 
 /*
  * Number of activities per month
 */
 export default function ActivityCount() {
-  const { activityData } = useStravaActivityContext()
+  const { activitiesData } = useStravaActivityContext()
   const { darkMode, colorPalette } = useThemeContext()
 
-  const [data, setData] = useState<BarChartData[]>([])
-  const [totalActivities, setTotalActivities] = useState<number>(0)
-
-  useEffect(() => {
-    if (!activityData) return
+  const { data, totalActivities } = useMemo(() => {
+    if (!activitiesData.byMonth) {
+      return { data: [], totalActivities: 0 }
+    }
     try {
-      const { chartData, total } = sanitizeData(activityData)
-      setData(chartData)
-      setTotalActivities(total)
+      const { chartData, total } = calculateMonthlyActivities(activitiesData.byMonth)
+      return { data: chartData, totalActivities: total }
     } catch (err) {
       console.warn(err)
-      setData([])
-      setTotalActivities(0)
+      return { data: [], totalActivities: 0 }
     }
-  }, [activityData, colorPalette])
+  }, [activitiesData])
 
-  if (data.length === 0) {
+  if (totalActivities === 0) {
     return (
       <Card
         title="Activity Count"
@@ -94,6 +82,7 @@ export default function ActivityCount() {
           <XAxis
             type="category"
             dataKey="month"
+            interval="equidistantPreserveStart"
             tick={{
               fontSize: 12,
               fill: darkMode ? "#c2c2c2" : "#666"
@@ -104,9 +93,9 @@ export default function ActivityCount() {
             content={(props) => <CustomBarTooltip {...props} />}
             cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
           />
-          {activityData?.bySportType &&
-            Object.keys(activityData.bySportType).length > 0 &&
-            Object.keys(activityData.bySportType).map(sport => (
+          {activitiesData?.byType &&
+            Object.keys(activitiesData.byType).length > 0 &&
+            Object.keys(activitiesData.byType).map(sport => (
               <Bar
                 key={sport}
                 radius={[4, 4, 4, 4]}
@@ -120,6 +109,7 @@ export default function ActivityCount() {
                   fill: darkMode ? "#c2c2c2" : "#666",
                   formatter: (value: number) => value > 0 ? Number(value).toFixed(0) : ''
                 }}
+                isAnimationActive={false}
               />
             ))}
           <Legend />

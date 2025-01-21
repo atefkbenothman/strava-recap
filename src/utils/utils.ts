@@ -182,6 +182,72 @@ export function calculateTicks(min: number, max: number, count: number): number[
     const value = Math.round((min + (step * i)) * 100) / 100
     ticks.push(value)
   }
-  // Remove any duplicate values
   return [...new Set(ticks)]
+}
+
+export type BarChartData = {
+  month: string
+  [key: string]: number | string
+}
+
+export const convertMonthlyChartDataUnits = (
+  chartData: BarChartData[],
+  units: Units,
+  conversionFn: (value: number, units: Units) => number
+): BarChartData[] => {
+  return chartData.map(monthData => {
+    const converted: BarChartData = { month: monthData.month }
+    Object.entries(monthData).forEach(([key, val]) => {
+      if (key !== "month") {
+        converted[key] = Number(conversionFn(val as number, units).toFixed(2))
+      }
+    })
+    return converted
+  })
+}
+
+export const storage = {
+  set<T>(key: string, value: T): boolean {
+    try {
+      if (!localStorage) {
+        console.error("localStorage not available")
+        return false
+      }
+      const serializedData = JSON.stringify(value)
+      localStorage.setItem(key, serializedData)
+      return true
+    } catch (err) {
+      console.error("Error saving to localstorage:", err)
+      return false
+    }
+  },
+  get<T>(key: string, defaultValue: T): T {
+    try {
+      if (!localStorage) {
+        console.error("localStorage not available")
+        return defaultValue
+      }
+      const item = localStorage.getItem(key)
+      if (item === null) {
+        return defaultValue
+      }
+      return JSON.parse(item) as T
+    } catch (err) {
+      console.error("Error reading from localStorage:", err)
+      return defaultValue
+    }
+  },
+  remove(key: string): boolean {
+    try {
+      if (!localStorage) {
+        console.error("localStorage not available")
+        return false
+      }
+      localStorage.removeItem(key)
+      return true
+    } catch (err) {
+      console.error("Error removing from localStorage: ", err)
+      return false
+    }
+  }
 }

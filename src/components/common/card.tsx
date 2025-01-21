@@ -14,7 +14,7 @@ export default function Card({ title, description, children, total, totalUnits, 
   return (
     <div className="flex flex-col w-full h-full relative p-2">
       <div className="flex gap-4 pb-2">
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full gap-0.5">
           <div className="flex gap-2 items-center dark:text-white">
             {icon ? (
               icon

@@ -2,6 +2,7 @@ import { createContext, useCallback, useEffect, useState } from "react"
 import { StravaAthlete } from "../types/strava"
 import { stravaApi } from "../services/api"
 import { useQuery } from "@tanstack/react-query"
+import { storage } from "../utils/utils"
 
 interface StravaAuthContextType {
   isAuthenticated: boolean
@@ -28,9 +29,9 @@ type StravaAuthContextProviderProps = {
 }
 
 export default function StravaAuthContextProvider({ children }: StravaAuthContextProviderProps) {
-  const [accessToken, setAccessToken] = useState<string | null>(localStorage.getItem("strava_access_token"))
+  const [accessToken, setAccessToken] = useState<string | null>(storage.get("strava_access_token", null))
+  const [athlete, setAthlete] = useState<StravaAthlete | null>(storage.get("athlete", null))
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!accessToken)
-  const [athlete, setAthlete] = useState<StravaAthlete | null>(localStorage.getItem("athlete") ? JSON.parse(localStorage.getItem("athlete") || "") : null)
 
   const {
     data: athleteData
@@ -55,16 +56,16 @@ export default function StravaAuthContextProvider({ children }: StravaAuthContex
   }, [])
 
   const logout = useCallback(() => {
-    localStorage.removeItem("strava_access_token")
-    localStorage.removeItem("athlete")
     setAccessToken(null)
     setAthlete(null)
     setIsAuthenticated(false)
+    storage.remove("strava_access_token")
+    storage.remove("athlete")
   }, [])
 
   const updateStravaAthlete = useCallback((athlete: StravaAthlete) => {
     setAthlete(athlete)
-    localStorage.setItem("athlete", JSON.stringify(athlete))
+    storage.set("athlete", athlete)
   }, [])
 
   // handle code retrieval and token exchange after authenticating
@@ -76,11 +77,11 @@ export default function StravaAuthContextProvider({ children }: StravaAuthContex
         const data = await stravaApi.exchangeToken(code)
         if (data) {
           const { accessToken: token, athlete: user } = data
-          localStorage.setItem("strava_access_token", token)
-          localStorage.setItem("athlete", JSON.stringify(user))
           setAccessToken(token)
           setAthlete(user)
           setIsAuthenticated(true)
+          storage.set("strava_access_token", token)
+          storage.set("athlete", user)
           window.history.replaceState({}, document.title, window.location.pathname)
         }
       }

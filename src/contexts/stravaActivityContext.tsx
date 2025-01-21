@@ -1,165 +1,202 @@
 import { useQuery } from "@tanstack/react-query"
 import { createContext, useEffect, useMemo, useState } from "react"
 import { stravaApi } from "../services/api"
-import { ActivitiesByType, ActivityData, MonthlyActivities, Months, Units } from "../types/activity"
+import { ActivitiesByMonth, ActivitiesByType, ActivityData, Month, MONTHS, UnitDefinitions, Units } from "../types/activity"
 import { SportType, StravaActivity, StravaAthleteZones, StravaPhoto } from "../types/strava"
 import { useStravaAuthContext } from "../hooks/useStravaAuthContext"
 import { useCurrentYearContext } from "../hooks/useCurrentYearContext"
 import { useThemeContext } from "../hooks/useThemeContext"
-import { generateColorPalette } from "../utils/utils"
+import { generateColorPalette, storage } from "../utils/utils"
+
+
+export const createEmptyMonthlyActivities = () => {
+  return MONTHS.reduce((acc, month) => {
+    acc[month] = []
+    return acc
+  }, {} as ActivitiesByMonth)
+}
+
 
 interface StravaActivityContextType {
-  isLoading: boolean
-  error: Error | null
-  activityData: ActivityData | null
-  athleteZones: StravaAthleteZones | undefined
+  activitiesData: ActivityData
+  activitiesLoading: boolean
+  activitiesError: Error | null
+  athleteZonesData: StravaAthleteZones | undefined
+  athleteZonesLoading: boolean
+  athleteZonesError: Error | null
   units: Units
   filter: SportType | "All"
-  photo: StravaPhoto[] | undefined
-  photoLoading: boolean
+  photosData: StravaPhoto[] | undefined
+  photosLoading: boolean
+  photosError: Error | null
   setUnits: (units: Units) => void
   setFilter: (filter: SportType | "All") => void
 }
 
 export const StravaActivityContext = createContext<StravaActivityContextType>(
   {
-    isLoading: false,
-    error: null,
-    activityData: null,
-    athleteZones: undefined,
+    activitiesData: {
+      all: [],
+      byMonth: createEmptyMonthlyActivities(),
+      byType: {}
+    },
+    activitiesLoading: false,
+    activitiesError: null,
+    athleteZonesData: undefined,
+    athleteZonesLoading: false,
+    athleteZonesError: null,
     units: "imperial",
     filter: "All",
-    photo: undefined,
-    photoLoading: false,
+    photosData: undefined,
+    photosLoading: false,
+    photosError: null,
     setUnits: () => { },
     setFilter: () => { }
   }
 )
 
-type StravaActivityContextProvider = {
-  children: React.ReactNode
+
+export const processActivities = (allActivities: StravaActivity[], filter: SportType | "All") => {
+  const activitiesByMonth: ActivitiesByMonth = createEmptyMonthlyActivities()
+  const activitiesByType: ActivitiesByType = {}
+  const activitiesWithPhotos: StravaActivity[] = []
+
+  const filteredActivities = allActivities.reduce((acc, act) => {
+    if (!act.sport_type || !act.start_date || isNaN(new Date(act.start_date).getTime())) {
+      console.warn("Skipping activity with missing sport_type or start_date: ", act)
+      return acc
+    }
+    if (filter !== "All" && act.sport_type !== filter) {
+      return acc
+    }
+
+    // add to sport type
+    const sportType = act.sport_type as SportType
+    if (!activitiesByType[sportType]) {
+      activitiesByType[sportType] = [act]
+    } else {
+      activitiesByType[sportType].push(act)
+    }
+
+    // add to month
+    const activityMonth = new Date(act.start_date).toLocaleString("default", { month: "long" }) as Month
+    activitiesByMonth[activityMonth].push(act)
+
+    // add to photo
+    if (act.total_photo_count && act.total_photo_count > 0) {
+      activitiesWithPhotos.push(act)
+    }
+
+    acc.push(act)
+    return acc
+  }, [] as StravaActivity[])
+
+  return {
+    all: filteredActivities,
+    byMonth: activitiesByMonth,
+    byType: activitiesByType,
+    withPhotos: activitiesWithPhotos
+  }
 }
 
-export default function StravaActivityContextProvider({ children }: StravaActivityContextProvider) {
+
+export default function StravaActivityContextProvider({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, accessToken } = useStravaAuthContext()
   const { currentYear } = useCurrentYearContext()
   const { theme, colorPalette, setColorPalette } = useThemeContext()
 
-  const [units, setUnits] = useState<Units>(localStorage.getItem("units") as Units || "imperial")
+  const storedUnits = storage.get("units", "imperial" as Units)
+  const [units, setUnits] = useState<Units>(
+    Object.keys(UnitDefinitions).includes(storedUnits as string)
+      ? storedUnits as Units
+      : "metric"
+  )
   const [filter, setFilter] = useState<SportType | "All">("All")
-  const [activityPhoto, setActivityPhoto] = useState<StravaActivity | null>()
+  const [activityPhoto, setActivityPhoto] = useState<StravaActivity | undefined>()
 
   const {
-    data: activities,
-    isLoading,
-    error
+    data: allActivityData,
+    isLoading: activitiesLoading,
+    error: activitiesError
   } = useQuery({
     queryKey: [currentYear],
     queryFn: () => stravaApi.getAllActivities(accessToken!, currentYear),
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!accessToken,
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 24,
-    retry: false
+    retry: false,
   })
 
   const {
-    data: athleteZones
+    data: athleteZonesData,
+    isLoading: athleteZonesLoading,
+    error: athleteZonesError,
   } = useQuery({
     queryKey: ["athleteZones"],
     queryFn: () => stravaApi.getAthleteZones(accessToken!),
-    enabled: isAuthenticated,
+    enabled: isAuthenticated && !!accessToken,
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 24,
     retry: false
   })
 
   const {
-    data: photo,
-    isLoading: photoLoading
+    data: photosData,
+    isLoading: photosLoading,
+    error: photosError
   } = useQuery({
     queryKey: ["activityPhotos", activityPhoto],
-    queryFn: () => stravaApi.getActivityPhotos(accessToken!, activityPhoto!.id!),
-    enabled: isAuthenticated && !!activityPhoto,
+    queryFn: () => stravaApi.getActivityPhotos(accessToken!, activityPhoto!.id),
+    enabled: isAuthenticated && !!accessToken && !!activityPhoto,
     staleTime: 1000 * 60 * 60,
     gcTime: 1000 * 60 * 60 * 24,
-    retry: false
+    retry: false,
   })
 
-  const updateSportColors = (sportTypes: SportType[], reset: boolean = false) => {
-    setColorPalette(generateColorPalette(Array.from(sportTypes), theme, colorPalette, reset))
-  }
-
-  // process activities
-  const activityData = useMemo(() => {
-    if (!activities) return {} as ActivityData
-
-    const sportTypes: Set<SportType> = new Set()
-    const activitiesByMonth: MonthlyActivities = {}
-    const activitiesByType: ActivitiesByType = {}
-
-    Months.forEach(month => {
-      activitiesByMonth[month] = []
-    })
-
-    // filter activities based on filter
-    const filteredActivities = filter === "All"
-      ? activities
-      : activities.filter((act) => act.sport_type! === filter)
-
-    const activitiesWithPhotos: StravaActivity[] = []
-
-    filteredActivities.forEach(activity => {
-      const sportType = activity.sport_type! as SportType
-      const activityMonth = new Date(activity.start_date!).toLocaleString("default", { month: "long" })
-      if (!activitiesByType[sportType]) {
-        activitiesByType[sportType] = []
-      }
-      activitiesByMonth[activityMonth]?.push(activity)
-      activitiesByType[sportType].push(activity)
-      sportTypes.add(sportType)
-      if (activity.total_photo_count && activity.total_photo_count > 0) {
-        activitiesWithPhotos.push(activity)
-      }
-    })
-
-    updateSportColors(Array.from(sportTypes), false)
-
-    const numRandomPhotos = 1
-    const randomPhotos = activitiesWithPhotos
-      .sort(() => Math.random() - 0.5)
-      .slice(0, numRandomPhotos)
-
-    setActivityPhoto(randomPhotos[0])
-
-    return {
-      all: filteredActivities,
-      monthly: activitiesByMonth,
-      bySportType: activitiesByType
+  const activitiesData = useMemo(() => {
+    if (!allActivityData || allActivityData.length === 0) {
+      return {
+        all: [],
+        byMonth: createEmptyMonthlyActivities(),
+        byType: {}
+      } as ActivityData
     }
-  }, [activities, filter])
+    const { all, byMonth, byType, withPhotos } = processActivities(allActivityData, filter)
+    setColorPalette(generateColorPalette(Object.keys(byType) as SportType[], theme, colorPalette, false))
+    if (withPhotos.length > 0) {
+      const actWithPhoto = withPhotos[Math.floor(Math.random() * withPhotos.length)]
+      setActivityPhoto(actWithPhoto)
+    }
+    return { all, byMonth, byType }
+  }, [allActivityData, filter])
 
   useEffect(() => {
-    if (!activityData || !activityData.all || activityData!.all!.length === 0) { return }
-    const sportTypes = Array.from(new Set(activityData.all!.map(a => a.sport_type! as SportType)))
-    updateSportColors(sportTypes, true)
+    if (Object.keys(activitiesData.byType).length === 0) {
+      return
+    }
+    const sportTypes = Object.keys(activitiesData.byType) as SportType[]
+    setColorPalette(generateColorPalette(sportTypes, theme, colorPalette, true))
   }, [theme])
 
   const updateUnits = (unit: Units) => {
-    localStorage.setItem("units", unit)
     setUnits(unit)
+    storage.set<string>("units", unit)
   }
 
   return (
     <StravaActivityContext.Provider
       value={{
-        isLoading,
-        error,
-        activityData,
-        athleteZones,
+        activitiesData,
+        activitiesLoading,
+        activitiesError,
+        athleteZonesData,
+        athleteZonesLoading,
+        athleteZonesError,
         units,
         filter,
-        photo,
-        photoLoading,
+        photosData,
+        photosLoading,
+        photosError,
         setUnits: updateUnits,
         setFilter
       }}

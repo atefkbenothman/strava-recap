@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import Card from "../common/card"
 import { Activity } from "lucide-react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
@@ -13,62 +13,73 @@ import {
   Legend,
   Tooltip
 } from "recharts"
-import { SportType, StravaAthleteZones, Zone } from "../../types/strava"
+import { SportType, Zone, StravaAthleteZones } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import { ActivityData } from "../../types/activity"
-
 
 type RadialChartData = {
   zone: Zone
   zoneName: string
 } & Record<SportType, number>
 
-const sanitizeData = (data: ActivityData, athleteZones: StravaAthleteZones): RadialChartData[] => {
-  if (!data || !data.all || !data.bySportType || !athleteZones || !athleteZones.heart_rate) {
-    return []
-  }
-  let hasHrData = false
-  const sportTypes = Object.keys(data.bySportType)
+type TooltipProps = {
+  active?: boolean
+  payload?: any[]
+}
+
+export const calculateHeartrateZones = (
+  data: ActivityData,
+  athleteZonesData: StravaAthleteZones
+): RadialChartData[] => {
+  if (!data?.all || !data.byType || !athleteZonesData?.heart_rate) return []
+
+  const sportTypes = Object.keys(data.byType)
   const sportsData = sportTypes.reduce((acc, sport) => {
     acc[sport as SportType] = 0
     return acc
   }, {} as Record<SportType, number>)
-  const hrZones = athleteZones.heart_rate.zones
-  const res: RadialChartData[] = hrZones.map((z, idx) => {
-    return { zoneName: `Zone ${idx + 1}`, zone: { min: z.min, max: z.max }, ...sportsData }
-  })
+
+  const hrZones = athleteZonesData.heart_rate.zones
+  const zones = hrZones.map((z, idx) => ({
+    zoneName: `Zone ${idx + 1}`,
+    zone: { min: z.min, max: z.max },
+    ...sportsData
+  }))
+
+  let hasHrData = false
   data.all.forEach(act => {
-    if (act.average_heartrate && act.moving_time && act.sport_type) {
-      const sportType = act.sport_type as SportType
-      const avgHr = act.average_heartrate
-      const movingTime = Number(unitConversion.convertTime(act.moving_time, "hours").toFixed(2))
-      const existingHrZone = res.find(item => avgHr >= item.zone.min && avgHr < item.zone.max)
-      if (existingHrZone) {
-        existingHrZone[sportType] += movingTime
-        hasHrData = true
-      }
+    if (!act.average_heartrate || !act.moving_time || !act.sport_type) return
+
+    const avgHr = act.average_heartrate
+    const movingTime = Number(unitConversion.convertTime(act.moving_time, "hours").toFixed(2))
+    const zone = zones.find(item => avgHr >= item.zone.min && avgHr < item.zone.max)
+
+    if (zone) {
+      zone[act.sport_type as SportType] += movingTime
+      hasHrData = true
     }
   })
-  return hasHrData ? res : []
+
+  return hasHrData ? zones : []
 }
 
-export const CustomRadarTooltip: React.FC<any> = ({ active, payload }) => {
-  if (!active || !payload) {
-    return null
-  }
+const CustomRadarTooltip = ({ active, payload }: TooltipProps) => {
+  if (!active || !payload) return null
+
   const zoneName = payload[0].payload.zoneName ?? ""
   return (
     <div className="bg-white dark:bg-black bg-opacity-90 p-2 rounded flex-col space-y-2">
       <p className="font-bold">{zoneName}</p>
       <div className="flex flex-col gap-1">
         {payload.map((p: any, idx: number) => {
-          const dataKey = p.dataKey
-          if (p.payload[dataKey] !== 0) {
-            return (
-              <p key={idx} style={{ color: p.color }}>{p.name}: <span className="font-semibold">{Number(p.payload[dataKey].toFixed(2))}</span></p>
-            )
-          }
-          return null
+          const value = p.payload[p.dataKey]
+          if (value === 0) return null
+
+          return (
+            <p key={idx} style={{ color: p.color }}>
+              {p.name}: <span className="font-semibold">{Number(value.toFixed(2))}</span>
+            </p>
+          )
         })}
       </div>
     </div>
@@ -79,21 +90,39 @@ export const CustomRadarTooltip: React.FC<any> = ({ active, payload }) => {
  * Total minutes spent in each heartrate zone
  */
 export default function HeartrateZones() {
-  const { athleteZones, activityData } = useStravaActivityContext()
+  const { athleteZonesData, activitiesData } = useStravaActivityContext()
   const { darkMode, colorPalette } = useThemeContext()
 
-  const [data, setData] = useState<RadialChartData[]>([])
+  const data = useMemo(() => {
+    if (!activitiesData || !athleteZonesData) return []
 
-  useEffect(() => {
-    if (!activityData || !athleteZones) return
     try {
-      setData(sanitizeData(activityData, athleteZones))
+      return calculateHeartrateZones(activitiesData, athleteZonesData)
     } catch (err) {
       console.warn(err)
-      setData([])
+      return []
     }
+  }, [activitiesData, athleteZonesData])
 
-  }, [activityData, athleteZones, colorPalette])
+  const chartConfig = useMemo(() => ({
+    polarGridStyle: {
+      gridType: "polygon" as const,
+      strokeOpacity: 0.3,
+      strokeWidth: 2
+    },
+    angleAxisStyle: {
+      fontSize: 10,
+      tick: {
+        fill: darkMode ? "#c2c2c2" : ""
+      }
+    },
+    tooltipStyle: {
+      cursor: {
+        opacity: 0.8,
+        fill: darkMode ? "#1a1a1a" : "#cbd5e1"
+      }
+    }
+  }), [darkMode])
 
   if (data.length === 0) {
     return (
@@ -115,24 +144,16 @@ export default function HeartrateZones() {
     >
       <ResponsiveContainer height={350} width="90%">
         <RadarChart outerRadius="80%" data={data}>
-          <PolarGrid
-            gridType="polygon"
-            strokeOpacity={0.3}
-            strokeWidth={2}
-          />
+          <PolarGrid {...chartConfig.polarGridStyle} />
           <PolarAngleAxis
             dataKey="zoneName"
-            fontSize={10}
-            tick={{
-              fill: darkMode ? "#c2c2c2" : "",
-            }}
+            {...chartConfig.angleAxisStyle}
             type="category"
           />
-          {activityData?.bySportType &&
-            Object.keys(activityData.bySportType).length > 0 &&
-            Object.keys(activityData.bySportType).map((sport, idx) => (
+          {activitiesData?.byType &&
+            Object.keys(activitiesData.byType).map((sport, idx) => (
               <Radar
-                key={idx}
+                key={`radar-${idx}`}
                 name={sport}
                 dataKey={sport}
                 stroke={colorPalette[sport as SportType]}
@@ -143,11 +164,11 @@ export default function HeartrateZones() {
             ))}
           <Legend />
           <Tooltip
-            content={(props) => <CustomRadarTooltip {...props} />}
-            cursor={{ opacity: 0.8, fill: darkMode ? "#1a1a1a" : "#cbd5e1" }}
+            content={CustomRadarTooltip}
+            cursor={chartConfig.tooltipStyle.cursor}
           />
         </RadarChart>
       </ResponsiveContainer>
-    </Card >
+    </Card>
   )
 }

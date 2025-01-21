@@ -1,46 +1,38 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { ThumbsUp } from 'lucide-react'
 import Card from "../common/card"
 import Stat from "../common/stat"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { ActivityData } from "../../types/activity"
 
-const sanitizeData = (data: ActivityData): { kudosCount: number, commentCount: 0 } => {
-  if (!data || !data.all || data.all.length === 0) {
+export const calculateSocialStats = (data: ActivityData) => {
+  if (!data || data.all.length === 0) {
     return { kudosCount: 0, commentCount: 0 }
   }
-  return data.all.reduce((acc, act) => {
-    if (act.kudos_count) {
-      acc.kudosCount += act.kudos_count
-    }
-    if (act.comment_count) {
-      acc.commentCount += act.comment_count
-    }
-    return acc
-  }, { kudosCount: 0, commentCount: 0 })
+
+  return data.all.reduce((acc, act) => ({
+    kudosCount: acc.kudosCount + (act.kudos_count || 0),
+    commentCount: acc.commentCount + (act.comment_count || 0)
+  }), { kudosCount: 0, commentCount: 0 })
 }
 
 /*
  * Social stats
 */
 export default function Socials() {
-  const { activityData } = useStravaActivityContext()
+  const { activitiesData } = useStravaActivityContext()
 
-  const [kudosCount, setKudosCount] = useState<number>(0)
-  const [commentCount, setCommentCount] = useState<number>(0)
-
-  useEffect(() => {
-    if (!activityData) return
+  const { kudosCount, commentCount } = useMemo(() => {
+    if (!activitiesData) {
+      return { kudosCount: 0, commentCount: 0 }
+    }
     try {
-      const { kudosCount, commentCount } = sanitizeData(activityData)
-      setKudosCount(kudosCount)
-      setCommentCount(commentCount)
+      return calculateSocialStats(activitiesData)
     } catch (err) {
       console.warn(err)
-      setKudosCount(0)
-      setCommentCount(0)
+      return { kudosCount: 0, commentCount: 0 }
     }
-  }, [activityData])
+  }, [activitiesData])
 
   return (
     <Card

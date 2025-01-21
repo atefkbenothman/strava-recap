@@ -1,20 +1,19 @@
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 import { getWeek, getMonth, isSameDay, addDays, isValid } from 'date-fns'
 import { Flame } from 'lucide-react'
 import Card from "../common/card"
 import Stat from "../common/stat"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 
-
-function calculateStreak(dates: Date[]): {
-  months: number,
-  weeks: number,
+type StreakData = {
+  months: number
+  weeks: number
   days: number
-} {
-  // Handle empty or invalid input
+}
+
+export const calculateStreaks = (dates: Date[]): StreakData => {
   if (!dates?.length) return { months: 0, weeks: 0, days: 0 }
 
-  // Deduplicate dates and ensure they're valid
   const uniqueDates = Array.from(new Set(
     dates
       .filter(date => isValid(date))
@@ -23,10 +22,8 @@ function calculateStreak(dates: Date[]): {
 
   if (!uniqueDates.length) return { months: 0, weeks: 0, days: 0 }
 
-  // Sort dates in ascending order
   const sortedDates = uniqueDates.sort((a, b) => a.getTime() - b.getTime())
 
-  // Calculate daily streak
   let maxDailyStreak = 1
   let currentDailyStreak = 1
 
@@ -40,7 +37,6 @@ function calculateStreak(dates: Date[]): {
     }
   }
 
-  // Calculate weekly streak
   const weekMap = new Map<number, Date[]>()
   sortedDates.forEach(date => {
     const week = getWeek(date)
@@ -63,7 +59,6 @@ function calculateStreak(dates: Date[]): {
     }
   }
 
-  // Calculate monthly streak
   const monthMap = new Map<number, Date[]>()
   sortedDates.forEach(date => {
     const month = getMonth(date)
@@ -93,37 +88,41 @@ function calculateStreak(dates: Date[]): {
   }
 }
 
-
-type StreakData = {
-  months: number
-  weeks: number
-  days: number
-}
-
 /*
  * Longest consecutive streaks
  */
 export default function Streaks() {
-  const { activityData } = useStravaActivityContext()
+  const { activitiesData } = useStravaActivityContext()
 
-  const [streaks, setStreaks] = useState<StreakData>({
-    months: 0,
-    weeks: 0,
-    days: 0
-  })
-
-  useEffect(() => {
-    if (!activityData || !activityData.all || activityData.all.length === 0) return
+  const streaks = useMemo(() => {
+    if (!activitiesData || activitiesData.all.length === 0) {
+      return { months: 0, weeks: 0, days: 0 }
+    }
     try {
-      const dates = activityData.all
+      const dates = activitiesData.all
         .filter(act => act.start_date)
         .map(act => new Date(act.start_date!))
-      setStreaks(calculateStreak(dates))
+      return calculateStreaks(dates)
     } catch (err) {
       console.warn(err)
-      setStreaks({ months: 0, weeks: 0, days: 0 })
+      return { months: 0, weeks: 0, days: 0 }
     }
-  }, [activityData])
+  }, [activitiesData])
+
+  const stats = useMemo(() => [
+    {
+      value: String(streaks.months),
+      unit: "months"
+    },
+    {
+      value: String(streaks.weeks),
+      unit: "weeks"
+    },
+    {
+      value: String(streaks.days),
+      unit: "days"
+    }
+  ], [streaks])
 
   return (
     <Card
@@ -132,20 +131,13 @@ export default function Streaks() {
       icon={<Flame size={16} strokeWidth={2.5} />}
     >
       <div className="w-full grid grid-rows-3 p-2 gap-2">
-        <Stat
-          value={String(streaks.months)}
-          unit="months"
-        />
-        <Stat
-          value={String(streaks.weeks)}
-          unit="weeks"
-        />
-        {activityData ? (
+        {stats.map((stat, index) => (
           <Stat
-            value={String(streaks.days)}
-            unit="days"
+            key={`stat-${index}`}
+            value={stat.value}
+            unit={stat.unit}
           />
-        ) : null}
+        ))}
       </div>
     </Card>
   )

@@ -139,7 +139,7 @@ export default function HeartrateZones() {
   return (
     <Card
       title="Heartrate Zones"
-      description="total minutes spent in each zone"
+      description="total hours spent in each zone"
       icon={<Activity size={16} strokeWidth={2} />}
     >
       <ResponsiveContainer height={350} width="90%">
@@ -160,6 +160,7 @@ export default function HeartrateZones() {
                 strokeWidth={2}
                 fill={colorPalette[sport as SportType]}
                 fillOpacity={0.6}
+                isAnimationActive={false}
               />
             ))}
           <Legend />

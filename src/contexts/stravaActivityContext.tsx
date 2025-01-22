@@ -26,12 +26,13 @@ interface StravaActivityContextType {
   athleteZonesLoading: boolean
   athleteZonesError: Error | null
   units: Units
-  filter: SportType | "All"
+  filters: SportType[]
+  availableSports: SportType[]
   photosData: StravaPhoto[] | undefined
   photosLoading: boolean
   photosError: Error | null
   setUnits: (units: Units) => void
-  setFilter: (filter: SportType | "All") => void
+  setFilters: React.Dispatch<React.SetStateAction<SportType[]>>
 }
 
 export const StravaActivityContext = createContext<StravaActivityContextType>(
@@ -47,20 +48,22 @@ export const StravaActivityContext = createContext<StravaActivityContextType>(
     athleteZonesLoading: false,
     athleteZonesError: null,
     units: "imperial",
-    filter: "All",
+    filters: [],
+    availableSports: [],
     photosData: undefined,
     photosLoading: false,
     photosError: null,
     setUnits: () => { },
-    setFilter: () => { }
+    setFilters: () => { }
   }
 )
 
 
-export const processActivities = (allActivities: StravaActivity[], filter: SportType | "All") => {
+export const processActivities = (allActivities: StravaActivity[], filters: SportType[]) => {
   const activitiesByMonth: ActivitiesByMonth = createEmptyMonthlyActivities()
   const activitiesByType: ActivitiesByType = {}
   const activitiesWithPhotos: StravaActivity[] = []
+  const allSports: Set<SportType> = new Set()
 
   const filteredActivities = allActivities.reduce((acc, act) => {
     if (!act.sport_type || !act.start_date || isNaN(new Date(act.start_date).getTime())) {
@@ -68,12 +71,15 @@ export const processActivities = (allActivities: StravaActivity[], filter: Sport
       Sentry.captureException("Skipping activity with missing/invalid sport_type or start_date")
       return acc
     }
-    if (filter !== "All" && act.sport_type !== filter) {
+    const sportType = act.sport_type as SportType
+
+    allSports.add(sportType)
+
+    if (filters.length > 0 && !filters.includes(act.sport_type as SportType)) {
       return acc
     }
 
     // add to sport type
-    const sportType = act.sport_type as SportType
     if (!activitiesByType[sportType]) {
       activitiesByType[sportType] = [act]
     } else {
@@ -95,6 +101,7 @@ export const processActivities = (allActivities: StravaActivity[], filter: Sport
 
   return {
     all: filteredActivities,
+    allSports: Array.from(allSports),
     byMonth: activitiesByMonth,
     byType: activitiesByType,
     withPhotos: activitiesWithPhotos
@@ -113,7 +120,9 @@ export default function StravaActivityContextProvider({ children }: { children: 
       ? storedUnits as Units
       : "metric"
   )
-  const [filter, setFilter] = useState<SportType | "All">("All")
+  // const [filter, setFilter] = useState<SportType | "All">("All")
+  const [filters, setFilters] = useState<SportType[]>([])
+  const [availableSports, setAvailableSports] = useState<SportType[]>([])
   const [activityPhoto, setActivityPhoto] = useState<StravaActivity | undefined>()
 
   const {
@@ -164,7 +173,8 @@ export default function StravaActivityContextProvider({ children }: { children: 
       } as ActivityData
     }
     try {
-      const { all, byMonth, byType, withPhotos } = processActivities(allActivityData, filter)
+      const { all, byMonth, byType, withPhotos, allSports } = processActivities(allActivityData, filters)
+      setAvailableSports(allSports)
       setColorPalette(generateColorPalette(Object.keys(byType) as SportType[], theme, colorPalette, false))
       if (withPhotos.length > 0) {
         const actWithPhoto = withPhotos[Math.floor(Math.random() * withPhotos.length)]
@@ -180,7 +190,7 @@ export default function StravaActivityContextProvider({ children }: { children: 
         byType: {}
       } as ActivityData
     }
-  }, [allActivityData, filter])
+  }, [allActivityData, filters])
 
   useEffect(() => {
     if (Object.keys(activitiesData.byType).length === 0) {
@@ -194,6 +204,10 @@ export default function StravaActivityContextProvider({ children }: { children: 
       Sentry.captureException(err)
     }
   }, [theme])
+
+  useEffect(() => {
+    setFilters([])
+  }, [currentYear])
 
   const updateUnits = (unit: Units) => {
     setUnits(unit)
@@ -210,12 +224,13 @@ export default function StravaActivityContextProvider({ children }: { children: 
         athleteZonesLoading,
         athleteZonesError,
         units,
-        filter,
+        filters,
+        availableSports,
         photosData,
         photosLoading,
         photosError,
         setUnits: updateUnits,
-        setFilter
+        setFilters
       }}
     >
       {children}

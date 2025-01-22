@@ -48,14 +48,14 @@ const MediaItem = ({ item, index }: MediaItemProps) => {
 const NavigationButtons = ({ api }: { api: CarouselApi | undefined }) => (
   <div className="flex items-center">
     <button
-      className="absolute left-4 text-lg"
+      className="absolute left-1 text-lg font-bold"
       onClick={() => api?.scrollPrev()}
       aria-label="Previous slide"
     >
       {"<"}
     </button>
     <button
-      className="absolute right-4 text-lg"
+      className="absolute right-1 text-lg font-bold"
       onClick={() => api?.scrollNext()}
       aria-label="Next slide"
     >

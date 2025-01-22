@@ -24,6 +24,7 @@ import { ChevronDown } from "lucide-react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { Themes, Theme } from "../../contexts/themeContext"
 import * as Sentry from "@sentry/browser"
+import { Checkbox } from "../ui/checkbox"
 
 
 type MenuProps = {
@@ -31,19 +32,25 @@ type MenuProps = {
 }
 
 export default function Menu({ shuffle }: MenuProps) {
-  const { activitiesData, filter, units, setUnits, setFilter } = useStravaActivityContext()
+  const { filters, availableSports, units, setUnits, setFilters } = useStravaActivityContext()
   const { athlete, logout } = useStravaAuthContext()
   const { theme, updateTheme, darkMode, setDarkMode } = useThemeContext()
   const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false)
 
-  const handleSetFilter = (filter: SportType | "All") => {
-    Sentry.captureMessage("filter by sport", {
-      level: "info",
-      extra: {
-        "sport_type": filter
+  const handleToggleFilter = (sport: SportType) => {
+    setFilters((prev: SportType[]) => {
+      if (prev.includes(sport)) {
+        return prev.filter((s: string) => s !== sport)
+      } else {
+        return [...prev, sport]
       }
     })
-    setFilter(filter ?? null)
+    Sentry.captureMessage("toggling filter", {
+      level: "info",
+      extra: {
+        "sport_type": sport
+      }
+    })
   }
 
   return (
@@ -61,7 +68,7 @@ export default function Menu({ shuffle }: MenuProps) {
           </div>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className={darkMode ? "dark bg-[#121212] text-white border-white/30" : "bg-white"}>
+        <DropdownMenuContent className={darkMode ? "dark bg-[#121212] text-white border-white/30 shadow-2xl" : "bg-white"}>
           {/* Strava Profile */}
           <DropdownMenuItem
             className="hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white"
@@ -81,31 +88,26 @@ export default function Menu({ shuffle }: MenuProps) {
           {/* Filter Picker */}
           <DropdownMenuSub>
             <DropdownMenuSubTrigger className="font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white dark:data-[state=open]:bg-[#1d1d1e]">Filter</DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30 max-w-[100px]">
-              <DropdownMenuItem
-                className={cn(
-                  'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
-                  filter === "All" && `text-white bg-slate-700`
-                )}
-                onClick={() => handleSetFilter("All")}
-                onSelect={(e) => e.preventDefault()}
-              >
-                All
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
-              {Object.keys(activitiesData.byType).map((sport, idx) => (
+            <DropdownMenuSubContent className="dark:bg-[#121212] dark:text-white border-white/30 max-w-[100px] md:max-w-[300px] lg:max-w-[500px]">
+              {availableSports.map((sport, idx) => (
                 <div key={idx}>
                   <DropdownMenuItem
                     className={cn(
-                      'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white break-all',
-                      sport === filter && `text-white bg-slate-700`
+                      'font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white break-words flex gap-4',
                     )}
-                    onClick={() => handleSetFilter(sport as SportType)}
                     onSelect={(e) => e.preventDefault()}
                   >
-                    {sport}
+                    <Checkbox
+                      id={sport}
+                      className="border-2 hover:cursor-pointer border-blue-600 data-[state=checked]:bg-blue-600 data-[state=unchecked]:bg-black/70 dark:data-[state=unchecked]:border-white/90 shadow-none"
+                      checked={filters.length === 0 || filters.includes(sport as SportType)}
+                      onClick={() => handleToggleFilter(sport as SportType)}
+                    />
+                    <label htmlFor={sport} className="break-all">
+                      {sport}
+                    </label>
                   </DropdownMenuItem>
-                  {idx !== Object.keys(activitiesData.byType).length - 1 ? (
+                  {idx !== availableSports.length - 1 ? (
                     <DropdownMenuSeparator className="dark:bg-[#1d1d1e]" />
                   ) : null}
                 </div>
@@ -123,9 +125,9 @@ export default function Menu({ shuffle }: MenuProps) {
                   <DropdownMenuItem
                     className={cn(
                       'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
-                      t === theme && `text-white bg-slate-700`
+                      t === theme && `text-white bg-blue-600`
                     )}
-                    onClick={() => updateTheme(t as Theme)}
+                    onClick={() => { updateTheme(t as Theme) }}
                     onSelect={(e) => e.preventDefault()}
                   >
                     {t}

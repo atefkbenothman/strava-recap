@@ -5,13 +5,9 @@ import Error from "./displays/error"
 import { Analytics } from "@vercel/analytics/react"
 import { useThemeContext } from "../hooks/useThemeContext"
 
-import YearPicker from "./nav/yearPicker"
-import Menu from "./nav/menu"
 import DailyActivities from "./charts/dailyActivities"
+import Navbar from "./nav/navbar"
 
-import poweredByStravaLogo from "/powered-by-strava.svg"
-import { useStravaAuthContext } from "../hooks/useStravaAuthContext"
-import { useCurrentYearContext } from "../hooks/useCurrentYearContext"
 import NoActivities from "./displays/noActivities"
 
 import SportTypes from "./charts/sportTypes"
@@ -63,13 +59,11 @@ const GRAPH_COMPONENTS: { id: string, component: React.ReactNode }[] = [
 
 
 export default function Dashboard() {
-  const { athlete } = useStravaAuthContext()
   const {
     activitiesData,
     activitiesLoading,
     activitiesError
   } = useStravaActivityContext()
-  const { currentYear } = useCurrentYearContext()
   const { darkMode } = useThemeContext()
 
   const [shuffle, setShuffle] = useState<boolean>(false)
@@ -117,39 +111,10 @@ export default function Dashboard() {
   return (
     <div className={`w-screen h-screen dark:bg-[#121212] dark:text-white ${darkMode && 'dark'}`}>
       <div className="flex flex-col w-full h-full">
-        <div className="flex flex-col p-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
-          {/* Top Bar */}
-          <div className="w-full h-full grid grid-cols-2 items-center gap-2">
-            {/* Left Side */}
-            <div className="h-full w-full items-center flex">
-              <div className="font-semibold text-xl w-full text-balance">
-                <p className="text-balance">{athlete?.firstname} {athlete?.lastname}'s {currentYear} Recap</p>
-              </div>
-            </div>
-            {/* Right Side */}
-            <div className="w-fit h-full ml-auto">
-              <div className="w-full h-full grid grid-rows-2 sm:grid-rows-1 grid-flow-col gap-x-6">
-                <div className="flex items-center justify-center">
-                  <YearPicker />
-                </div>
-                <div className="flex items-center justify-end">
-                  <Menu shuffle={toggleShuffle} />
-                </div>
-                <div className="items-center hidden sm:block w-fit ml-auto">
-                  <div className="flex items-center h-full">
-                    <img
-                      src={poweredByStravaLogo}
-                      alt="powered by strava logo"
-                      width={70}
-                      height={80}
-                      className="h-full"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Main Content */}
+        <div className="flex flex-col px-2 pt-1 pb-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
+
+          <Navbar toggleShuffle={toggleShuffle} />
+
           <div className="flex flex-col h-fit w-full">
             <div className="grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-2 w-full">
               <div className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 sm:col-span-2 rounded">
@@ -162,6 +127,7 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
+
         </div >
       </div >
     </div >

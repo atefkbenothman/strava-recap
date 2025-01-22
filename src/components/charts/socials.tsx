@@ -4,6 +4,8 @@ import Card from "../common/card"
 import Stat from "../common/stat"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { ActivityData } from "../../types/activity"
+import * as Sentry from "@sentry/browser"
+
 
 export const calculateSocialStats = (data: ActivityData) => {
   if (!data || data.all.length === 0) {
@@ -30,6 +32,7 @@ export default function Socials() {
       return calculateSocialStats(activitiesData)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { kudosCount: 0, commentCount: 0 }
     }
   }, [activitiesData])

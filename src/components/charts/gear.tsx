@@ -18,6 +18,8 @@ import { useThemeContext } from "../../hooks/useThemeContext"
 import { StravaAthlete } from "../../types/strava"
 import { CustomBarTooltip } from "../common/customBarTooltip"
 import { ActivityData } from "../../types/activity"
+import * as Sentry from "@sentry/browser"
+
 
 type BarChartData = {
   gearId: string
@@ -72,6 +74,7 @@ export default function Gear() {
       return calculateGearUsage(activitiesData, athlete)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData, athlete])

@@ -7,6 +7,8 @@ import NoData from "../common/noData"
 import polyline from "@mapbox/polyline"
 import { UnitDefinitions } from "../../types/activity"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import * as Sentry from "@sentry/browser"
+
 
 type MetricProps = {
   label: string
@@ -59,6 +61,7 @@ export default function BiggestActivity() {
       return { activity: biggestActivity, route: decodedRoute }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { activity: null, route: null }
     }
   }, [activitiesData])

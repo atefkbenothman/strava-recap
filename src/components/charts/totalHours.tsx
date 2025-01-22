@@ -16,6 +16,8 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ActivityData } from "../../types/activity"
 import { CustomPieTooltip } from "../common/customPieTooltip"
+import * as Sentry from "@sentry/browser"
+
 
 type PieChartData = {
   sport: SportType
@@ -70,6 +72,7 @@ export default function TotalHours() {
       return { rawData: chartData, totalHours: total }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { rawData: [], totalHours: 0 }
     }
   }, [activitiesData])

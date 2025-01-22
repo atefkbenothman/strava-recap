@@ -14,6 +14,8 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { SportType } from "../../types/strava"
 import { ActivityData, MONTHS } from "../../types/activity"
+import * as Sentry from "@sentry/browser"
+
 
 type AreaChartData = {
   month: string
@@ -95,6 +97,7 @@ export default function PrsOverTime() {
       return { data: chartData, totalPrs: total }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { data: [], totalPrs: 0 }
     }
   }, [activitiesData])

@@ -14,6 +14,8 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { SportType } from "../../types/strava"
 import { ActivityData } from "../../types/activity"
+import * as Sentry from "@sentry/browser"
+
 
 type AreaChartData = {
   hour: string
@@ -83,6 +85,7 @@ export default function StartTimes() {
       return calculateStartTimes(activitiesData)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData])

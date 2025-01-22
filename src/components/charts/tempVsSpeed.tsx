@@ -24,6 +24,8 @@ import {
 import NoData from "../common/noData"
 import { UnitDefinitions } from "../../types/activity"
 import { CustomScatterTooltip } from "../common/customScatterToolTip"
+import * as Sentry from "@sentry/browser"
+
 
 type ScatterChartData = {
   name: string
@@ -66,6 +68,7 @@ export default function TemperatureVsSpeed() {
       return calculateTemperatureData(activitiesData.all)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData])

@@ -6,6 +6,8 @@ import NoData from "../common/noData"
 import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 import { ActivityData } from "../../types/activity"
 import { useThemeContext } from "../../hooks/useThemeContext"
+import * as Sentry from "@sentry/browser"
+
 
 const colors: ThemeInput = {
   dark: ['#525252', '#0e4429', '#006d32', '#26a641', '#39d353'],
@@ -63,6 +65,7 @@ export default function DailyActivities() {
       setData(sanitizeData(activitiesData, currentYear))
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       setData([])
     }
   }, [activitiesData])

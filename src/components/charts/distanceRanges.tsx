@@ -13,6 +13,8 @@ import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { ActivityData, Units } from "../../types/activity"
+import * as Sentry from "@sentry/browser"
+
 
 type RadialBarChartData = {
   name: string
@@ -93,6 +95,7 @@ export default function DistanceRanges() {
       return calculateDistanceRanges(activitiesData, units)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData, units])

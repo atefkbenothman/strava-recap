@@ -16,6 +16,8 @@ import {
 import { SportType, Zone, StravaAthleteZones } from "../../types/strava"
 import { unitConversion } from "../../utils/utils"
 import { ActivityData } from "../../types/activity"
+import * as Sentry from "@sentry/browser"
+
 
 type RadialChartData = {
   zone: Zone
@@ -100,6 +102,7 @@ export default function HeartrateZones() {
       return calculateHeartrateZones(activitiesData, athleteZonesData)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData, athleteZonesData])

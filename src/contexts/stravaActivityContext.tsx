@@ -7,6 +7,7 @@ import { useStravaAuthContext } from "../hooks/useStravaAuthContext"
 import { useCurrentYearContext } from "../hooks/useCurrentYearContext"
 import { useThemeContext } from "../hooks/useThemeContext"
 import { generateColorPalette, storage } from "../utils/utils"
+import * as Sentry from "@sentry/browser"
 
 
 export const createEmptyMonthlyActivities = () => {
@@ -64,6 +65,7 @@ export const processActivities = (allActivities: StravaActivity[], filter: Sport
   const filteredActivities = allActivities.reduce((acc, act) => {
     if (!act.sport_type || !act.start_date || isNaN(new Date(act.start_date).getTime())) {
       console.warn("Skipping activity with missing sport_type or start_date: ", act)
+      Sentry.captureException("Skipping activity with missing sport_type or start_date")
       return acc
     }
     if (filter !== "All" && act.sport_type !== filter) {
@@ -161,21 +163,36 @@ export default function StravaActivityContextProvider({ children }: { children: 
         byType: {}
       } as ActivityData
     }
-    const { all, byMonth, byType, withPhotos } = processActivities(allActivityData, filter)
-    setColorPalette(generateColorPalette(Object.keys(byType) as SportType[], theme, colorPalette, false))
-    if (withPhotos.length > 0) {
-      const actWithPhoto = withPhotos[Math.floor(Math.random() * withPhotos.length)]
-      setActivityPhoto(actWithPhoto)
+    try {
+      const { all, byMonth, byType, withPhotos } = processActivities(allActivityData, filter)
+      setColorPalette(generateColorPalette(Object.keys(byType) as SportType[], theme, colorPalette, false))
+      if (withPhotos.length > 0) {
+        const actWithPhoto = withPhotos[Math.floor(Math.random() * withPhotos.length)]
+        setActivityPhoto(actWithPhoto)
+      }
+      return { all, byMonth, byType }
+    } catch (err) {
+      console.warn("Error processing activities data")
+      Sentry.captureException(err)
+      return {
+        all: [],
+        byMonth: createEmptyMonthlyActivities(),
+        byType: {}
+      } as ActivityData
     }
-    return { all, byMonth, byType }
   }, [allActivityData, filter])
 
   useEffect(() => {
     if (Object.keys(activitiesData.byType).length === 0) {
       return
     }
-    const sportTypes = Object.keys(activitiesData.byType) as SportType[]
-    setColorPalette(generateColorPalette(sportTypes, theme, colorPalette, true))
+    try {
+      const sportTypes = Object.keys(activitiesData.byType) as SportType[]
+      setColorPalette(generateColorPalette(sportTypes, theme, colorPalette, true))
+    } catch (err) {
+      console.warn("Error setting color palette")
+      Sentry.captureException(err)
+    }
   }, [theme])
 
   const updateUnits = (unit: Units) => {

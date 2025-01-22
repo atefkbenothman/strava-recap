@@ -15,6 +15,8 @@ import Card from "../common/card"
 import NoData from "../common/noData"
 import { ActivityData } from "../../types/activity"
 import { CustomPieTooltip } from "../common/customPieTooltip"
+import * as Sentry from "@sentry/browser"
+
 
 type PieChartData = {
   sport: SportType
@@ -58,6 +60,7 @@ export default function SportTypes() {
       return { rawData: chartData, numSportTypes: total }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { rawData: [], numSportTypes: 0 }
     }
   }, [activitiesData])

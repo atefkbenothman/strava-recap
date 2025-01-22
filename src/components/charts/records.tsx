@@ -6,6 +6,8 @@ import Card from "../common/card"
 import Stat from "../common/stat"
 import { ActivityData, UnitDefinitions } from "../../types/activity"
 import { Award } from "lucide-react"
+import * as Sentry from "@sentry/browser"
+
 
 type CardData = {
   topSpeed?: StravaActivity
@@ -74,6 +76,7 @@ export default function Records() {
       return calculateRecords(activitiesData)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return {
         prCount: 0,
         athleteCount: 0

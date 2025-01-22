@@ -16,6 +16,8 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { CustomBarTooltip } from "../common/customBarTooltip"
 import { BarChartData } from "../../utils/utils"
+import * as Sentry from "@sentry/browser"
+
 
 export const calculateMonthlyActivities = (monthlyData: ActivitiesByMonth): { chartData: BarChartData[], total: number } => {
   const res = Object.entries(monthlyData).reduce((acc, [month, acts]) => {
@@ -53,6 +55,7 @@ export default function ActivityCount() {
       return { data: chartData, totalActivities: total }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { data: [], totalActivities: 0 }
     }
   }, [activitiesData])

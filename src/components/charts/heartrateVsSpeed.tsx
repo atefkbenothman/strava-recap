@@ -24,6 +24,8 @@ import Card from "../common/card"
 import NoData from "../common/noData"
 import { HeartPulse } from "lucide-react"
 import { CustomScatterTooltip } from "../common/customScatterToolTip"
+import * as Sentry from "@sentry/browser"
+
 
 type ScatterChartData = {
   heartrate: number
@@ -67,6 +69,7 @@ export default function HeartrateVsSpeed() {
       return calculateHeartRateData(activitiesData.all)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData])

@@ -4,6 +4,8 @@ import { Flame } from 'lucide-react'
 import Card from "../common/card"
 import Stat from "../common/stat"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
+import * as Sentry from "@sentry/browser"
+
 
 type StreakData = {
   months: number
@@ -105,6 +107,7 @@ export default function Streaks() {
       return calculateStreaks(dates)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { months: 0, weeks: 0, days: 0 }
     }
   }, [activitiesData])

@@ -15,6 +15,8 @@ import { useThemeContext } from "../../hooks/useThemeContext"
 import { useCurrentYearContext } from "../../hooks/useCurrentYearContext"
 import { ActivityData } from "../../types/activity"
 import { CustomPieTooltip } from "../common/customPieTooltip"
+import * as Sentry from "@sentry/browser"
+
 
 type PieChartData = {
   kind: string
@@ -76,6 +78,7 @@ export default function RestDays() {
       return { rawData: chartData, restPercentage: total }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { rawData: [], restPercentage: 0 }
     }
   }, [activitiesData, currentYear])

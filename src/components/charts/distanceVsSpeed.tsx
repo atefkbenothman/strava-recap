@@ -24,6 +24,8 @@ import { SportType, StravaActivity } from "../../types/strava"
 import { UnitDefinitions } from "../../types/activity"
 import NoData from "../common/noData"
 import { CustomScatterTooltip } from "../common/customScatterToolTip"
+import * as Sentry from "@sentry/browser"
+
 
 type ScatterChartData = {
   name: string
@@ -69,6 +71,7 @@ export default function DistanceVsSpeed() {
       return calculateSpeedData(activitiesData.all)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData])

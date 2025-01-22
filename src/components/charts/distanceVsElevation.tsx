@@ -24,6 +24,8 @@ import NoData from "../common/noData"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { CustomScatterTooltip } from "../common/customScatterToolTip"
+import * as Sentry from "@sentry/browser"
+
 
 const X_OFFSET = 1
 const Y_OFFSET = 1
@@ -70,6 +72,7 @@ export default function DistanceVsElevation() {
       return calculateScatterData(activitiesData.all)
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return []
     }
   }, [activitiesData])

@@ -3,19 +3,13 @@ import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import './index.css'
 import App from './App.tsx'
-// import { H } from "highlight.run"
+import * as Sentry from "@sentry/browser"
 
-
-// Logging
-// H.init("jgo9lnzg", {
-//   serviceName: "fitness-recap",
-//   environment: "development",
-//   disableSessionRecording: true,
-//   disableNetworkRecording: true,
-//   disableBackgroundRecording: true,
-//   tracingOrigins: false,
-// })
-
+Sentry.init({
+  environment: process.env.NODE_ENV,
+  dsn: import.meta.env.VITE_GLITCH_TIP_DSN,
+  enableTracing: false,
+})
 
 const queryClient = new QueryClient()
 

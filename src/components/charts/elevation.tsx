@@ -17,6 +17,7 @@ import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { CustomBarTooltip } from "../common/customBarTooltip"
 import { BarChartData, convertMonthlyChartDataUnits } from "../../utils/utils"
+import * as Sentry from "@sentry/browser"
 
 
 export const calculateMonthlyElevation = (monthlyData: ActivitiesByMonth): { chartData: BarChartData[], total: number } => {
@@ -58,6 +59,7 @@ export default function Elevation() {
       return { data: chartData, totalElevation: total }
     } catch (err) {
       console.warn(err)
+      Sentry.captureException(err)
       return { data: [], totalElevation: 0 }
     }
   }, [activitiesData])

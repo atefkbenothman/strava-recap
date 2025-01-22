@@ -23,6 +23,7 @@ import { cn } from "../../utils/utils"
 import { ChevronDown } from "lucide-react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { Themes, Theme } from "../../contexts/themeContext"
+import * as Sentry from "@sentry/browser"
 
 
 type MenuProps = {
@@ -34,6 +35,17 @@ export default function Menu({ shuffle }: MenuProps) {
   const { athlete, logout } = useStravaAuthContext()
   const { theme, updateTheme, darkMode, setDarkMode } = useThemeContext()
   const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false)
+
+  const handleSetFilter = (filter: SportType | "All") => {
+    Sentry.captureMessage("filter by sport", {
+      level: "info",
+      tags: {
+        action: "filter",
+        sport: filter
+      }
+    });
+    setFilter(filter ?? null)
+  }
 
   return (
     <div >
@@ -76,7 +88,7 @@ export default function Menu({ shuffle }: MenuProps) {
                   'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white',
                   filter === "All" && `text-white bg-slate-700`
                 )}
-                onClick={() => setFilter("All")}
+                onClick={() => handleSetFilter("All")}
                 onSelect={(e) => e.preventDefault()}
               >
                 All
@@ -89,7 +101,7 @@ export default function Menu({ shuffle }: MenuProps) {
                       'hover:cursor-pointer font-semibold dark:hover:bg-[#1d1d1e] dark:hover:text-white break-all',
                       sport === filter && `text-white bg-slate-700`
                     )}
-                    onClick={() => setFilter(sport as SportType ?? null)}
+                    onClick={() => handleSetFilter(sport as SportType)}
                     onSelect={(e) => e.preventDefault()}
                   >
                     {sport}

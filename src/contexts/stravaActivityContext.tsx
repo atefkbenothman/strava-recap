@@ -64,8 +64,8 @@ export const processActivities = (allActivities: StravaActivity[], filter: Sport
 
   const filteredActivities = allActivities.reduce((acc, act) => {
     if (!act.sport_type || !act.start_date || isNaN(new Date(act.start_date).getTime())) {
-      console.warn("Skipping activity with missing sport_type or start_date: ", act)
-      Sentry.captureException("Skipping activity with missing sport_type or start_date")
+      console.warn("Skipping activity with missing/invalid sport_type or start_date: ", act)
+      Sentry.captureException("Skipping activity with missing/invalid sport_type or start_date")
       return acc
     }
     if (filter !== "All" && act.sport_type !== filter) {

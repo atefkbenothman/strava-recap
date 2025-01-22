@@ -39,11 +39,10 @@ export default function Menu({ shuffle }: MenuProps) {
   const handleSetFilter = (filter: SportType | "All") => {
     Sentry.captureMessage("filter by sport", {
       level: "info",
-      tags: {
-        action: "filter",
-        sport: filter
+      extra: {
+        "sport_type": filter
       }
-    });
+    })
     setFilter(filter ?? null)
   }
 

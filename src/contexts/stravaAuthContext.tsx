@@ -3,6 +3,8 @@ import { StravaAthlete } from "../types/strava"
 import { stravaApi } from "../services/api"
 import { useQuery } from "@tanstack/react-query"
 import { storage } from "../utils/utils"
+import { track } from '@vercel/analytics'
+
 
 interface StravaAuthContextType {
   isAuthenticated: boolean
@@ -83,6 +85,7 @@ export default function StravaAuthContextProvider({ children }: StravaAuthContex
           storage.set("strava_access_token", token)
           storage.set("athlete", user)
           window.history.replaceState({}, document.title, window.location.pathname)
+          track("user has authenticated")
         }
       }
     }

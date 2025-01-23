@@ -33,7 +33,7 @@ const Content = () => {
     return (
       <div>
         <Unauthenticated />
-        <Analytics />
+        <Analytics mode="production" />
       </div>
     )
   }

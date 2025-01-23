@@ -63,6 +63,7 @@ export default function StravaAuthContextProvider({ children }: StravaAuthContex
     setIsAuthenticated(false)
     storage.remove("strava_access_token")
     storage.remove("athlete")
+    track("user has logged out")
   }, [])
 
   const updateStravaAthlete = useCallback((athlete: StravaAthlete) => {

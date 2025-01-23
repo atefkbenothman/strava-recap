@@ -4,6 +4,7 @@ import Loading from "./displays/loading"
 import Error from "./displays/error"
 import { Analytics } from "@vercel/analytics/react"
 import { useThemeContext } from "../hooks/useThemeContext"
+import { track } from "@vercel/analytics"
 
 import DailyActivities from "./charts/dailyActivities"
 import Navbar from "./nav/navbar"
@@ -77,23 +78,28 @@ export default function Dashboard() {
 
   const toggleShuffle = () => {
     setShuffle(prevState => !prevState)
+    track("shuffled graphs")
   }
 
   if (activitiesLoading) {
     return (
       <div>
         <Loading />
-        <Analytics />
+        <Analytics mode="production" />
       </div>
     )
   }
 
   if (activitiesError) {
     const errorCode = parseInt(activitiesError.message.slice(activitiesError.message.indexOf('<') + 1, activitiesError.message.indexOf('>')), 10) || null
+    track("activitiesError", {
+      error: String(activitiesError),
+      errorCode: errorCode,
+    })
     return (
       <div>
         <Error message={activitiesError.message} code={errorCode} />
-        <Analytics />
+        <Analytics mode="production" />
       </div>
     )
   }
@@ -103,7 +109,7 @@ export default function Dashboard() {
     return (
       <div>
         <NoActivities />
-        <Analytics />
+        <Analytics mode="production" />
       </div>
     )
   }

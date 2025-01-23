@@ -1,6 +1,7 @@
 import { createContext, useState } from "react"
 import { SportType } from "../types/strava"
 import { storage } from "../utils/utils"
+import { track } from '@vercel/analytics'
 
 export type ColorPalette = {
   [key in SportType]?: string
@@ -56,11 +57,17 @@ export default function ThemeContextProvider({ children }: ThemeContextProviderP
   const toggleDarkMode = (mode: boolean) => {
     setDarkMode(mode)
     storage.set<string>("dark", String(mode))
+    track("changed darkmode", {
+      mode: mode
+    })
   }
 
   const updateTheme = (newTheme: Theme) => {
     setTheme(newTheme)
     storage.set<string>("theme", newTheme)
+    track("changed theme", {
+      theme: newTheme
+    })
   }
 
   return (

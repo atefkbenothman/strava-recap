@@ -1,4 +1,6 @@
 import { useEffect, useState, createContext } from "react"
+import { track } from "@vercel/analytics"
+
 
 type CurrentYearContextType = {
   currentYear: number
@@ -28,6 +30,9 @@ export default function CurrentYearContextProvider({ children }: CurrentYearCont
   const updateYear = (year: number) => {
     setCurrentYear(year)
     window.history.pushState({}, "", `/${year}`)
+    track("changed year", {
+      year: currentYear
+    })
   }
 
   return (

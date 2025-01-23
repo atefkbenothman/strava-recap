@@ -175,16 +175,18 @@ export default function StravaActivityContextProvider({ children }: { children: 
     try {
       const { all, byMonth, byType, withPhotos, allSports } = processActivities(allActivityData, filters)
       setAvailableSports(allSports)
-      setColorPalette(generateColorPalette(Object.keys(byType) as SportType[], theme, colorPalette, false))
       if (withPhotos.length > 0) {
         const actWithPhoto = withPhotos[Math.floor(Math.random() * withPhotos.length)]
         setActivityPhoto(actWithPhoto)
       }
-      track("successfully processed activities", {
-        currentYear: currentYear,
-        numActivities: all.length,
-        numSports: allSports.length
-      })
+      // only track initial processing
+      if (filters.length === 0) {
+        track("successfully processed activities", {
+          currentYear: currentYear,
+          numActivities: all.length,
+          numSports: allSports.length
+        })
+      }
       return { all, byMonth, byType }
     } catch (err) {
       console.warn("Error processing activities data")
@@ -196,6 +198,14 @@ export default function StravaActivityContextProvider({ children }: { children: 
       } as ActivityData
     }
   }, [allActivityData, filters])
+
+  useEffect(() => {
+    if (Object.keys(activitiesData.byType).length === 0) {
+      return
+    }
+    const sportTypes = Object.keys(activitiesData.byType) as SportType[]
+    setColorPalette(generateColorPalette(sportTypes, theme, colorPalette, false))
+  }, [activitiesData])
 
   useEffect(() => {
     if (Object.keys(activitiesData.byType).length === 0) {

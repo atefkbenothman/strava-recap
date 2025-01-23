@@ -23,7 +23,6 @@ import { cn } from "../../utils/utils"
 import { ChevronDown } from "lucide-react"
 import { useStravaActivityContext } from "../../hooks/useStravaActivityContext"
 import { Themes, Theme } from "../../contexts/themeContext"
-import * as Sentry from "@sentry/browser"
 import { Checkbox } from "../ui/checkbox"
 import { track } from "@vercel/analytics"
 
@@ -46,11 +45,8 @@ export default function Menu({ shuffle }: MenuProps) {
         return [...prev, sport]
       }
     })
-    Sentry.captureMessage("toggling filter", {
-      level: "info",
-      extra: {
-        "sport_type": sport
-      }
+    track("toggled filter", {
+      sport: sport
     })
   }
 

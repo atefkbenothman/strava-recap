@@ -8,7 +8,7 @@ import { useCurrentYearContext } from "../hooks/useCurrentYearContext"
 import { useThemeContext } from "../hooks/useThemeContext"
 import { generateColorPalette, storage } from "../utils/utils"
 import * as Sentry from "@sentry/browser"
-import { track } from '@vercel/analytics'
+import { track } from "@vercel/analytics"
 
 
 export const createEmptyMonthlyActivities = () => {
@@ -179,14 +179,11 @@ export default function StravaActivityContextProvider({ children }: { children: 
         const actWithPhoto = withPhotos[Math.floor(Math.random() * withPhotos.length)]
         setActivityPhoto(actWithPhoto)
       }
-      // only track initial processing
-      if (filters.length === 0) {
-        track("successfully processed activities", {
-          currentYear: currentYear,
-          numActivities: all.length,
-          numSports: allSports.length
-        })
-      }
+      track("successfully processed activities", {
+        currentYear: currentYear,
+        numActivities: all.length,
+        numSports: allSports.length
+      })
       return { all, byMonth, byType }
     } catch (err) {
       console.warn("Error processing activities data")

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useThemeContext } from "../../hooks/useThemeContext"
 import { useStravaAuthContext } from "../../hooks/useStravaAuthContext"
 import { AboutDialog } from "../common/aboutDialog"
@@ -52,6 +52,10 @@ export default function Unauthenticated() {
   const handleLogin = () => {
     setShowAthleteLimitError(true)
   }
+
+  useEffect(() => {
+    track("user on login page")
+  }, [])
 
   if (showAthleteLimitError) {
     return (

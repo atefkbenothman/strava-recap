@@ -134,8 +134,14 @@ export default function Dashboard() {
             </div>
           </div>
 
-        </div >
-      </div >
-    </div >
-  )
+        <div className="mt-auto pb-4 pt-2 text-center text-sm text-gray-500 dark:text-white/60">
+          Made by{" "}
+          <a
+            href="https://kaib.vercel.app/"
+            className="underline underline-offset-4"
+            target="_blank"
+          >
+            Kai
+          </a>
+        </div>
 }

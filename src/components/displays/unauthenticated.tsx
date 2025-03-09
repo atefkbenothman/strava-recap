@@ -101,6 +101,16 @@ export default function Unauthenticated() {
             onClick={handleLogin}
           />
         </div>
+        <div className="fixed bottom-2 w-full text-center py-2 text-sm text-gray-500 dark:text-white/60">
+          Made by{" "}
+          <a
+            href="https://kaib.vercel.app/"
+            className="underline underline-offset-4"
+            target="_blank"
+          >
+            Kai
+          </a>
+        </div>
       </div>
       <AboutDialog
         trigger={

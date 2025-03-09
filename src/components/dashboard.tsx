@@ -144,4 +144,7 @@ export default function Dashboard() {
             Kai
           </a>
         </div>
+      </div>
+    </div>
+  );
 }

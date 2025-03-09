@@ -115,10 +115,13 @@ export default function Dashboard() {
   }
 
   return (
-    <div className={`w-screen h-screen dark:bg-[#121212] dark:text-white ${darkMode && 'dark'}`}>
+    <div
+      className={`w-screen h-screen dark:bg-[#121212] dark:text-white ${
+        darkMode && "dark"
+      }`}
+    >
       <div className="flex flex-col w-full h-full">
         <div className="flex flex-col px-2 pt-1 pb-2 gap-1 h-fit w-full dark:bg-[#121212] dark:text-white">
-
           <Navbar toggleShuffle={toggleShuffle} />
 
           <div className="flex flex-col h-fit w-full">
@@ -127,10 +130,14 @@ export default function Dashboard() {
                 <DailyActivities />
               </div>
               {shuffleGraphComponents.map(({ id, component }) => (
-                <div key={id} className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 rounded">
+                <div
+                  key={id}
+                  className="bg-[#efefef] dark:bg-[#1e2223] col-span-1 rounded"
+                >
                   {component}
                 </div>
               ))}
+            </div>
             </div>
           </div>
 
